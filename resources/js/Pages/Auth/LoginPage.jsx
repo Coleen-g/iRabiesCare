@@ -1,12 +1,12 @@
-import { useState } from "react";
+// src/Pages/Auth/LoginPage.jsx
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext"; // ✅ AuthContext
 import "../../../css/LoginPage.css";
-import api, { getCSRFToken } from "../../api/axios";
-import { useAuth } from "../../contexts/AuthContext"; // ✅ use AuthContext
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth(); // ✅ login function from context
+  const { login } = useAuth();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
@@ -19,8 +19,8 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // ✅ Call login from AuthContext (handles CSRF and redirection)
       await login(formData.email, formData.password);
+      // login handles redirect based on role
     } catch (err) {
       console.error("Login error:", err);
 

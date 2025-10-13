@@ -1,34 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import api, { getCSRFToken } from "./api/axios";
 
 // Context
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
-// Layout
+// Pages
 import DashboardLayout from "./Pages/DashboardLayout";
-
-// Admin Pages
 import Admin_Dashboard from "./Pages/Admin/Admin_Dashboard";
 import Admin_Patients from "./Pages/Admin/Admin_Patients";
 import Admin_Cases from "./Pages/Admin/Admin_Cases";
 import Admin_Vaccinations from "./Pages/Admin/Admin_Vaccinations";
-
-// Health Staff Pages
 import Health_Staff_Dashboard from "./Pages/Health_Staff/Health_Staff_Dashboard";
 import Health_Staff_Patients from "./Pages/Health_Staff/Health_Staff_Patients";
 import Health_Staff_Cases from "./Pages/Health_Staff/Health_Staff_Cases";
 import Health_Staff_Vaccinations from "./Pages/Health_Staff/Health_Staff_Vaccinations";
-
-// Patient Pages
 import PatientDashboardPage from "./Pages/Users/PatientDashboardPage";
-
-// Auth Pages
 import LoginPage from "./Pages/Auth/LoginPage";
 import RegisterPage from "./Pages/Auth/RegisterPage";
 
-// ProtectedRoute component
+// Protected Route
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function AppRoutes() {
@@ -38,11 +29,11 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* ----------------- AUTH ----------------- */}
+      {/* Auth */}
       <Route path="/" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
-      {/* ----------------- ADMIN DASHBOARD ----------------- */}
+      {/* Admin */}
       <Route
         path="/admin/*"
         element={
@@ -57,7 +48,7 @@ function AppRoutes() {
         <Route path="vaccinations" element={<Admin_Vaccinations />} />
       </Route>
 
-      {/* ----------------- HEALTH STAFF DASHBOARD ----------------- */}
+      {/* Health Staff */}
       <Route
         path="/staff/*"
         element={
@@ -72,7 +63,7 @@ function AppRoutes() {
         <Route path="vaccinations" element={<Health_Staff_Vaccinations />} />
       </Route>
 
-      {/* ----------------- PATIENT DASHBOARD ----------------- */}
+      {/* Patient */}
       <Route
         path="/patient/*"
         element={
@@ -82,7 +73,7 @@ function AppRoutes() {
         }
       />
 
-      {/* ----------------- FALLBACK ----------------- */}
+      {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

@@ -2,35 +2,50 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CaseRecord;
+use App\Models\Vaccination;
 use Illuminate\Http\Request;
 
-class CaseRecordController extends Controller
+class VaccinationController extends Controller
 {
     public function index()
     {
-        return response()->json(CaseRecord::with('patient')->get(), 200);
+        return response()->json(Vaccination::all(), 200);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'patient_id' => 'required|exists:patients,id',
-            'bite_date' => 'required|date',
-            'bite_category' => 'required|string',
-            'bite_location' => 'required|string',
-            'animal_type' => 'required|string',
-            'outcome' => 'required|string',
+            'vaccine_type' => 'required|string|max:255',
+            'dose_number' => 'required|integer',
+            'vaccination_date' => 'required|date',
+            'remarks' => 'nullable|string',
         ]);
 
-        $case = CaseRecord::create($validated);
-        return response()->json($case->load('patient'), 201);
+        $vaccination = Vaccination::create($validated);
+        return response()->json($vaccination, 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $vaccination = Vaccination::findOrFail($id);
+
+        $validated = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'vaccine_type' => 'required|string|max:255',
+            'dose_number' => 'required|integer',
+            'vaccination_date' => 'required|date',
+            'remarks' => 'nullable|string',
+        ]);
+
+        $vaccination->update($validated);
+        return response()->json($vaccination, 200);
     }
 
     public function destroy($id)
     {
-        $case = CaseRecord::findOrFail($id);
-        $case->delete();
-        return response()->json(['message' => 'Case record deleted'], 200);
+        $vaccination = Vaccination::findOrFail($id);
+        $vaccination->delete();
+        return response()->json(['message' => 'Vaccination deleted'], 200);
     }
 }

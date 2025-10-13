@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import api, { getCSRFToken } from "../api/axios";
+import api, { initCSRF } from "../api/axios";
 import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
@@ -12,8 +12,8 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        await getCSRFToken();
-        const res = await api.get("/user");
+        await initCSRF();
+        const res = await api.get("/api/me"); // only /api/me
         setUser(res.data);
       } catch {
         setUser(null);
@@ -25,11 +25,10 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    await getCSRFToken();
-    const res = await api.post("/login", { email, password });
+    await initCSRF();
+    const res = await api.post("/login", { email, password }); // no /api
     setUser(res.data.user);
 
-    // Redirect based on role
     switch (res.data.user.role) {
       case "admin":
         navigate("/admin/dashboard");
@@ -46,7 +45,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await api.post("/logout");
+    await api.post("/logout"); // no /api
     setUser(null);
     navigate("/");
   };

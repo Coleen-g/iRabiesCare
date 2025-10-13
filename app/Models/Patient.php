@@ -9,24 +9,14 @@ class Patient extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'name',
-        'age',
-        'gender',
-        'address',
-        'contact_number'
-    ];
+    protected $fillable = ['name', 'age', 'gender', 'address', 'contact_number'];
 
-    // 🔹 Relationship: A patient can have many case records
-    public function caseRecords()
-    {
-        return $this->hasMany(CaseRecord::class);
+    // Relationships
+    public function cases() {
+        return $this->hasMany(CaseRecord::class, 'patient_id');
     }
 
-    public function vaccinations()
-{
-    return $this->hasMany(Vaccination::class);
+    public function vaccinations() {
+        return $this->hasMany(Vaccination::class, 'patient_id');
+    }
 }
-
-}
-

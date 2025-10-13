@@ -1,7 +1,10 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+// src/Pages/Admin/Admin_Vaccinations.jsx
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import api from "../../api/axios";
 
-export default function Vaccinations() {
+export default function Admin_Vaccinations() {
+  const { user } = useAuth();
   const [vaccinations, setVaccinations] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -9,87 +12,75 @@ export default function Vaccinations() {
   const [editingVaccination, setEditingVaccination] = useState(null);
   const [formData, setFormData] = useState({
     patient_id: "",
-    vaccine_type: "",
-    dose_number: "",
-    vaccination_date: "",
-    remarks: ""
+    vaccine_name: "",
+    date_given: "",
+    next_due: "",
+    notes: "",
   });
 
-  // ✅ Fetch Vaccinations from API
   useEffect(() => {
-    fetchVaccinations();
-  }, []);
+    if (user?.role === "admin") loadVaccinations();
+    else setLoading(false);
+  }, [user]);
 
-  const fetchVaccinations = async () => {
+  const loadVaccinations = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:8000/api/vaccinations");
-      setVaccinations(response.data);
+      setLoading(true);
+      const res = await api.get("/api/vaccinations");
+      setVaccinations(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error("Error fetching vaccinations:", err);
+      setVaccinations([]);
+      alert("Failed to load vaccinations. Make sure you are logged in as admin.");
+    } finally {
       setLoading(false);
-    } catch (error) {
-      console.error("Error fetching vaccinations:", error);
     }
   };
 
-  const openAddModal = () => {
-    setEditingVaccination(null);
-    setFormData({ patient_id: "", vaccine_type: "", dose_number: "", vaccination_date: "", remarks: "" });
-    setShowModal(true);
-  };
-
-  const openEditModal = (item) => {
-    setEditingVaccination(item);
-    setFormData({
-      patient_id: item.patient_id,
-      vaccine_type: item.vaccine_type,
-      dose_number: item.dose_number,
-      vaccination_date: item.vaccination_date,
-      remarks: item.remarks,
-    });
-    setShowModal(true);
-  };
-
-  // ✅ Save (Add / Update)
   const handleSave = async () => {
-    if (!formData.patient_id || !formData.vaccine_type || !formData.vaccination_date) {
+    if (!formData.patient_id || !formData.vaccine_name || !formData.date_given) {
       alert("Please fill all required fields!");
       return;
     }
 
     try {
       if (editingVaccination) {
-        // Update
-        await axios.put(`http://127.0.0.1:8000/api/vaccinations/${editingVaccination.id}`, formData);
+        await api.put(`/api/vaccinations/${editingVaccination.id}`, formData);
       } else {
-        // Create
-        await axios.post("http://127.0.0.1:8000/api/vaccinations", formData);
+        await api.post("/api/vaccinations", formData);
       }
-      fetchVaccinations(); // Refresh list
+      await loadVaccinations();
       setShowModal(false);
       setEditingVaccination(null);
-    } catch (error) {
-      console.error("Error saving vaccination:", error);
+    } catch (err) {
+      console.error("Save error:", err);
+      alert("Failed to save vaccination. Make sure you are logged in as admin.");
     }
   };
 
-  // ✅ Delete
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this vaccination record?")) {
-      try {
-        await axios.delete(`http://127.0.0.1:8000/api/vaccinations/${id}`);
-        fetchVaccinations();
-      } catch (error) {
-        console.error("Error deleting vaccination:", error);
-      }
+    if (!window.confirm("Are you sure you want to delete this vaccination?")) return;
+    try {
+      await api.delete(`/api/vaccinations/${id}`);
+      await loadVaccinations();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete vaccination.");
     }
   };
 
   if (loading) return <p>Loading vaccinations...</p>;
+  if (!user || user.role !== "admin") return <p>Access denied. Admins only.</p>;
 
   return (
     <div style={cardStyle}>
       <div style={headerStyle}>
-        <h2>Vaccination Records</h2>
-        <button style={btnPrimary} onClick={openAddModal}>+ Add Vaccination</button>
+        <h2>Vaccinations</h2>
+        <button style={btnPrimary} onClick={() => {
+          setEditingVaccination(null);
+          setFormData({ patient_id: "", vaccine_name: "", date_given: "", next_due: "", notes: "" });
+          setShowModal(true);
+        }}>+ Add Vaccination</button>
       </div>
 
       <table style={tableStyle}>
@@ -97,63 +88,53 @@ export default function Vaccinations() {
           <tr>
             <th style={thStyle}>ID</th>
             <th style={thStyle}>Patient ID</th>
-            <th style={thStyle}>Vaccine</th>
-            <th style={thStyle}>Dose #</th>
-            <th style={thStyle}>Date</th>
-            <th style={thStyle}>Remarks</th>
+            <th style={thStyle}>Vaccine Name</th>
+            <th style={thStyle}>Date Given</th>
+            <th style={thStyle}>Next Due</th>
+            <th style={thStyle}>Notes</th>
             <th style={thStyle}>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {vaccinations.map((v, index) => (
-            <tr key={v.id} style={rowHover(index)}>
-              <td style={tdStyle}>{v.id}</td>
-              <td style={tdStyle}>{v.patient_id}</td>
-              <td style={tdStyle}>{v.vaccine_type}</td>
-              <td style={tdStyle}>{v.dose_number}</td>
-              <td style={tdStyle}>{v.vaccination_date}</td>
-              <td style={tdStyle}>{v.remarks}</td>
-              <td style={tdStyle}>
-                <button style={actionBtn} onClick={() => openEditModal(v)}>Edit</button>
-                <button style={{ ...actionBtn, background: "#DC2626" }} onClick={() => handleDelete(v.id)}>Delete</button>
-              </td>
+          {vaccinations.length === 0 ? (
+            <tr>
+              <td style={tdStyle} colSpan={7} align="center">No vaccinations yet. Add a new record to see it here.</td>
             </tr>
-          ))}
+          ) : (
+            vaccinations.map((v, i) => (
+              <tr key={v.id} style={rowHover(i)}>
+                <td style={tdStyle}>{v.id}</td>
+                <td style={tdStyle}>{v.patient_id}</td>
+                <td style={tdStyle}>{v.vaccine_name}</td>
+                <td style={tdStyle}>{v.date_given}</td>
+                <td style={tdStyle}>{v.next_due}</td>
+                <td style={tdStyle}>{v.notes}</td>
+                <td style={tdStyle}>
+                  <button style={actionBtn} onClick={() => { setEditingVaccination(v); setFormData({ ...v }); setShowModal(true); }}>Edit</button>
+                  <button style={{ ...actionBtn, background: "#DC2626" }} onClick={() => handleDelete(v.id)}>Delete</button>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
 
-      {/* ✅ Modal */}
       {showModal && (
         <div style={modalOverlay}>
           <div style={modalBox}>
             <h3>{editingVaccination ? "Edit Vaccination" : "Add Vaccination"}</h3>
-
-            <div style={formGroup}>
-              <label style={labelStyle}>Patient ID</label>
-              <input type="number" style={inputStyle} value={formData.patient_id} onChange={(e) => setFormData({ ...formData, patient_id: e.target.value })}/>
-            </div>
-
-            <div style={formGroup}>
-              <label style={labelStyle}>Vaccine Type</label>
-              <input type="text" style={inputStyle} value={formData.vaccine_type} onChange={(e) => setFormData({ ...formData, vaccine_type: e.target.value })}/>
-            </div>
-
-            <div style={formGroup}>
-              <label style={labelStyle}>Dose Number</label>
-              <input type="number" style={inputStyle} value={formData.dose_number} onChange={(e) => setFormData({ ...formData, dose_number: e.target.value })}/>
-            </div>
-
-            <div style={formGroup}>
-              <label style={labelStyle}>Vaccination Date</label>
-              <input type="date" style={inputStyle} value={formData.vaccination_date} onChange={(e) => setFormData({ ...formData, vaccination_date: e.target.value })}/>
-            </div>
-
-            <div style={formGroup}>
-              <label style={labelStyle}>Remarks</label>
-              <textarea style={inputStyle} value={formData.remarks} onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}></textarea>
-            </div>
-
-            <div style={{ textAlign: "right" }}>
+            {["patient_id", "vaccine_name", "date_given", "next_due", "notes"].map((field) => (
+              <div key={field} style={formGroup}>
+                <label style={labelStyle}>{field.replace("_", " ").toUpperCase()}</label>
+                <input
+                  type={field.includes("date") ? "date" : "text"}
+                  style={inputStyle}
+                  value={formData[field]}
+                  onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+                />
+              </div>
+            ))}
+            <div style={{ marginTop: "20px", textAlign: "right" }}>
               <button style={btnPrimary} onClick={handleSave}>{editingVaccination ? "Update" : "Save"}</button>
               <button style={btnCancel} onClick={() => setShowModal(false)}>Cancel</button>
             </div>
@@ -164,7 +145,7 @@ export default function Vaccinations() {
   );
 }
 
-/* ✅ Reuse styles */
+/* ---------------- Reuse same styles ---------------- */
 const cardStyle = { background: "#fff", padding: "20px", borderRadius: "10px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" };
 const headerStyle = { display: "flex", justifyContent: "space-between", marginBottom: "20px" };
 const btnPrimary = { padding: "8px 15px", background: "#101923", color: "#fff", border: "none", borderRadius: "5px", cursor: "pointer" };
