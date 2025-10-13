@@ -29,8 +29,8 @@
                 <a href="/admin/reports" class="{{ request()->is('admin/reports*') ? 'active' : '' }}">Reports</a>
                 <a href="/admin/settings" class="{{ request()->is('admin/settings*') ? 'active' : '' }}">Settings</a>
             </nav>
-            <div style="position: absolute; bottom: 1rem; left:1rem; right:1rem;">
-                <form method="POST" action="/logout">
+            <div class="sidebar-footer" style="margin-top:1rem;">
+                <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" style="width:100%;padding:.5rem;border-radius:4px;border:0;background:#ef4444;color:#fff">Logout</button>
                 </form>

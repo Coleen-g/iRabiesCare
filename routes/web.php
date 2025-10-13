@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\PatientController;
 use App\Http\Controllers\Admin\CaseController;
 use App\Http\Controllers\Admin\VaccinationController;
+use App\Http\Controllers\UserController;
 
 // Redirect root to the login page
 Route::get('/', function () {
@@ -26,7 +27,7 @@ Route::get('/register', function () {
 // Auth routes (JSON responses)
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/login', [LoginController::class, 'login']);
-Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth');
+Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
 // Example admin-only route
 Route::get('/admin-only', function () {
@@ -54,4 +55,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Reports and settings views remain simple for now
     Route::get('reports', function () { $user = Auth::user(); if (!$user || $user->role !== 'admin') abort(403); return view('admin.reports'); })->name('reports');
     Route::get('settings', function () { $user = Auth::user(); if (!$user || $user->role !== 'admin') abort(403); return view('admin.settings'); })->name('settings');
+});
+
+// User routes
+Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
+    Route::get('dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+    Route::get('cases', [UserController::class, 'cases'])->name('cases');
+    Route::get('vaccinations', [UserController::class, 'vaccinations'])->name('vaccinations');
+    Route::get('profile', [UserController::class, 'profile'])->name('profile');
+    // User case submission
+    Route::get('cases/create', [\App\Http\Controllers\UserCaseController::class, 'create'])->name('cases.create');
+    Route::post('cases', [\App\Http\Controllers\UserCaseController::class, 'store'])->name('cases.store');
 });

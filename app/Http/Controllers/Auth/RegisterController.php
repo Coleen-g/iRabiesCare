@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Patient;
 
 class RegisterController extends Controller
 {
@@ -33,6 +34,19 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
+        // Create a linked patient record for the user. If optional fields were provided use them,
+        // otherwise create a minimal patient record with the user's name so the dashboard has data.
+        Patient::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'name' => $data['name'],
+                'contact' => $request->input('contact'),
+                'dob' => $request->input('dob'),
+                'gender' => $request->input('gender'),
+                'address' => $request->input('address'),
+            ]
+        );
+
         if ($request->wantsJson() || $request->is('api/*')) {
             return response()->json([
                 'message' => 'Registration successful',
@@ -45,6 +59,6 @@ class RegisterController extends Controller
             return redirect('/admin/dashboard');
         }
 
-        return redirect('/');
+        return redirect('/user/dashboard');
     }
 }

@@ -16,6 +16,24 @@
                 <input id="name" name="name" type="text" required style="width:100%;padding:.5rem;" />
             </div>
             <div style="margin-bottom:.5rem;">
+                <label for="contact">Contact (optional)</label><br>
+                <input id="contact" name="contact" type="text" style="width:100%;padding:.5rem;" />
+            </div>
+            <div style="margin-bottom:.5rem;display:flex;gap:.5rem;">
+                <div style="flex:1;">
+                    <label for="dob">Date of birth (optional)</label><br>
+                    <input id="dob" name="dob" type="date" style="width:100%;padding:.5rem;" />
+                </div>
+                <div style="flex:1;">
+                    <label for="gender">Gender (optional)</label><br>
+                    <input id="gender" name="gender" type="text" style="width:100%;padding:.5rem;" />
+                </div>
+            </div>
+            <div style="margin-bottom:.5rem;">
+                <label for="address">Address (optional)</label><br>
+                <textarea id="address" name="address" style="width:100%;padding:.5rem"></textarea>
+            </div>
+            <div style="margin-bottom:.5rem;">
                 <label for="email">Email</label><br>
                 <input id="email" name="email" type="email" required style="width:100%;padding:.5rem;" />
             </div>

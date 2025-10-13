@@ -45,7 +45,7 @@ class LoginController extends Controller
                 return redirect('/admin/dashboard');
             }
 
-            return redirect('/');
+            return redirect('/user/dashboard');
         }
 
         return response()->json(['message' => 'Invalid credentials'], 401);
@@ -57,6 +57,10 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json(['message' => 'Logged out']);
+        if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json(['message' => 'Logged out']);
+        }
+
+        return redirect()->route('login');
     }
 }
