@@ -1,0 +1,19 @@
+/* User-specific styles for dashboard, lists and profile */
+.container { max-width: 1100px; margin: 0 auto; }
+.dashboard-grid { display:grid; grid-template-columns: 320px 1fr; gap:1.25rem }
+.profile-card { padding:1rem; background:#fff; border-radius:8px; }
+.profile-header { display:flex; align-items:center; gap:1rem }
+.profile-name { font-size:1.15rem; font-weight:800; color:#0f172a }
+.profile-sub { color:#6b7280 }
+.profile-contact { margin-top:.5rem; color:#374151 }
+.ann-card { background:#fff; padding:1rem; border-radius:8px; margin-bottom:1rem }
+.ann-title { font-weight:700; font-size:1.05rem; margin-bottom:.25rem }
+.ann-body { color:#6b7280 }
+.dept { margin-top:1rem; font-weight:700; font-size:1.1rem }
+.muted { color:#6b7280 }
+.list { background:#fff; padding:1rem; border-radius:8px; box-shadow:0 2px 6px rgba(15,23,42,0.04) }
+.item { padding:.5rem 0; border-bottom:1px solid #f3f4f6 }
+.item:last-child { border-bottom:0 }
+.btn { padding:.45rem .75rem; border-radius:6px; text-decoration:none; display:inline-block }
+.btn-primary { background:#2563eb; color:#fff }
+.user-actions a { margin-left:.5rem }

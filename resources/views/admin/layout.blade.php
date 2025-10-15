@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Admin') - iRabiesCare</title>
-    <link rel="stylesheet" href="/css/app.css">
+    @vite(['resources/js/app.js', 'resources/css/app.css'])
     <style>
         body { margin:0; font-family: Arial, Helvetica, sans-serif; }
         .app { display:flex; min-height:100vh; }
@@ -19,9 +19,12 @@
 </head>
 <body>
     <div class="app">
-        <aside class="sidebar">
-            <div class="brand">iRabiesCare Admin</div>
-            <nav>
+        <aside class="ir-sidebar">
+            <div class="ir-sidebar-logo">
+                <img src="/images/logoO.png" alt="iRabiesCare" />
+            </div>
+
+            <nav class="ir-nav">
                 <a href="/admin/dashboard" class="{{ request()->is('admin/dashboard') ? 'active' : '' }}">Dashboard</a>
                 <a href="/admin/patients" class="{{ request()->is('admin/patients*') ? 'active' : '' }}">Patients</a>
                 <a href="/admin/cases" class="{{ request()->is('admin/cases*') ? 'active' : '' }}">Cases</a>
@@ -29,10 +32,11 @@
                 <a href="/admin/reports" class="{{ request()->is('admin/reports*') ? 'active' : '' }}">Reports</a>
                 <a href="/admin/settings" class="{{ request()->is('admin/settings*') ? 'active' : '' }}">Settings</a>
             </nav>
-            <div class="sidebar-footer" style="margin-top:1rem;">
+
+            <div class="ir-sidebar-footer">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" style="width:100%;padding:.5rem;border-radius:4px;border:0;background:#ef4444;color:#fff">Logout</button>
+                    <button class="ir-logout" type="submit">Logout</button>
                 </form>
             </div>
         </aside>

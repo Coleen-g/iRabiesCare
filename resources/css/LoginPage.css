@@ -1,0 +1,105 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	font-family: Arial, sans-serif;
+	background: white; /* White background */
+}
+
+.login-container {
+	position: fixed;       /* stays fixed on screen */
+	top: 50%;              /* push halfway down */
+	left: 50%;             /* push halfway across */
+	transform: translate(-50%, -50%); /* shift back by half its size */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;           /* full width */
+	height: 100%;          /* full height */
+}
+
+.login-box {
+	background: rgba(255, 255, 255, 0.95);
+	padding: 40px;
+	border-radius: 10px;
+	width: 350px;
+	box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+	text-align: center;
+	border: 2px solid #7b7b4f; /* Added border */
+}
+
+.login-logo {
+	width: 150px;
+	height: auto;
+	display: block;       /* makes the img act like a block */
+	margin: 0 auto 20px;  /* auto left & right centers it */
+}
+
+
+.login-form {
+	display: flex;
+	flex-direction: column;
+}
+
+.login-input {
+	margin-bottom: 15px;
+	padding: 12px;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	font-size: 14px;
+}
+
+.login-input:focus {
+	border-color: #101923;
+	outline: none;
+}
+
+.login-btn {
+background: #7b7b4f;
+	color: white;
+	border: none;
+	padding: 12px;
+	font-weight: bold;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background 0.3s;
+}
+
+.login-btn:hover {
+	background: #ffffff;
+	color: #7b7b4f;
+	border: 1px solid #7b7b4f;
+
+}
+
+.register-text {
+	margin-top: 15px;
+	font-size: 14px;
+}
+
+.register-text a {
+	color: #101923;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+.register-text a:hover {
+	text-decoration: underline;
+}
+
+/* Error and success message styles used by both login and register pages */
+.error-text {
+	color: #b91c1c;
+	background: #fee2e2;
+	padding: 8px;
+	border-radius: 6px;
+	margin-bottom: 8px;
+}
+
+.success-text {
+	color: #065f46;
+	background: #ecfdf5;
+	padding: 8px;
+	border-radius: 6px;
+	margin-bottom: 8px;
+}

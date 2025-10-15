@@ -54,4 +54,12 @@ class User extends Authenticatable
     {
         return isset($this->role) && $this->role === 'admin';
     }
+
+    /**
+     * One-to-one relation to Patient record
+     */
+    public function patient()
+    {
+        return $this->hasOne(\App\Models\Patient::class, 'user_id');
+    }
 }

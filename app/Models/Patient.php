@@ -14,7 +14,9 @@ class Patient extends Model
         'dob',
         'gender',
         'contact',
+        'email',
         'address',
+        'user_id',
     ];
 
     public function cases()

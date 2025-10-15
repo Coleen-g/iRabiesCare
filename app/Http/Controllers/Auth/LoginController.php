@@ -32,6 +32,15 @@ class LoginController extends Controller
             $request->session()->regenerate();
             $user = Auth::user();
 
+            // Ensure the user has a Patient record linked. Create a minimal record if missing.
+            if (!$user->patient) {
+                $patient = \App\Models\Patient::create([
+                    'name' => $user->name,
+                    'contact' => $user->email,
+                    'user_id' => $user->id,
+                ]);
+            }
+
             // If the client expects JSON, return JSON. Otherwise redirect browser users.
             if ($request->wantsJson() || $request->is('api/*')) {
                 return response()->json([

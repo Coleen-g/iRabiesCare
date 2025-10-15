@@ -1,55 +1,55 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Register - iRabiesCare</title>
-    <link rel="stylesheet" href="/css/app.css">
-</head>
-<body>
-    <div style="max-width:420px;margin:3rem auto;padding:1rem;border:1px solid #ddd;border-radius:6px;">
-        <h2>Register</h2>
-        <form method="POST" action="/register">
-            @csrf
-            <div style="margin-bottom:.5rem;">
-                <label for="name">Full name</label><br>
-                <input id="name" name="name" type="text" required style="width:100%;padding:.5rem;" />
+@extends('layouts.app')
+
+@section('title', 'Register')
+
+@section('content')
+<div class="max-w-3xl mx-auto py-8">
+    <h1 class="text-2xl font-bold mb-4">Patient Registration</h1>
+
+    <form method="POST" action="{{ url('/register') }}">
+        @csrf
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Full name</label>
+            <input name="fullName" required class="mt-1 block w-full" value="{{ old('fullName') }}">
+            @error('fullName') <p class="text-sm text-red-600">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Date of birth</label>
+                <input type="date" name="dob" class="mt-1 block w-full" value="{{ old('dob') }}">
             </div>
-            <div style="margin-bottom:.5rem;">
-                <label for="contact">Contact (optional)</label><br>
-                <input id="contact" name="contact" type="text" style="width:100%;padding:.5rem;" />
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Gender</label>
+                <input name="gender" class="mt-1 block w-full" value="{{ old('gender') }}">
             </div>
-            <div style="margin-bottom:.5rem;display:flex;gap:.5rem;">
-                <div style="flex:1;">
-                    <label for="dob">Date of birth (optional)</label><br>
-                    <input id="dob" name="dob" type="date" style="width:100%;padding:.5rem;" />
-                </div>
-                <div style="flex:1;">
-                    <label for="gender">Gender (optional)</label><br>
-                    <input id="gender" name="gender" type="text" style="width:100%;padding:.5rem;" />
-                </div>
-            </div>
-            <div style="margin-bottom:.5rem;">
-                <label for="address">Address (optional)</label><br>
-                <textarea id="address" name="address" style="width:100%;padding:.5rem"></textarea>
-            </div>
-            <div style="margin-bottom:.5rem;">
-                <label for="email">Email</label><br>
-                <input id="email" name="email" type="email" required style="width:100%;padding:.5rem;" />
-            </div>
-            <div style="margin-bottom:.5rem;">
-                <label for="password">Password</label><br>
-                <input id="password" name="password" type="password" required style="width:100%;padding:.5rem;" />
-            </div>
-            <div style="margin-bottom:.5rem;">
-                <label for="password_confirmation">Confirm password</label><br>
-                <input id="password_confirmation" name="password_confirmation" type="password" required style="width:100%;padding:.5rem;" />
-            </div>
-            <div>
-                <button type="submit" style="padding:.5rem 1rem;">Register</button>
-                <a href="/" style="margin-left:1rem;">Back to login</a>
-            </div>
-        </form>
-    </div>
-</body>
-</html>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Contact (phone or email)</label>
+            <input name="contact" class="mt-1 block w-full" value="{{ old('contact') }}">
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Email (optional)</label>
+            <input name="email" type="email" class="mt-1 block w-full" value="{{ old('email') }}">
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Address</label>
+            <input name="address" class="mt-1 block w-full" value="{{ old('address') }}">
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Exposure date</label>
+            <input type="date" name="exposureDate" class="mt-1 block w-full" value="{{ old('exposureDate') }}">
+        </div>
+
+        <div class="flex items-center justify-between">
+            <a href="{{ route('login') }}" class="text-sm text-gray-600">Already have an account?</a>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Register</button>
+        </div>
+    </form>
+</div>
+@endsection
