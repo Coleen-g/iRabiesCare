@@ -31,16 +31,24 @@
             <table class="admin-table">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Patient</th>
+                        <th>Date Reported</th>
                         <th>Status</th>
+                        <th>Reported By</th>
+                        <th>Description</th>
                         <th style="width:180px">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($cases as $c)
                         <tr>
+                            <td>{{ $c->id }}</td>
                             <td>{{ $c->patient->name ?? '—' }}</td>
+                            <td>{{ $c->date_reported ? \Illuminate\Support\Carbon::parse($c->date_reported)->format('Y-m-d') : '—' }}</td>
                             <td>{{ ucfirst($c->status) }}</td>
+                            <td>{{ optional($c->reporter)->name ?? optional($c->reporter)->email ?? '—' }}</td>
+                            <td style="max-width:320px">{{ \Illuminate\Support\Str::limit($c->description, 120, '...') }}</td>
                             <td>
                                 <div class="actions">
                                     <a class="action-edit" href="{{ route('admin.cases.edit', $c) }}">Edit</a>

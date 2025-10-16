@@ -18,6 +18,7 @@ function RegisterPage() {
     vaccinationStatus: "",
     lastDoseDate: "",
     clinic: "",
+    // credentials will be provided by admin
     username: "",
     password: "",
     confirmPassword: "",
@@ -42,11 +43,7 @@ function RegisterPage() {
     try {
       const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
       const payload = {
-        username: formData.username,
-        name: formData.fullName,
-        password: formData.password,
-        password_confirmation: formData.confirmPassword,
-        // patient fields
+        // patient fields (credentials are not created by the registrant)
         fullName: formData.fullName,
         dob: formData.dob,
         gender: formData.gender,
@@ -64,10 +61,15 @@ function RegisterPage() {
 
       const res = await axios.post('/register', payload, { headers: { 'X-CSRF-TOKEN': token } });
       if (res.status === 201 || res.status === 200) {
-        // server logs in and redirects for browser flow, but when using AJAX we redirect by returned user role
-        const user = res.data.user;
-        if (user && user.role === 'admin') window.location = '/admin/dashboard';
-        else window.location = '/user/dashboard';
+        // If server returned a patient object (JSON) redirect to the completion
+        // page which shows the patient id. Otherwise fall back to a safe redirect.
+        const patient = res.data.patient;
+        if (patient && patient.id) {
+          window.location = `/register/complete/${patient.id}`;
+          return;
+        }
+        // fallback
+        window.location = '/login';
       }
     } catch (err) {
       const r = err.response || err;
@@ -86,7 +88,7 @@ function RegisterPage() {
         const stepMap = {
           1: ['fullName', 'dob', 'gender', 'address', 'contact', 'email'],
           2: ['exposureDate', 'exposureType', 'animal', 'vaccinationStatus', 'lastDoseDate', 'clinic'],
-          3: ['username', 'password', 'passwordConfirmation', 'confirmPassword'],
+          3: [], // account details are provided by admin
           4: ['emergencyContact'],
         };
         const firstKey = Object.keys(fieldErrors)[0];
@@ -168,17 +170,11 @@ function RegisterPage() {
             </div>
           )}
 
-          {/* STEP 3 */}
+          {/* STEP 3 - Account Details (admin will provide credentials) */}
           {step === 3 && (
             <div>
               <h3>Account Details</h3>
-              <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} required />
-              {errors.username && <p className="error-text">{errors.username}</p>}
-              <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
-              {errors.password && <p className="error-text">{errors.password}</p>}
-              <input type="password" name="confirmPassword" placeholder="Confirm Password" value={formData.confirmPassword} onChange={handleChange} required />
-              {errors.passwordConfirmation && <p className="error-text">{errors.passwordConfirmation}</p>}
-
+              <p className="text-sm">You will be assigned a username and password by the clinic administrator. Please proceed to the next step.</p>
               <div className="buttons">
                 <button type="button" onClick={prevStep}>← Back</button>
                 <button type="button" onClick={nextStep}>Next →</button>

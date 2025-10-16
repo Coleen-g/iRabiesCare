@@ -12,7 +12,18 @@ class CaseController extends Controller
 {
     public function index()
     {
-        $cases = CaseModel::with('patient')->latest()->paginate(15);
+        // eager-load patient and reporter to show full case details in the admin list
+        $q = request('q');
+
+        $cases = CaseModel::with(['patient', 'reporter'])
+            ->when($q, function($query, $q) {
+                $query->where('status', 'like', "%{$q}%")
+                      ->orWhere('description', 'like', "%{$q}%")
+                      ->orWhereHas('patient', function($q2) use ($q) {
+                          $q2->where('name', 'like', "%{$q}%");
+                      });
+            })
+            ->latest()->paginate(15)->withQueryString();
         return view('admin.cases', compact('cases'));
     }
 

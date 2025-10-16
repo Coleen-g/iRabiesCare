@@ -11,7 +11,18 @@ class VaccinationController extends Controller
 {
     public function index()
     {
-        $vaccinations = Vaccination::with('patient')->latest()->paginate(15);
+        $q = request('q');
+
+        $vaccinations = Vaccination::with('patient')
+            ->when($q, function($query, $q) {
+                $query->where('vaccine', 'like', "%{$q}%")
+                      ->orWhere('notes', 'like', "%{$q}%")
+                      ->orWhereHas('patient', function($q2) use ($q) {
+                          $q2->where('name', 'like', "%{$q}%");
+                      });
+            })
+            ->latest()->paginate(15)->withQueryString();
+        
         return view('admin.vaccinations', compact('vaccinations'));
     }
 

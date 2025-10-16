@@ -31,18 +31,26 @@
             <table class="admin-table">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Patient</th>
-                        <th>Vaccine</th>
                         <th>Date</th>
+                        <th>Vaccine</th>
+                        <th>Dose</th>
+                        <th>Administered By</th>
+                        <th>Notes</th>
                         <th style="width:180px">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($vaccinations as $v)
                         <tr>
+                            <td>{{ $v->id }}</td>
                             <td>{{ $v->patient->name ?? '—' }}</td>
-                            <td>{{ $v->vaccine }}</td>
-                            <td>{{ $v->date_given }}</td>
+                            <td>{{ $v->date_given ? \Illuminate\Support\Carbon::parse($v->date_given)->format('Y-m-d') : '—' }}</td>
+                            <td>{{ $v->vaccine ?? '—' }}</td>
+                            <td>{{ $v->dose ?? '—' }}</td>
+                            <td>{{ $v->administered_by ?? '—' }}</td>
+                            <td>{{ \Illuminate\Support\Str::limit($v->notes, 100, '...') }}</td>
                             <td>
                                 <div class="actions">
                                     <a class="action-edit" href="{{ route('admin.vaccinations.edit', $v) }}">Edit</a>

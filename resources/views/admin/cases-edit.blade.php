@@ -10,7 +10,7 @@
             @method('PUT')
             <div>
                 <label>Patient</label>
-                <select name="patient_id" required style="width:100%;padding:.5rem;">
+                <select name="patient_id" required class="searchable-patient-select" style="width:100%;padding:.5rem;">
                     @foreach($patients as $pt)
                         <option value="{{ $pt->id }}" {{ $pt->id == $case->patient_id ? 'selected' : '' }}>{{ $pt->name }}</option>
                     @endforeach

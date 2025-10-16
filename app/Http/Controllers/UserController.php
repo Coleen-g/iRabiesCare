@@ -15,12 +15,13 @@ class UserController extends Controller
     {
         $user = Auth::user();
         // Find patient record linked to this user (if any)
-        $patient = Patient::where('user_id', $user->id)->first();
-        $cases = [];
-        $vaccinations = [];
+        $patient = $user->patient; // use relation
+        $cases = collect();
+        $vaccinations = collect();
         if ($patient) {
-            $cases = $patient->cases()->latest()->get();
-            $vaccinations = $patient->vaccinations()->latest()->get();
+            // show a small recent set on the dashboard
+            $cases = $patient->cases()->latest()->take(3)->get();
+            $vaccinations = $patient->vaccinations()->latest()->take(3)->get();
         }
 
         return view('user.dashboard', compact('patient','cases','vaccinations'));
@@ -29,16 +30,16 @@ class UserController extends Controller
     public function cases()
     {
         $user = Auth::user();
-        $patient = Patient::where('user_id', $user->id)->first();
-        $cases = $patient ? $patient->cases()->latest()->get() : collect();
+        $patient = $user->patient;
+        $cases = $patient ? $patient->cases()->latest()->paginate(15) : collect();
         return view('user.cases', compact('cases'));
     }
 
     public function vaccinations()
     {
         $user = Auth::user();
-        $patient = Patient::where('user_id', $user->id)->first();
-        $vaccinations = $patient ? $patient->vaccinations()->latest()->get() : collect();
+        $patient = $user->patient;
+        $vaccinations = $patient ? $patient->vaccinations()->latest()->paginate(15) : collect();
         return view('user.vaccinations', compact('vaccinations'));
     }
 

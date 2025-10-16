@@ -26,7 +26,7 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label class="form-label">Patient</label>
-                    <select name="patient_id" required class="form-select">
+                    <select name="patient_id" required class="form-select searchable-patient-select">
                         <option value="">-- select patient --</option>
                         @foreach($patients as $pt)
                             <option value="{{ $pt->id }}">{{ $pt->name }}</option>

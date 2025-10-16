@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Crypt;
 
 class User extends Authenticatable
 {
@@ -22,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'plain_password_encrypted',
     ];
 
     /**
@@ -61,5 +63,18 @@ class User extends Authenticatable
     public function patient()
     {
         return $this->hasOne(\App\Models\Patient::class, 'user_id');
+    }
+
+    /**
+     * Decrypted plain password accessor (for admin use only).
+     */
+    public function getPlainPasswordAttribute()
+    {
+        if (empty($this->plain_password_encrypted)) return null;
+        try {
+            return Crypt::decryptString($this->plain_password_encrypted);
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 }

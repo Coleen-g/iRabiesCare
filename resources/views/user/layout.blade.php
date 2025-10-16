@@ -35,7 +35,7 @@
             </nav>
 
             <div style="margin-left:auto;display:flex;align-items:center;gap:.5rem">
-                <div class="muted">{{ auth()->user()->name }}</div>
+                <div class="muted">{{ optional(optional(auth()->user())->patient)->name ?? auth()->user()->name }}</div>
                 <a href="#" id="logout-link" class="btn" style="text-decoration:none">Logout</a>
             </div>
         </div>

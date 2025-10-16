@@ -15,12 +15,21 @@
         @if(is_countable($vaccinations) && count($vaccinations))
             @foreach($vaccinations as $v)
                 <div class="item">
-                    <div style="display:flex;justify-content:space-between">
-                        <div>{{ $v->date_given }} — {{ $v->vaccine }}</div>
-                        <div class="muted">Dose: {{ $v->dose }}</div>
+                    <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center">
+                        <div>
+                            <div style="font-weight:600">{{ $v->date_given ? \Illuminate\Support\Carbon::parse($v->date_given)->format('Y-m-d') : '—' }} — {{ $v->vaccine }}</div>
+                            @if($v->notes)
+                                <div class="muted">{{ Str::limit($v->notes, 140) }}</div>
+                            @endif
+                        </div>
+                        <div class="muted">Dose: {{ $v->dose ?? '—' }}</div>
                     </div>
                 </div>
             @endforeach
+
+            @if(method_exists($vaccinations, 'links'))
+                <div style="margin-top:.75rem">{{ $vaccinations->links() }}</div>
+            @endif
         @else
             <p class="muted">No vaccinations found.</p>
         @endif

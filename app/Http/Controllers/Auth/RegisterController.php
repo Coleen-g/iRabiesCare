@@ -33,17 +33,19 @@ class RegisterController extends Controller
             'lastDoseDate' => ['nullable', 'date'],
             'clinic' => ['nullable', 'string', 'max:255'],
             'emergencyContact' => ['nullable', 'string', 'max:255'],
+            // Optional credentials
+            'username' => ['nullable', 'string', 'max:255', 'unique:users,name'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
-        // Create a patient record without linking to a user account. Admin will
-        // later run the credential assignment command to create users and link them.
+        // Create a patient record. If credentials are provided, we'll create
+        // a user below and link it.
         $patient = Patient::create([
             'name' => $data['fullName'],
             'dob' => $data['dob'] ?? null,
             'gender' => $data['gender'] ?? null,
             'address' => $data['address'] ?? null,
             'contact' => $data['contact'] ?? null,
-            // store email if provided (useful later when creating the user)
             'email' => $data['email'] ?? null,
             'exposure_date' => $data['exposureDate'] ?? null,
             'exposure_type' => $data['exposureType'] ?? null,
@@ -54,9 +56,16 @@ class RegisterController extends Controller
             'emergency_contact' => $data['emergencyContact'] ?? null,
         ]);
 
-        // Return a friendly page with the patient id so the user can reference it
-        // later. The admin will generate login credentials and those credentials
-        // will be exported to a CSV that the admin can deliver to the patient.
+
+        // Registration does not create user credentials. Admin will generate
+        // usernames and passwords and link them to patient records.
+
+        // If this is an AJAX request return JSON so the React frontend can
+        // redirect. Otherwise render the completion view.
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['patient' => $patient], 201);
+        }
+
         return view('auth.register-complete', ['patient' => $patient]);
     }
 }

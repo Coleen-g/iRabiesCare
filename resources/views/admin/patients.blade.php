@@ -34,6 +34,11 @@
                     <tr>
                         <th>Name</th>
                         <th>Contact</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        @if(auth()->user() && auth()->user()->isAdmin())
+                            <th>Plain Password</th>
+                        @endif
                         <th style="width:180px">Actions</th>
                     </tr>
                 </thead>
@@ -42,9 +47,25 @@
                         <tr>
                             <td>{{ $p->name }}</td>
                             <td>{{ $p->contact }}</td>
+                            <td>{{ optional($p->user)->name ?? '-' }}</td>
+                            <td>{{ optional($p->user)->email ?? '-' }}</td>
+                            @if(auth()->user() && auth()->user()->isAdmin())
+                                <td>{{ optional($p->user)->plain_password ?? '-' }}</td>
+                            @endif
                             <td>
                                 <div class="actions">
                                     <a class="action-edit" href="{{ route('admin.patients.edit', $p) }}">Edit</a>
+                                    @if(is_null($p->user_id))
+                                        <form method="POST" action="{{ route('admin.patients.generate', $p) }}" style="display:inline">
+                                            @csrf
+                                            <button class="action-edit" type="submit">Generate</button>
+                                        </form>
+                                    @else
+                                        <form method="POST" action="{{ route('admin.patients.regenerate', $p) }}" style="display:inline">
+                                            @csrf
+                                            <button class="action-edit" type="submit">Regenerate</button>
+                                        </form>
+                                    @endif
                                     <form method="POST" action="{{ route('admin.patients.destroy', $p) }}" onsubmit="return confirm('Delete this patient?')" style="display:inline">
                                         @csrf
                                         @method('DELETE')

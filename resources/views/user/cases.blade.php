@@ -15,12 +15,19 @@
         @if(is_countable($cases) && count($cases))
             @foreach($cases as $c)
                 <div class="item">
-                    <div style="display:flex;justify-content:space-between">
-                        <div><strong>{{ $c->date_reported }}</strong> <span class="muted">— {{ ucfirst($c->status) }}</span></div>
+                    <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center">
+                        <div>
+                            <div style="font-weight:600">{{ $c->date_reported ? \Illuminate\Support\Carbon::parse($c->date_reported)->format('Y-m-d') : '—' }}</div>
+                            <div class="muted">{{ Str::limit($c->description, 160) }}</div>
+                        </div>
+                        <div class="muted">{{ ucfirst($c->status) }}</div>
                     </div>
-                    <div class="muted">{{ Str::limit($c->description, 160) }}</div>
                 </div>
             @endforeach
+
+            @if(method_exists($cases, 'links'))
+                <div style="margin-top:.75rem">{{ $cases->links() }}</div>
+            @endif
         @else
             <p class="muted">No cases found.</p>
         @endif

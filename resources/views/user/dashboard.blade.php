@@ -12,7 +12,7 @@
                     <img src="/images/logoO.png" alt="logo" style="width:84px;height:auto" />
                     <div>
                         <div class="muted">Welcome</div>
-                        <div class="profile-name">{{ auth()->user()->name }}</div>
+                        <div class="profile-name">{{ optional(optional(auth()->user())->patient)->name ?? auth()->user()->name }}</div>
                     </div>
                 </div>
 

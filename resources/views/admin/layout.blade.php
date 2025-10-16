@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Admin') - iRabiesCare</title>
     @vite(['resources/js/app.js', 'resources/css/app.css'])
+    <!-- Choices.js for searchable selects -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <style>
         body { margin:0; font-family: Arial, Helvetica, sans-serif; }
         .app { display:flex; min-height:100vh; }
@@ -31,6 +33,7 @@
                 <a href="/admin/vaccinations" class="{{ request()->is('admin/vaccinations*') ? 'active' : '' }}">Vaccinations</a>
                 <a href="/admin/reports" class="{{ request()->is('admin/reports*') ? 'active' : '' }}">Reports</a>
                 <a href="/admin/settings" class="{{ request()->is('admin/settings*') ? 'active' : '' }}">Settings</a>
+                <a href="/admin/generate-users" class="{{ request()->is('admin/generate-users*') ? 'active' : '' }}">Generate Accounts</a>
             </nav>
 
             <div class="ir-sidebar-footer">
@@ -50,4 +53,42 @@
         </main>
     </div>
 </body>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            // simple non-AJAX inits
+            document.querySelectorAll('select.searchable-patient-select:not([data-ajax-patient])').forEach(function(el){
+                try { new Choices(el, { searchEnabled: true, itemSelectText: '' }); } catch(e) { console.warn('Choices init failed', e); }
+            });
+
+            // AJAX-enabled patient selects
+            document.querySelectorAll('select.searchable-patient-select[data-ajax-patient]').forEach(function(el){
+                try {
+                    const choices = new Choices(el, { searchEnabled: true, shouldSort: false, itemSelectText: '' });
+
+                    // debounce helper
+                    function debounce(fn, wait){ let t; return function(){ clearTimeout(t); t = setTimeout(()=>fn.apply(this, arguments), wait); }; }
+
+                    const fetchChoices = debounce(function(search){
+                        const url = "{{ route('admin.patients.search') }}?q=" + encodeURIComponent(search || '');
+                        fetch(url, { headers: { 'Accept': 'application/json' } })
+                            .then(r => r.json())
+                            .then(data => {
+                                // data: [{value,label}, ...]
+                                choices.clearChoices();
+                                choices.setChoices(data.map(d => ({ value: d.value, label: d.label })), 'value', 'label', true);
+                            }).catch(err => console.warn('patient search failed', err));
+                    }, 300);
+
+                    // initial load (blank) to populate first page
+                    fetchChoices('');
+
+                    // hook into Choices search event
+                    el.addEventListener('search', function(e){
+                        fetchChoices(e.detail.value);
+                    });
+                } catch(e) { console.warn('Choices AJAX init failed', e); }
+            });
+        });
+    </script>
 </html>

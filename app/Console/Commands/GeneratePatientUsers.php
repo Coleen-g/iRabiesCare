@@ -7,6 +7,7 @@ use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Crypt;
 
 class GeneratePatientUsers extends Command
 {
@@ -63,6 +64,7 @@ class GeneratePatientUsers extends Command
                 'email' => $email,
                 'password' => Hash::make($password),
                 'role' => $role,
+                'plain_password_encrypted' => Crypt::encryptString($password),
             ]);
 
             // Link patient to user
