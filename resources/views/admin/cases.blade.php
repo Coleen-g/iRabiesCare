@@ -5,14 +5,20 @@
 @section('content')
     <style>
         .list-header { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1rem }
-        .search-input { padding:.5rem .75rem; border:1px solid #e5e7eb; border-radius:6px; width:240px }
-        .btn-primary { background:#2563eb; color:#fff; padding:.5rem .75rem; border-radius:6px; text-decoration:none }
-        table.admin-table { width:100%; border-collapse:collapse; }
-        table.admin-table th, table.admin-table td { padding:.75rem; text-align:left; border-bottom:1px solid #f3f4f6 }
-        .actions { display:flex; gap:.5rem; align-items:center }
-        .action-edit { background:#f3f4f6; padding:.35rem .6rem; border-radius:6px; color:#111; text-decoration:none }
-        .action-delete { background:#fee2e2; padding:.35rem .6rem; border-radius:6px; color:#7f1d1d; border:0 }
-        .notice { padding:.5rem; background:#ecfccb; border-radius:4px; margin-bottom:.75rem }
+        .search-input { padding:.45rem .6rem; border:1px solid #e5e7eb; border-radius:6px; width:220px }
+        .btn-primary { background:#2563eb; color:#fff; padding:.45rem .6rem; border-radius:6px; text-decoration:none; font-size:13px }
+        table.admin-table { width:100%; border-collapse:collapse; font-size:13px; }
+        table.admin-table th, table.admin-table td { padding:.45rem .5rem; text-align:left; border-bottom:1px solid #f3f4f6; vertical-align:middle }
+        table.admin-table td { white-space:normal; word-break:break-word; max-width:240px }
+        table.admin-table th[data-no-wrap], table.admin-table td[data-no-wrap] { white-space:nowrap; max-width:none }
+        .actions { display:flex; gap:.4rem; align-items:center }
+        .action-edit { background:#f3f4f6; padding:.3rem .5rem; border-radius:6px; color:#111; text-decoration:none; font-size:13px }
+        .action-delete { background:#fee2e2; padding:.3rem .5rem; border-radius:6px; color:#7f1d1d; border:0; font-size:13px }
+        .notice { padding:.45rem; background:#ecfccb; border-radius:4px; margin-bottom:.6rem; font-size:13px }
+        @media (max-width: 768px) {
+            table.admin-table th, table.admin-table td { padding:.35rem .4rem; font-size:12px }
+            .search-input { width:160px }
+        }
     </style>
 
     <div class="list-header">
@@ -37,7 +43,7 @@
                         <th>Status</th>
                         <th>Reported By</th>
                         <th>Description</th>
-                        <th style="width:180px">Actions</th>
+                        <th style="width:180px" data-no-wrap>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -49,7 +55,7 @@
                             <td>{{ ucfirst($c->status) }}</td>
                             <td>{{ optional($c->reporter)->name ?? optional($c->reporter)->email ?? '—' }}</td>
                             <td style="max-width:320px">{{ \Illuminate\Support\Str::limit($c->description, 120, '...') }}</td>
-                            <td>
+                            <td data-no-wrap>
                                 <div class="actions">
                                     <a class="action-edit" href="{{ route('admin.cases.edit', $c) }}">Edit</a>
                                     <form method="POST" action="{{ route('admin.cases.destroy', $c) }}" onsubmit="return confirm('Delete this case?')" style="display:inline">

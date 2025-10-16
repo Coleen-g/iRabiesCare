@@ -5,90 +5,249 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Admin') - iRabiesCare</title>
     @vite(['resources/js/app.js', 'resources/css/app.css'])
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
     <!-- Choices.js for searchable selects -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+
     <style>
-        body { margin:0; font-family: Arial, Helvetica, sans-serif; }
-        .app { display:flex; min-height:100vh; }
-        .sidebar { width:220px; background:#1f2937; color:#fff; padding:1rem; }
-        .sidebar a { color:#cbd5e1; text-decoration:none; display:block; padding:.5rem .75rem; border-radius:4px; }
-        .sidebar a.active, .sidebar a:hover { background:#374151; color:#fff; }
-        .brand { font-weight:700; margin-bottom:1rem; font-size:1.1rem; }
-        .content { flex:1; padding:1.25rem; background:#f3f4f6; }
-        .topbar { display:flex; justify-content:flex-end; margin-bottom:1rem; }
-        .card { background:#fff; padding:1rem; border-radius:6px; box-shadow:0 1px 2px rgba(0,0,0,0.04); }
+        /* Base */
+        body {
+            margin: 0;
+            font-family: 'Inter', Arial, sans-serif;
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .app {
+            display: block;
+            min-height: 100vh;
+            background: #f9fafb;
+        }
+
+        /* Sidebar */
+        .ir-sidebar {
+            width: 240px;
+            background: #1e293b;
+            color: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: width 0.3s ease;
+            padding: 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            height: 100vh;
+            overflow: auto;
+        }
+
+        .ir-sidebar-logo {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .ir-sidebar-logo img {
+            width: 80px;
+            height: auto;
+            border-radius: 50%;
+        }
+
+        .ir-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .ir-nav a {
+            color: #cbd5e1;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.55rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .ir-nav a i {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .ir-nav a.active, .ir-nav a:hover {
+            background: #2563eb;
+            color: #fff;
+            transform: translateX(4px);
+        }
+
+        /* Logout button */
+        .ir-sidebar-footer {
+            margin-top: 2rem;
+        }
+
+        .ir-logout {
+            width: 100%;
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            padding: 0.6rem 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s ease;
+        }
+
+        .ir-logout:hover {
+            background: #dc2626;
+        }
+
+        /* Main Content */
+        .content {
+            margin-left: 240px; /* offset for fixed sidebar */
+            padding: 1.5rem 2rem;
+            background: #f9fafb;
+            min-height: 100vh;
+        }
+
+        /* Topbar */
+        .topbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            background: #fff;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+
+        .topbar strong {
+            color: #1e3a8a;
+        }
+
+        /* Card */
+        .card {
+            background: #fff;
+            padding: 1.25rem;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        @media (max-width: 768px) {
+            .ir-sidebar {
+                width: 70px;
+                align-items: center;
+            }
+
+            .ir-nav a {
+                justify-content: center;
+                font-size: 0;
+            }
+
+            .ir-nav a i {
+                font-size: 1.2rem;
+            }
+
+            .ir-sidebar-logo img {
+                width: 50px;
+            }
+
+            .content {
+                margin-left: 70px; /* match collapsed sidebar */
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="app">
         <aside class="ir-sidebar">
-            <div class="ir-sidebar-logo">
-                <img src="/images/logoO.png" alt="iRabiesCare" />
-            </div>
+            <div>
+                <div class="ir-sidebar-logo">
+                    <img src="/images/logoO.png" alt="iRabiesCare" />
+                </div>
 
-            <nav class="ir-nav">
-                <a href="/admin/dashboard" class="{{ request()->is('admin/dashboard') ? 'active' : '' }}">Dashboard</a>
-                <a href="/admin/patients" class="{{ request()->is('admin/patients*') ? 'active' : '' }}">Patients</a>
-                <a href="/admin/cases" class="{{ request()->is('admin/cases*') ? 'active' : '' }}">Cases</a>
-                <a href="/admin/vaccinations" class="{{ request()->is('admin/vaccinations*') ? 'active' : '' }}">Vaccinations</a>
-                <a href="/admin/reports" class="{{ request()->is('admin/reports*') ? 'active' : '' }}">Reports</a>
-                <a href="/admin/settings" class="{{ request()->is('admin/settings*') ? 'active' : '' }}">Settings</a>
-                <a href="/admin/generate-users" class="{{ request()->is('admin/generate-users*') ? 'active' : '' }}">Generate Accounts</a>
-            </nav>
+                <nav class="ir-nav">
+                    <a href="/admin/dashboard" class="{{ request()->is('admin/dashboard') ? 'active' : '' }}">
+                        <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
+                    </a>
+                    <a href="/admin/patients" class="{{ request()->is('admin/patients*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i> <span>Patients</span>
+                    </a>
+                    <a href="/admin/cases" class="{{ request()->is('admin/cases*') ? 'active' : '' }}">
+                        <i class="bi bi-journal-medical"></i> <span>Cases</span>
+                    </a>
+                    <a href="/admin/vaccinations" class="{{ request()->is('admin/vaccinations*') ? 'active' : '' }}">
+                        <i class="bi bi-capsule"></i> <span>Vaccinations</span>
+                    </a>
+                    <a href="/admin/reports" class="{{ request()->is('admin/reports*') ? 'active' : '' }}">
+                        <i class="bi bi-bar-chart-line"></i> <span>Reports</span>
+                    </a>
+                    <a href="/admin/settings" class="{{ request()->is('admin/settings*') ? 'active' : '' }}">
+                        <i class="bi bi-gear"></i> <span>Settings</span>
+                    </a>
+                    <a href="/admin/generate-users" class="{{ request()->is('admin/generate-users*') ? 'active' : '' }}">
+                        <i class="bi bi-person-plus"></i> <span>Generate Accounts</span>
+                    </a>
+                </nav>
+            </div>
 
             <div class="ir-sidebar-footer">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button class="ir-logout" type="submit">Logout</button>
+                    <button class="ir-logout" type="submit">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
                 </form>
             </div>
         </aside>
 
         <main class="content">
             <div class="topbar">
-                <div>Signed in as <strong>{{ auth()->user()->name }}</strong></div>
+                <div><i class="bi bi-person-circle" style="color:#2563eb; margin-right:6px;"></i> Signed in as <strong>{{ auth()->user()->name }}</strong></div>
             </div>
 
             @yield('content')
         </main>
     </div>
 </body>
-    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function(){
-            // simple non-AJAX inits
-            document.querySelectorAll('select.searchable-patient-select:not([data-ajax-patient])').forEach(function(el){
-                try { new Choices(el, { searchEnabled: true, itemSelectText: '' }); } catch(e) { console.warn('Choices init failed', e); }
-            });
 
-            // AJAX-enabled patient selects
-            document.querySelectorAll('select.searchable-patient-select[data-ajax-patient]').forEach(function(el){
-                try {
-                    const choices = new Choices(el, { searchEnabled: true, shouldSort: false, itemSelectText: '' });
-
-                    // debounce helper
-                    function debounce(fn, wait){ let t; return function(){ clearTimeout(t); t = setTimeout(()=>fn.apply(this, arguments), wait); }; }
-
-                    const fetchChoices = debounce(function(search){
-                        const url = "{{ route('admin.patients.search') }}?q=" + encodeURIComponent(search || '');
-                        fetch(url, { headers: { 'Accept': 'application/json' } })
-                            .then(r => r.json())
-                            .then(data => {
-                                // data: [{value,label}, ...]
-                                choices.clearChoices();
-                                choices.setChoices(data.map(d => ({ value: d.value, label: d.label })), 'value', 'label', true);
-                            }).catch(err => console.warn('patient search failed', err));
-                    }, 300);
-
-                    // initial load (blank) to populate first page
-                    fetchChoices('');
-
-                    // hook into Choices search event
-                    el.addEventListener('search', function(e){
-                        fetchChoices(e.detail.value);
-                    });
-                } catch(e) { console.warn('Choices AJAX init failed', e); }
-            });
+<!-- Choices.js -->
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        // Non-AJAX selects
+        document.querySelectorAll('select.searchable-patient-select:not([data-ajax-patient])').forEach(function(el){
+            try { new Choices(el, { searchEnabled: true, itemSelectText: '' }); } catch(e) { console.warn('Choices init failed', e); }
         });
-    </script>
+
+        // AJAX-enabled selects
+        document.querySelectorAll('select.searchable-patient-select[data-ajax-patient]').forEach(function(el){
+            try {
+                const choices = new Choices(el, { searchEnabled: true, shouldSort: false, itemSelectText: '' });
+
+                function debounce(fn, wait){ let t; return function(){ clearTimeout(t); t = setTimeout(()=>fn.apply(this, arguments), wait); }; }
+
+                const fetchChoices = debounce(function(search){
+                    const url = "{{ route('admin.patients.search') }}?q=" + encodeURIComponent(search || '');
+                    fetch(url, { headers: { 'Accept': 'application/json' } })
+                        .then(r => r.json())
+                        .then(data => {
+                            choices.clearChoices();
+                            choices.setChoices(data.map(d => ({ value: d.value, label: d.label })), 'value', 'label', true);
+                        }).catch(err => console.warn('patient search failed', err));
+                }, 300);
+
+                fetchChoices('');
+                el.addEventListener('search', e => fetchChoices(e.detail.value));
+            } catch(e) { console.warn('Choices AJAX init failed', e); }
+        });
+    });
+</script>
 </html>

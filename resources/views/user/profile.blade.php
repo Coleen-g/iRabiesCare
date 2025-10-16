@@ -1,23 +1,171 @@
 @extends('user.layout')
 
-@section('title','My Profile')
+@section('title', 'My Profile')
 
 @section('content')
     <style>
-        .profile-grid { display:grid; grid-template-columns: 1fr 220px; gap:1rem }
-        .profile-row { margin-bottom:.5rem }
-        .label { color:#6b7280; font-weight:600 }
+        body {
+            background: #f9fafb;
+        }
+
+        .profile-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+
+        .profile-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 2rem 2.5rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin: 0;
+        }
+
+        .profile-section {
+            margin-bottom: 2rem;
+        }
+
+        .profile-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 1rem;
+            border-left: 4px solid #2563eb;
+            padding-left: 0.6rem;
+        }
+
+        .profile-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.25rem 2rem;
+        }
+
+        .profile-item {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .profile-item .label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 0.3rem;
+        }
+
+        .profile-item div {
+            font-size: 1rem;
+            color: #111827;
+        }
+
+        .muted {
+            color: #9ca3af;
+            font-style: italic;
+            margin-left: 0.5rem;
+        }
+
+        .profile-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.2s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-primary:hover {
+            background: #1e40af;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 700px) {
+            .profile-card {
+                padding: 1.5rem;
+            }
+        }
     </style>
 
-    <div class="card profile-grid">
-        <div>
-            <h2 style="margin-top:0">{{ $user->name }}</h2>
-            <div class="profile-row"><div class="label">Email</div><div>{{ $user->email }}</div></div>
-            <div class="profile-row"><div class="label">Role</div><div>{{ $user->role }}</div></div>
-        </div>
-        <div>
-            <div style="display:flex;flex-direction:column;gap:.5rem">
-                <a class="btn btn-primary" href="{{ \Illuminate\Support\Facades\Route::has('user.profile.edit') ? route('user.profile.edit') : '#' }}">Edit Profile</a>
+    <div class="profile-container">
+        <div class="profile-card">
+            <div class="profile-header">
+                <h2><i class="bi bi-person-circle" style="color:#2563eb;"></i>{{ $user->name }}</h2>
+            </div>
+
+            {{-- Basic Information --}}
+            <div class="profile-section">
+                <h3>Account Information</h3>
+                <div class="profile-details">
+                    <div class="profile-item">
+                        <div class="label">Email</div>
+                        <div>{{ $user->email }}</div>
+                    </div>
+
+                    <div class="profile-item">
+                        <div class="label">Role</div>
+                        <div style="text-transform: capitalize">{{ $user->role }}</div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Patient Information --}}
+            @php $patient = optional($user)->patient; @endphp
+            <div class="profile-section">
+                <h3>Patient Information</h3>
+                @if($patient)
+                    <div class="profile-details">
+                        <div class="profile-item"><div class="label">Patient ID</div><div>{{ $patient->id_number ?? $patient->id }}</div></div>
+                        <div class="profile-item"><div class="label">Phone</div><div>{{ $patient->contact ?? '—' }}</div></div>
+                        <div class="profile-item"><div class="label">DOB</div><div>{{ $patient->dob ? \Illuminate\Support\Carbon::parse($patient->dob)->format('Y-m-d') : '—' }}</div></div>
+                        <div class="profile-item"><div class="label">Gender</div><div>{{ $patient->gender ?? '—' }}</div></div>
+                        <div class="profile-item"><div class="label">Address</div><div>{{ $patient->address ?? '—' }}</div></div>
+                        <div class="profile-item"><div class="label">Clinic</div><div>{{ $patient->clinic ?? '—' }}</div></div>
+                        <div class="profile-item"><div class="label">Vaccination Status</div><div>{{ $patient->vaccination_status ?? '—' }}</div></div>
+                        <div class="profile-item"><div class="label">Last Dose Date</div><div>{{ $patient->last_dose_date ? \Illuminate\Support\Carbon::parse($patient->last_dose_date)->format('Y-m-d') : '—' }}</div></div>
+                        <div class="profile-item"><div class="label">Exposure Date</div><div>{{ $patient->exposure_date ? \Illuminate\Support\Carbon::parse($patient->exposure_date)->format('Y-m-d') : '—' }}</div></div>
+                        <div class="profile-item"><div class="label">Exposure Type</div><div>{{ $patient->exposure_type ?? '—' }}</div></div>
+                        <div class="profile-item"><div class="label">Animal</div><div>{{ $patient->animal ?? '—' }}</div></div>
+                        <div class="profile-item"><div class="label">Emergency Contact</div><div>{{ $patient->emergency_contact ?? '—' }}</div></div>
+                    </div>
+                @else
+                    <p class="muted">No patient record linked to this account.</p>
+                @endif
+            </div>
+
+            <div class="profile-actions">
+                <a class="btn-primary" href="{{ \Illuminate\Support\Facades\Route::has('user.profile.edit') ? route('user.profile.edit') : '#' }}">
+                    <i class="bi bi-pencil-square"></i> Edit Profile
+                </a>
             </div>
         </div>
     </div>
