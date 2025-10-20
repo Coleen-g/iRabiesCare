@@ -12,6 +12,9 @@
     <!-- Choices.js for searchable selects -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <style>
         /* Base */
         body {
@@ -137,6 +140,23 @@
             padding: 1.25rem;
             border-radius: 10px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        /* ===== Compact admin table styles (used by patients/cases/vaccinations lists) ===== */
+        table.admin-table { width:100%; border-collapse:collapse; font-size:13px; }
+        table.admin-table th, table.admin-table td { padding:.45rem .5rem; text-align:left; border-bottom:1px solid #f3f4f6; vertical-align:middle }
+        table.admin-table td { white-space:normal; word-break:break-word; max-width:240px }
+        table.admin-table th[data-no-wrap], table.admin-table td[data-no-wrap] { white-space:nowrap; max-width:none }
+        .search-input { padding:.45rem .6rem; border:1px solid #e5e7eb; border-radius:6px; width:220px }
+        .btn-primary { background:#2563eb; color:#fff; padding:.45rem .6rem; border-radius:6px; text-decoration:none; font-size:13px }
+        .btn-ghost { background:transparent; color:#374151; padding:.35rem .5rem; border-radius:6px; border:1px solid transparent; font-size:13px }
+        .actions { display:flex; gap:.4rem; align-items:center }
+        .action-edit { background:#f3f4f6; padding:.3rem .5rem; border-radius:6px; color:#111; text-decoration:none; font-size:13px }
+        .action-delete { background:#fee2e2; padding:.3rem .5rem; border-radius:6px; color:#7f1d1d; border:0; font-size:13px }
+        .notice { padding:.45rem; background:#ecfccb; border-radius:4px; margin-bottom:.6rem; font-size:13px }
+        @media (max-width: 768px) {
+            table.admin-table th, table.admin-table td { padding:.35rem .4rem; font-size:12px }
+            .search-input { width:160px }
         }
 
         @media (max-width: 768px) {

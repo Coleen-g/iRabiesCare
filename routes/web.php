@@ -49,7 +49,28 @@ Route::get('/admin/dashboard', function () {
     if (!$user || $user->role !== 'admin') {
         abort(403, 'Forbidden');
     }
-    return view('admin.dashboard');
+
+    // Gather counts for dashboard
+    $patientsCount = \App\Models\Patient::count();
+    $casesCount = \App\Models\CaseModel::count();
+    $vaccinationsCount = \App\Models\Vaccination::count();
+
+    // Today's stats: registrations (patients created today), cases (date_reported), vaccinations (date_given)
+    $today = now()->toDateString();
+    $todayRegistrations = \App\Models\Patient::whereDate('created_at', $today)->count();
+    // Strict: only count cases where date_reported matches today (no fallback)
+    $todayCases = \App\Models\CaseModel::whereDate('date_reported', $today)->count();
+    // Strict: only count vaccinations where date_given matches today (no fallback)
+    $todayVaccinations = \App\Models\Vaccination::whereDate('date_given', $today)->count();
+
+    return view('admin.dashboard', compact(
+        'patientsCount',
+        'casesCount',
+        'vaccinationsCount',
+        'todayRegistrations',
+        'todayCases',
+        'todayVaccinations'
+    ));
 })->middleware('auth');
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
