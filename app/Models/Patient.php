@@ -40,4 +40,20 @@ class Patient extends Model
     {
         return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
+
+    /**
+     * Backwards-compatible accessor for last_dose (maps to last_dose_date column)
+     */
+    public function getLastDoseAttribute()
+    {
+        return $this->attributes['last_dose_date'] ?? null;
+    }
+
+    /**
+     * Mutator to allow setting last_dose and store into last_dose_date
+     */
+    public function setLastDoseAttribute($value)
+    {
+        $this->attributes['last_dose_date'] = $value;
+    }
 }

@@ -13,7 +13,7 @@ class VaccinationController extends Controller
     {
         $q = request('q');
 
-        $vaccinations = Vaccination::with('patient')
+        $vaccinations = Vaccination::with(['patient.user.vaccinationSchedule'])
             ->when($q, function($query, $q) {
                 $query->where('vaccine', 'like', "%{$q}%")
                       ->orWhere('notes', 'like', "%{$q}%")
@@ -21,7 +21,9 @@ class VaccinationController extends Controller
                           $q2->where('name', 'like', "%{$q}%");
                       });
             })
-            ->latest()->paginate(15)->withQueryString();
+            ->latest('date_given')
+            ->paginate(15)
+            ->withQueryString();
         
         return view('admin.vaccinations', compact('vaccinations'));
     }

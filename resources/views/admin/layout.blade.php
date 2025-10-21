@@ -5,47 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Admin') - iRabiesCare</title>
     @vite(['resources/js/app.js', 'resources/css/app.css'])
-
-    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
-    <!-- Choices.js for searchable selects -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- FontAwesome CDN for fa- icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKB4Imkb9hFQ9U1FVLtZL1YI7Di5urN6pN1Nsx3Rp3XIan+FJxux1DPZWS9Yuk3F7S3w7DtwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <style>
-        /* Base */
+        /* === Base === */
         body {
             margin: 0;
             font-family: 'Inter', Arial, sans-serif;
-            background: #f3f4f6;
-            color: #1f2937;
+            background: #f5f5f5;
+            color: #111;
         }
 
         .app {
-            display: block;
+            display: flex;
             min-height: 100vh;
-            background: #f9fafb;
         }
 
-        /* Sidebar */
+        /* === Sidebar === */
         .ir-sidebar {
             width: 240px;
-            background: #1e293b;
-            color: #f1f5f9;
+            background: #000; /* Pure black */
+            color: #fff;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: width 0.3s ease;
-            padding: 1rem;
             position: fixed;
             top: 0;
             left: 0;
             bottom: 0;
-            height: 100vh;
-            overflow: auto;
+            padding: 1.5rem 1rem;
+            overflow-y: auto;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.4);
         }
 
         .ir-sidebar-logo {
@@ -54,71 +46,81 @@
         }
 
         .ir-sidebar-logo img {
-            width: 80px;
+            width: 140px; /* bigger logo */
             height: auto;
-            border-radius: 50%;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
         }
 
+        /* Navigation */
         .ir-nav {
             display: flex;
             flex-direction: column;
-            gap: 0.3rem;
+            gap: 0.4rem;
+            flex-grow: 1;
         }
 
         .ir-nav a {
-            color: #cbd5e1;
+            color: #d1d5db; /* light gray text */
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 0.6rem;
-            padding: 0.55rem 0.75rem;
+            gap: 0.8rem;
+            padding: 0.6rem 0.8rem;
             border-radius: 8px;
             font-size: 0.95rem;
             font-weight: 500;
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
         }
 
         .ir-nav a i {
             font-size: 1.1rem;
-            opacity: 0.9;
         }
 
-        .ir-nav a.active, .ir-nav a:hover {
-            background: #2563eb;
-            color: #fff;
-            transform: translateX(4px);
+        .ir-nav a:hover,
+        .ir-nav a.active {
+            background: #fff;
+            color: #000;
+            transform: translateX(6px);
         }
 
-        /* Logout button */
+        /* === Logout Button === */
         .ir-sidebar-footer {
-            margin-top: 2rem;
+            margin-top: 1.5rem;
         }
 
         .ir-logout {
             width: 100%;
-            background: #ef4444;
-            color: #fff;
+            background: #fff;
+            color: #000;
             border: none;
-            padding: 0.6rem 0;
+            padding: 0.65rem 0;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: 500;
-            transition: background 0.2s ease;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: background 0.25s ease, transform 0.2s ease;
         }
 
         .ir-logout:hover {
-            background: #dc2626;
+            background: #e5e5e5;
+            transform: scale(1.03);
         }
 
-        /* Main Content */
+        /* === Main Content === */
         .content {
-            margin-left: 240px; /* offset for fixed sidebar */
+            margin-left: 240px;
             padding: 1.5rem 2rem;
-            background: #f9fafb;
+            background: #f5f5f5;
             min-height: 100vh;
+            color: #111;
+            flex: 1;
+            width: calc(100% - 240px);
+            box-sizing: border-box;
         }
 
-        /* Topbar */
+        /* === Topbar === */
         .topbar {
             display: flex;
             justify-content: flex-end;
@@ -126,52 +128,52 @@
             background: #fff;
             padding: 0.75rem 1rem;
             border-radius: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
             margin-bottom: 1.5rem;
         }
 
         .topbar strong {
-            color: #1e3a8a;
+            color: #000;
         }
 
-        /* Card */
+        /* === Card === */
         .card {
             background: #fff;
             padding: 1.25rem;
             border-radius: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
         }
 
-        /* ===== Compact admin table styles (used by patients/cases/vaccinations lists) ===== */
-        table.admin-table { width:100%; border-collapse:collapse; font-size:13px; }
-        table.admin-table th, table.admin-table td { padding:.45rem .5rem; text-align:left; border-bottom:1px solid #f3f4f6; vertical-align:middle }
+        /* === Table === */
+        table.admin-table { width:100%; border-collapse:collapse; font-size:13px; color:#111 }
+        table.admin-table th, table.admin-table td { padding:.45rem .5rem; text-align:left; border-bottom:1px solid #eee; vertical-align:middle }
         table.admin-table td { white-space:normal; word-break:break-word; max-width:240px }
         table.admin-table th[data-no-wrap], table.admin-table td[data-no-wrap] { white-space:nowrap; max-width:none }
-        .search-input { padding:.45rem .6rem; border:1px solid #e5e7eb; border-radius:6px; width:220px }
-        .btn-primary { background:#2563eb; color:#fff; padding:.45rem .6rem; border-radius:6px; text-decoration:none; font-size:13px }
-        .btn-ghost { background:transparent; color:#374151; padding:.35rem .5rem; border-radius:6px; border:1px solid transparent; font-size:13px }
+        .search-input { padding:.45rem .6rem; border:1px solid #ccc; border-radius:6px; width:220px }
+        .btn-primary { background:#000; color:#fff; padding:.45rem .6rem; border-radius:6px; text-decoration:none; font-size:13px }
+        .btn-primary:hover { background:#222 }
+        .btn-ghost { background:transparent; color:#000; padding:.35rem .5rem; border:1px solid transparent; font-size:13px }
         .actions { display:flex; gap:.4rem; align-items:center }
-        .action-edit { background:#f3f4f6; padding:.3rem .5rem; border-radius:6px; color:#111; text-decoration:none; font-size:13px }
-        .action-delete { background:#fee2e2; padding:.3rem .5rem; border-radius:6px; color:#7f1d1d; border:0; font-size:13px }
-        .notice { padding:.45rem; background:#ecfccb; border-radius:4px; margin-bottom:.6rem; font-size:13px }
-        @media (max-width: 768px) {
-            table.admin-table th, table.admin-table td { padding:.35rem .4rem; font-size:12px }
-            .search-input { width:160px }
-        }
+        .action-edit { background:#f5f5f5; padding:.3rem .5rem; border-radius:6px; color:#111; text-decoration:none; font-size:13px }
+        .action-delete { background:#f8d7da; padding:.3rem .5rem; border-radius:6px; color:#721c24; border:0; font-size:13px }
+        .notice { padding:.45rem; background:#f0f0f0; border-radius:4px; margin-bottom:.6rem; font-size:13px }
 
+        /* === Responsive === */
         @media (max-width: 768px) {
             .ir-sidebar {
                 width: 70px;
                 align-items: center;
+                padding: 1rem 0.5rem;
             }
 
             .ir-nav a {
                 justify-content: center;
                 font-size: 0;
+                padding: 0.7rem;
             }
 
-            .ir-nav a i {
-                font-size: 1.2rem;
+            .ir-nav a span {
+                display: none;
             }
 
             .ir-sidebar-logo img {
@@ -179,8 +181,9 @@
             }
 
             .content {
-                margin-left: 70px; /* match collapsed sidebar */
+                margin-left: 70px;
                 padding: 1rem;
+                width: calc(100% - 70px);
             }
         }
     </style>
@@ -190,7 +193,7 @@
         <aside class="ir-sidebar">
             <div>
                 <div class="ir-sidebar-logo">
-                    <img src="/images/logoO.png" alt="iRabiesCare" />
+                    <img src="/images/logo.png" alt="iRabiesCare" />
                 </div>
 
                 <nav class="ir-nav">
@@ -230,44 +233,11 @@
 
         <main class="content">
             <div class="topbar">
-                <div><i class="bi bi-person-circle" style="color:#2563eb; margin-right:6px;"></i> Signed in as <strong>{{ auth()->user()->name }}</strong></div>
+                <div><i class="bi bi-person-circle" style="color:#000; margin-right:6px;"></i> Signed in as <strong>{{ auth()->user()->name }}</strong></div>
             </div>
 
             @yield('content')
         </main>
     </div>
 </body>
-
-<!-- Choices.js -->
-<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function(){
-        // Non-AJAX selects
-        document.querySelectorAll('select.searchable-patient-select:not([data-ajax-patient])').forEach(function(el){
-            try { new Choices(el, { searchEnabled: true, itemSelectText: '' }); } catch(e) { console.warn('Choices init failed', e); }
-        });
-
-        // AJAX-enabled selects
-        document.querySelectorAll('select.searchable-patient-select[data-ajax-patient]').forEach(function(el){
-            try {
-                const choices = new Choices(el, { searchEnabled: true, shouldSort: false, itemSelectText: '' });
-
-                function debounce(fn, wait){ let t; return function(){ clearTimeout(t); t = setTimeout(()=>fn.apply(this, arguments), wait); }; }
-
-                const fetchChoices = debounce(function(search){
-                    const url = "{{ route('admin.patients.search') }}?q=" + encodeURIComponent(search || '');
-                    fetch(url, { headers: { 'Accept': 'application/json' } })
-                        .then(r => r.json())
-                        .then(data => {
-                            choices.clearChoices();
-                            choices.setChoices(data.map(d => ({ value: d.value, label: d.label })), 'value', 'label', true);
-                        }).catch(err => console.warn('patient search failed', err));
-                }, 300);
-
-                fetchChoices('');
-                el.addEventListener('search', e => fetchChoices(e.detail.value));
-            } catch(e) { console.warn('Choices AJAX init failed', e); }
-        });
-    });
-</script>
 </html>

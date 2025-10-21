@@ -101,6 +101,70 @@
             <h2>My Vaccinations</h2>
         </div>
 
+        {{-- Vaccination Schedule Table --}}
+        @php
+            $schedule = \App\Models\VaccinationSchedule::where('user_id', auth()->id())->first();
+        @endphp
+        <div style="background:#ffffff;border-radius:12px;padding:1.2rem;margin-bottom:1.5rem;border:1px solid #e5e7eb;">
+            <div style="margin-bottom:1rem;">
+                <strong style="color:#065f46;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+                    <i class="fas fa-calendar-check"></i> Your Vaccination Schedule
+                </strong>
+            </div>
+            @if($schedule && ($schedule->schedule_1 || $schedule->schedule_2 || $schedule->schedule_3))
+                <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;">
+                        <thead>
+                            <tr>
+                                <th style="background:#f0fdf4;color:#065f46;padding:0.75rem;text-align:left;border-bottom:2px solid #dcfce7;font-weight:600;">First Schedule</th>
+                                <th style="background:#f0fdf4;color:#065f46;padding:0.75rem;text-align:left;border-bottom:2px solid #dcfce7;font-weight:600;">Second Schedule</th>
+                                <th style="background:#f0fdf4;color:#065f46;padding:0.75rem;text-align:left;border-bottom:2px solid #dcfce7;font-weight:600;">Third Schedule</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding:1rem 0.75rem;border-bottom:1px solid #f0fdf4;">
+                                    @if($schedule->schedule_1)
+                                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                                            <i class="fas fa-calendar-day" style="color:#065f46"></i>
+                                            <span>{{ \Illuminate\Support\Carbon::parse($schedule->schedule_1)->format('M d, Y') }}</span>
+                                        </div>
+                                    @else
+                                        <span style="color:#6b7280;">Not scheduled</span>
+                                    @endif
+                                </td>
+                                <td style="padding:1rem 0.75rem;border-bottom:1px solid #f0fdf4;">
+                                    @if($schedule->schedule_2)
+                                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                                            <i class="fas fa-calendar-day" style="color:#065f46"></i>
+                                            <span>{{ \Illuminate\Support\Carbon::parse($schedule->schedule_2)->format('M d, Y') }}</span>
+                                        </div>
+                                    @else
+                                        <span style="color:#6b7280;">Not scheduled</span>
+                                    @endif
+                                </td>
+                                <td style="padding:1rem 0.75rem;border-bottom:1px solid #f0fdf4;">
+                                    @if($schedule->schedule_3)
+                                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                                            <i class="fas fa-calendar-day" style="color:#065f46"></i>
+                                            <span>{{ \Illuminate\Support\Carbon::parse($schedule->schedule_3)->format('M d, Y') }}</span>
+                                        </div>
+                                    @else
+                                        <span style="color:#6b7280;">Not scheduled</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div style="text-align:center;padding:1.5rem;color:#6b7280;">
+                    <i class="fas fa-calendar-times" style="font-size:1.5rem;margin-bottom:0.5rem;"></i>
+                    <p style="margin:0;">No vaccination schedule has been set yet.</p>
+                </div>
+            @endif
+        </div>
+
         @if(is_countable($vaccinations) && count($vaccinations))
             @foreach($vaccinations as $v)
                 <div class="vaccination-item">

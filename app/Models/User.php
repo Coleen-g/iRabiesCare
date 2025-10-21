@@ -66,6 +66,14 @@ class User extends Authenticatable
     }
 
     /**
+     * One-to-one relation to VaccinationSchedule record
+     */
+    public function vaccinationSchedule()
+    {
+        return $this->hasOne(\App\Models\VaccinationSchedule::class, 'user_id');
+    }
+
+    /**
      * Decrypted plain password accessor (for admin use only).
      */
     public function getPlainPasswordAttribute()

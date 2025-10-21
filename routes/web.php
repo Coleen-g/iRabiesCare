@@ -9,9 +9,9 @@ use App\Http\Controllers\Admin\CaseController;
 use App\Http\Controllers\Admin\VaccinationController;
 use App\Http\Controllers\UserController;
 
-// Redirect root to the login page
+// Show welcome page at root
 Route::get('/', function () {
-    return redirect()->route('login');
+    return view('welcome');
 });
 
 // Login page (named so auth middleware can redirect to route('login'))
@@ -74,7 +74,7 @@ Route::get('/admin/dashboard', function () {
 })->middleware('auth');
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('patients', PatientController::class)->only(['index','create','store','edit','update','destroy']);
+    Route::resource('patients', PatientController::class)->only(['index','show','create','store','edit','update','destroy']);
     // AJAX endpoint for patient autocomplete
     Route::get('patients/search', [\App\Http\Controllers\Admin\PatientController::class, 'search'])->name('patients.search');
     Route::post('patients/{patient}/generate', [\App\Http\Controllers\Admin\UserGeneratorController::class, 'generateForPatient'])->name('patients.generate');
@@ -90,6 +90,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Reports and settings views remain simple for now
     Route::get('reports', function () { $user = Auth::user(); if (!$user || $user->role !== 'admin') abort(403); return view('admin.reports'); })->name('reports');
     Route::get('settings', function () { $user = Auth::user(); if (!$user || $user->role !== 'admin') abort(403); return view('admin.settings'); })->name('settings');
+
+    // Vaccination schedule management (admin)
+    Route::get('users/{user}/vaccination-schedule', [\App\Http\Controllers\Admin\VaccinationScheduleController::class, 'edit'])->name('vaccination-schedule.edit');
+    Route::put('users/{user}/vaccination-schedule', [\App\Http\Controllers\Admin\VaccinationScheduleController::class, 'update'])->name('vaccination-schedule.update');
 });
 
 // User routes

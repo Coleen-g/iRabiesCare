@@ -60,12 +60,14 @@ class RegisterController extends Controller
         // Registration does not create user credentials. Admin will generate
         // usernames and passwords and link them to patient records.
 
-        // If this is an AJAX request return JSON so the React frontend can
-        // redirect. Otherwise render the completion view.
+        // If this is an AJAX request return JSON so a JS frontend can handle
+        // the next step. Otherwise use Post/Redirect/Get and redirect to the
+        // named completion route so the success page has its own URL and the
+        // browser won't resubmit the form on refresh.
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json(['patient' => $patient], 201);
         }
 
-        return view('auth.register-complete', ['patient' => $patient]);
+        return redirect()->route('register.complete', ['patient' => $patient->id]);
     }
 }
