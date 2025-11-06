@@ -40,9 +40,31 @@ class CaseController extends Controller
             'date_reported' => 'nullable|date',
             'status' => 'required|string|max:50',
             'description' => 'nullable|string',
+            'exposure_date' => 'nullable|date',
+            'exposure_type' => 'nullable|string|max:255',
+            'wounds_location' => 'nullable|string|max:255',
+            'category' => 'nullable|string|max:255',
+            'animal_species' => 'nullable|string|max:255',
+            'animal_status' => 'nullable|string|max:255',
         ]);
 
-        $data['reported_by'] = Auth::id();
+        // prefer provided reported_by if present, otherwise use authenticated user id
+        if (!$request->filled('reported_by')) {
+            $data['reported_by'] = Auth::id();
+        }
+
+        // If exposure/animal fields not provided on the form, try to copy them from the selected patient
+        if (!empty($data['patient_id'])) {
+            $patient = Patient::find($data['patient_id']);
+            if ($patient) {
+                $data['exposure_date'] = $data['exposure_date'] ?? ($patient->exposure_date ?? null);
+                $data['exposure_type'] = $data['exposure_type'] ?? ($patient->exposure_type ?? null);
+                // copy wounds location from patient when missing
+                $data['wounds_location'] = $data['wounds_location'] ?? ($patient->wounds_location ?? null);
+                // patient table stores 'animal' (species) — copy into case's animal_species if missing
+                $data['animal_species'] = $data['animal_species'] ?? ($patient->animal ?? null);
+            }
+        }
 
         CaseModel::create($data);
 
@@ -62,7 +84,23 @@ class CaseController extends Controller
             'date_reported' => 'nullable|date',
             'status' => 'required|string|max:50',
             'description' => 'nullable|string',
+            'exposure_date' => 'nullable|date',
+            'exposure_type' => 'nullable|string|max:255',
+            'wounds_location' => 'nullable|string|max:255',
+            'category' => 'nullable|string|max:255',
+            'animal_species' => 'nullable|string|max:255',
+            'animal_status' => 'nullable|string|max:255',
         ]);
+
+        // If exposure/animal fields not provided on the form, try to copy them from the selected patient
+        if (!empty($data['patient_id'])) {
+            $patient = Patient::find($data['patient_id']);
+            if ($patient) {
+                $data['exposure_date'] = $data['exposure_date'] ?? ($patient->exposure_date ?? null);
+                $data['exposure_type'] = $data['exposure_type'] ?? ($patient->exposure_type ?? null);
+                $data['animal_species'] = $data['animal_species'] ?? ($patient->animal ?? null);
+            }
+        }
 
         $case->update($data);
 

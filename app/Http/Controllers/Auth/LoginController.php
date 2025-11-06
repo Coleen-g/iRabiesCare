@@ -19,18 +19,23 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        // Build credentials array: prefer username (matching 'name' column), fall back to email
+        // Build credentials array: only use username (matching 'name' column)
         if (!empty($data['username'])) {
             $credentials = ['name' => $data['username'], 'password' => $data['password']];
-        } elseif (!empty($data['email'])) {
-            $credentials = ['email' => $data['email'], 'password' => $data['password']];
         } else {
-            return response()->json(['message' => 'Username or email required'], 422);
+            \Log::info('Login attempt', [
+                'credentials' => [],
+                'request_ip' => $request->ip(),
+            ]);
+            return response()->json(['message' => 'Username required'], 422);
         }
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
             $user = Auth::user();
+
+            // Log successful login and role for debugging
+            \Log::info('Login successful', ['user_id' => $user->id, 'role' => $user->role]);
 
             // Ensure the user has a Patient record linked. Create a minimal record if missing.
             if (!$user->patient) {
@@ -49,13 +54,22 @@ class LoginController extends Controller
                 ], 200);
             }
 
-            // Browser flow: redirect admin to dashboard, others to home (or dashboard for now)
+            // Browser flow: redirect by role
             if ($user->role === 'admin') {
                 return redirect('/admin/dashboard');
             }
 
+            if ($user->role === 'health_staff') {
+                return redirect('/health_staff/dashboard');
+            }
+
             return redirect('/user/dashboard');
         }
+
+        \Log::warning('Login failed', [
+            'credentials' => $credentials,
+            'request_ip' => $request->ip(),
+        ]);
 
         return response()->json(['message' => 'Invalid credentials'], 401);
     }

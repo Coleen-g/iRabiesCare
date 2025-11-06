@@ -302,6 +302,16 @@
             <i class="bi bi-heart-pulse-fill"></i> iRabiesCare User Portal
           </div>
           <div class="topbar-right">
+            <div style="position:relative">
+                <a href="{{ route('user.notifications.index') }}" title="Notifications" style="color:#fff;text-decoration:none">
+                    <i class="bi bi-bell" style="font-size:1.25rem"></i>
+                </a>
+                @php $unreadUser = auth()->user()->unreadNotifications()->count(); @endphp
+                @if($unreadUser)
+                    <span style="position:absolute;top:-6px;right:-10px;background:#ef4444;color:#fff;border-radius:999px;padding:2px 6px;font-size:11px">{{ $unreadUser }}</span>
+                @endif
+            </div>
+
             <div class="muted">
               <i class="bi bi-person-fill"></i>
               {{ optional(optional(auth()->user())->patient)->name ?? auth()->user()->name }}

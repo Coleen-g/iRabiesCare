@@ -183,6 +183,15 @@ h2 {
                 <div>{{ $patient->animal ?? '-' }}</div>
             </div>
             <div class="patient-info-item">
+                <strong>Location of Wounds</strong>
+                <div>{{ $patient->wounds_location ?? '-' }}</div>
+            </div>
+
+            <div class="patient-info-item">
+                <strong>Animal Status</strong>
+                <div>{{ $patient->animal_status ?? '-' }}</div>
+            </div>
+            <div class="patient-info-item">
                 <strong>Vaccination Status</strong>
                 <div>{{ $patient->vaccination_status ?? '-' }}</div>
             </div>
@@ -202,7 +211,7 @@ h2 {
                 <strong>Notes</strong>
                 <div>{{ $patient->notes ?? 'No notes' }}</div>
             </div>
-        </div>
+        </div> 
 
         <div class="patient-sidebar">
             <div>
@@ -211,6 +220,18 @@ h2 {
                     <span class="status-badge {{ strtolower($patient->status ?? 'active') }}">
                         {{ $patient->status ?? 'Active' }}
                     </span>
+                </div>
+            </div>
+            <div>
+                <strong>Assigned Health Staff</strong>
+                <div style="margin-top:.5rem">
+                    @if(optional($patient->assignedHealthStaff)->count())
+                        @foreach($patient->assignedHealthStaff as $staff)
+                            <div>{{ $staff->name }}{{ $staff->username ? ' (' . $staff->username . ')' : '' }}</div>
+                        @endforeach
+                    @else
+                        <div>—</div>
+                    @endif
                 </div>
             </div>
             <div>

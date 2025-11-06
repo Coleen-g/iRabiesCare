@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\VaccinationSchedule;
+use App\Notifications\ScheduleChangedNotification;
 use Illuminate\Http\Request;
 
 class VaccinationScheduleController extends Controller
@@ -31,6 +32,12 @@ class VaccinationScheduleController extends Controller
                 'schedule_3' => $request->schedule_3,
             ]
         );
+
+        // Notify the patient user if present
+        $user = User::find($userId);
+        if ($user && $user->patient) {
+            $user->notify(new ScheduleChangedNotification($schedule));
+        }
 
         return redirect()->route('admin.vaccinations.index')
             ->with('success', 'Vaccination schedule updated!');

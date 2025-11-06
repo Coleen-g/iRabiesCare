@@ -209,6 +209,7 @@
             <table class="admin-table">
                 <thead>
                     <tr>
+                        <th style="width:60px">No.</th>
                         <th>Name</th>
                         <th>Contact</th>
                         <th>Username</th>
@@ -221,7 +222,14 @@
                 </thead>
                 <tbody>
                     @foreach($patients as $p)
+                        @php
+                            // Calculate row number taking pagination into account when available
+                            $rowNumber = (isset($patients) && method_exists($patients, 'currentPage'))
+                                ? ($patients->currentPage() - 1) * $patients->perPage() + $loop->iteration
+                                : $loop->iteration;
+                        @endphp
                         <tr>
+                            <td>{{ $rowNumber }}</td>
                             <td>
                                 <strong>{{ $p->name }}</strong><br>
                                 <small style="color:#6b7280;">{{ $p->type ?? '' }}</small>

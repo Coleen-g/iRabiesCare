@@ -123,18 +123,72 @@
         /* === Topbar === */
         .topbar {
             display: flex;
-            justify-content: flex-end;
             align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
             background: #fff;
-            padding: 0.75rem 1rem;
+            padding: 0.6rem 1rem;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
             margin-bottom: 1.5rem;
         }
 
-        .topbar strong {
-            color: #000;
+        .topbar-left {
+            display:flex;
+            align-items:center;
+            gap:1rem;
         }
+
+        .topbar-title {
+            font-size:1.05rem;
+            font-weight:700;
+            margin:0;
+            color:#111;
+        }
+
+        .topbar-search input {
+            padding:0.45rem 0.6rem;
+            border:1px solid #e6e6e6;
+            border-radius:8px;
+            min-width:260px;
+            outline:none;
+        }
+
+        .topbar-right {
+            display:flex;
+            align-items:center;
+            gap:0.75rem;
+        }
+
+        .topbar-right .notif {
+            position:relative;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width:40px;
+            height:40px;
+            border-radius:8px;
+            color:#111;
+            text-decoration:none;
+        }
+
+        .topbar-right .notif:hover { background:#f7f7f7 }
+
+        .topbar-right .notif .badge {
+            position:absolute;
+            top:6px;
+            right:6px;
+            background:#ef4444;
+            color:#fff;
+            font-size:11px;
+            padding:2px 6px;
+            border-radius:999px;
+            line-height:1;
+        }
+
+        .profile { display:flex; align-items:center; gap:0.5rem; padding:0.25rem 0.5rem; border-radius:6px }
+
+        .profile .profile-name { font-weight:600 }
 
         /* === Card === */
         .card {
@@ -186,6 +240,21 @@
                 width: calc(100% - 70px);
             }
         }
+
+        /* Small inline compose icon placed next to signed-in name */
+        .compose-inline {
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width:34px;
+            height:34px;
+            border-radius:6px;
+            background:transparent;
+            text-decoration:none;
+            border:1px solid rgba(0,0,0,0.08);
+        }
+
+        .compose-inline:hover { background: #f0f0f0 }
     </style>
 </head>
 <body>
@@ -233,10 +302,41 @@
 
         <main class="content">
             <div class="topbar">
-                <div><i class="bi bi-person-circle" style="color:#000; margin-right:6px;"></i> Signed in as <strong>{{ auth()->user()->name }}</strong></div>
+                <div class="topbar-left">
+                    <h2 class="topbar-title">@yield('title', 'Admin')</h2>
+                    <div class="topbar-search">
+                        <form method="GET" action="{{ url()->current() }}">
+                            <input type="search" name="q" placeholder="Search..." value="{{ request('q') }}">
+                        </form>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    @if(auth()->check())
+                        <a href="{{ route('user.notifications.index') }}" class="notif" title="Notifications">
+                            <i class="bi bi-bell" style="font-size:18px;"></i>
+                            @php $unread = auth()->user()->unreadNotifications()->count(); @endphp
+                            @if($unread)
+                                <span class="badge">{{ $unread }}</span>
+                            @endif
+                        </a>
+                    @endif
+
+                    @if(auth()->check() && auth()->user()->role === 'admin')
+                        <a href="{{ route('admin.messages.create') }}" class="compose-inline" title="Compose message">
+                            <i class="bi bi-envelope-plus" style="font-size:16px;color:#000"></i>
+                        </a>
+                    @endif
+
+                    <div class="profile">
+                        <i class="bi bi-person-circle" style="font-size:20px;color:#000"></i>
+                        <div class="profile-name">{{ auth()->user()->name }}</div>
+                    </div>
+                </div>
             </div>
 
             @yield('content')
+            {{-- compose button moved to topbar beside signed-in info --}}
         </main>
     </div>
 </body>

@@ -22,6 +22,8 @@ class Patient extends Model
         'animal',
         'vaccination_status',
         'last_dose_date',
+        'wounds_location',
+        'animal_status',
         'clinic',
         'emergency_contact',
     ];
@@ -29,6 +31,16 @@ class Patient extends Model
     public function cases()
     {
         return $this->hasMany(CaseModel::class, 'patient_id');
+    }
+
+    /**
+     * Health staff assigned to this patient (many-to-many via health_staff_assignments)
+     */
+    public function assignedHealthStaff()
+    {
+        return $this->belongsToMany(\App\Models\User::class, 'health_staff_assignments', 'patient_id', 'health_staff_id')
+                    ->withTimestamps()
+                    ->withPivot(['id', 'assigned_by', 'assigned_at']);
     }
 
     public function vaccinations()

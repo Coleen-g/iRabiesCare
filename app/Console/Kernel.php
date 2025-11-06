@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \App\Console\Commands\PreviewPatientUserMatches::class,
         \App\Console\Commands\GeneratePatientUsers::class,
+        \App\Console\Commands\SendVaccinationNotifications::class,
     ];
 
     /**
@@ -22,7 +23,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        //
+        // Run vaccination notifications daily at 08:00
+        $schedule->command('send:vaccination-notifications')->dailyAt('08:00');
     }
 
     /**

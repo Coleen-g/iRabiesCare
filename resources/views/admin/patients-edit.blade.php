@@ -220,6 +220,16 @@ form .form-grid {
             </div>
 
             <div class="form-group">
+                <label>Location of Wounds</label>
+                <input name="wounds_location" value="{{ old('wounds_location', $patient->wounds_location) }}" />
+            </div>
+
+            <div class="form-group">
+                <label>Animal Status</label>
+                <input name="animal_status" value="{{ old('animal_status', $patient->animal_status) }}" />
+            </div>
+
+            <div class="form-group">
                 <label>Vaccination Status</label>
                 <select name="vaccination_status">
                     <option value=""{{ old('vaccination_status', $patient->vaccination_status) == '' ? ' selected' : '' }}>Select</option>
@@ -246,6 +256,19 @@ form .form-grid {
             <div class="form-group" style="grid-column:1/3;">
                 <label>Notes</label>
                 <textarea name="notes">{{ old('notes', $patient->notes) }}</textarea>
+            </div>
+
+            <div class="form-group" style="grid-column:1/3;">
+                <label>Assign Health Staff</label>
+                <select name="assigned_health_staff" style="min-height:44px;">
+                    <option value="">-- Select Health Staff --</option>
+                    @foreach($healthStaff as $hs)
+                        <option value="{{ $hs->id }}" {{ (int) old('assigned_health_staff', $patient->assignedHealthStaff->first()->id ?? '') === $hs->id ? 'selected' : '' }}>
+                            {{ $hs->name }} ({{ $hs->email }})
+                        </option>
+                    @endforeach
+                </select>
+                <small style="color:#6b7280">Select the staff assigned to this patient.</small>
             </div>
         </div>
 

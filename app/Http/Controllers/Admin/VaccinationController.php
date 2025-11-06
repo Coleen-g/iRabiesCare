@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Vaccination;
 use App\Models\Patient;
+use App\Notifications\VaccinationRecordedNotification;
+use App\Notifications\VaccinationCompletedNotification;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 
 class VaccinationController extends Controller
@@ -45,7 +48,36 @@ class VaccinationController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        Vaccination::create($data);
+        $vaccination = Vaccination::create($data);
+
+        // Notify patient user (if exists)
+        $patient = Patient::find($data['patient_id']);
+        if ($patient && $patient->user) {
+            $patient->user->notify(new VaccinationRecordedNotification($vaccination));
+
+            // Check for course completion: compare scheduled dates count vs vaccination count
+            $schedule = optional($patient->user->vaccinationSchedule);
+            if ($schedule) {
+                $dates = array_filter([
+                    $schedule->schedule_1,
+                    $schedule->schedule_2,
+                    $schedule->schedule_3,
+                ]);
+                $scheduledCount = count($dates);
+                if ($scheduledCount > 0) {
+                    $vaccinationCount = Vaccination::where('patient_id', $patient->id)->count();
+                    $allPast = collect($dates)->every(function($d) { return Carbon::parse($d)->startOfDay()->lte(Carbon::today()); });
+                    if ($allPast && $vaccinationCount >= $scheduledCount) {
+                        // send completed notification if not already sent
+                        $already = $patient->user->notifications()->where('type', VaccinationCompletedNotification::class)->exists();
+                        if (! $already) {
+                            $last = Vaccination::where('patient_id', $patient->id)->latest('date_given')->first();
+                            $patient->user->notify(new VaccinationCompletedNotification($last ? $last->date_given : null));
+                        }
+                    }
+                }
+            }
+        }
 
         return redirect()->route('admin.vaccinations.index')->with('success', 'Vaccination recorded');
     }
@@ -68,6 +100,34 @@ class VaccinationController extends Controller
         ]);
 
         $vaccination->update($data);
+
+        // Notify patient user (if exists)
+        $patient = $vaccination->patient;
+        if ($patient && $patient->user) {
+            $patient->user->notify(new VaccinationRecordedNotification($vaccination));
+
+            // Check completion similarly
+            $schedule = optional($patient->user->vaccinationSchedule);
+            if ($schedule) {
+                $dates = array_filter([
+                    $schedule->schedule_1,
+                    $schedule->schedule_2,
+                    $schedule->schedule_3,
+                ]);
+                $scheduledCount = count($dates);
+                if ($scheduledCount > 0) {
+                    $vaccinationCount = Vaccination::where('patient_id', $patient->id)->count();
+                    $allPast = collect($dates)->every(function($d) { return Carbon::parse($d)->startOfDay()->lte(Carbon::today()); });
+                    if ($allPast && $vaccinationCount >= $scheduledCount) {
+                        $already = $patient->user->notifications()->where('type', VaccinationCompletedNotification::class)->exists();
+                        if (! $already) {
+                            $last = Vaccination::where('patient_id', $patient->id)->latest('date_given')->first();
+                            $patient->user->notify(new VaccinationCompletedNotification($last ? $last->date_given : null));
+                        }
+                    }
+                }
+            }
+        }
 
         return redirect()->route('admin.vaccinations.index')->with('success', 'Vaccination updated');
     }

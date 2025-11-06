@@ -209,7 +209,13 @@
                     <th>ID</th>
                     <th>Patient</th>
                     <th>Date Reported</th>
-                    <th>Status</th>
+                    <th>Case Status</th>
+                    <th>Date of Exposure</th>
+                    <th>Type of Exposure</th>
+                    <th>Location of Wounds</th>
+                    <th>Category</th>
+                    <th>Species</th>
+                    <th>Animal Status</th>
                     <th>Reported By</th>
                     <th>Description</th>
                     <th style="width:160px;">Actions</th>
@@ -228,6 +234,15 @@
                                 {{ ucfirst($c->status) }}
                             </span>
                         </td>
+                        @php
+                            $exposureDate = $c->exposure_date ?? ($c->patient->exposure_date ?? null);
+                        @endphp
+                        <td>{{ $exposureDate ? \Illuminate\Support\Carbon::parse($exposureDate)->format('Y-m-d') : '—' }}</td>
+                        <td>{{ $c->exposure_type ?? ($c->patient->exposure_type ?? '—') }}</td>
+                        <td>{{ $c->wounds_location ?? '—' }}</td>
+                        <td>{{ $c->category ?? '—' }}</td>
+                        <td>{{ $c->animal_species ?? ($c->patient->animal ?? '—') }}</td>
+                        <td>{{ $c->animal_status ?? '—' }}</td>
                         <td>{{ optional($c->reporter)->name ?? optional($c->reporter)->email ?? '—' }}</td>
                         <td>{{ \Illuminate\Support\Str::limit($c->description, 100, '...') }}</td>
                         <td>

@@ -392,7 +392,8 @@
 
     <!-- Stats Grid -->
     <div class="stats-grid">
-        <div class="stat-card">
+        <a href="{{ route('admin.patients.index') }}" style="text-decoration:none;color:inherit;">
+            <div class="stat-card">
             <div class="stat-header">
                 <div class="stat-icon primary">
                     <i class="bi bi-people"></i>
@@ -406,9 +407,11 @@
                     <span>Active Patients</span>
                 </div>
             </div>
-        </div>
+            </div>
+        </a>
 
-        <div class="stat-card">
+        <a href="{{ route('admin.cases.index') }}" style="text-decoration:none;color:inherit;">
+            <div class="stat-card">
             <div class="stat-header">
                 <div class="stat-icon info">
                     <i class="bi bi-journal-medical"></i>
@@ -422,9 +425,11 @@
                     <span>Total Reports</span>
                 </div>
             </div>
-        </div>
+            </div>
+        </a>
 
-        <div class="stat-card">
+        <a href="{{ route('admin.vaccinations.index') }}" style="text-decoration:none;color:inherit;">
+            <div class="stat-card">
             <div class="stat-header">
                 <div class="stat-icon success">
                     <i class="bi bi-capsule"></i>
@@ -438,7 +443,8 @@
                     <span>Completed</span>
                 </div>
             </div>
-        </div>
+            </div>
+        </a>
     </div>
 
     <!-- Overview Section -->

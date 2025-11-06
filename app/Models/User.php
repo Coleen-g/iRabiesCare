@@ -66,6 +66,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Patients assigned to this health staff (many-to-many via health_staff_assignments)
+     */
+    public function assignedPatients()
+    {
+        return $this->belongsToMany(\App\Models\Patient::class, 'health_staff_assignments', 'health_staff_id', 'patient_id')
+                    ->withTimestamps()
+                    ->withPivot(['id', 'assigned_by', 'assigned_at']);
+    }
+
+    /**
      * One-to-one relation to VaccinationSchedule record
      */
     public function vaccinationSchedule()
@@ -84,5 +94,16 @@ class User extends Authenticatable
         } catch (\Throwable $e) {
             return null;
         }
+    }
+
+    /**
+     * Send the password reset notification.
+     * This ensures the Password broker can notify the user with a reset token.
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        // Use an application notification that explicitly includes the
+        // user's email in the reset URL so the reset form can prefill it.
+        $this->notify(new \App\Notifications\ResetPasswordWithEmail($token));
     }
 }

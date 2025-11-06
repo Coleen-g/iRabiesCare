@@ -192,6 +192,42 @@
             </div>
         </div>
 
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Date of Exposure</label>
+                <input name="exposure_date" type="date" />
+            </div>
+
+            <div class="form-group">
+                <label>Type of Exposure</label>
+                <input name="exposure_type" placeholder="e.g. Bite, Scratch" />
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Location of Wounds</label>
+                <input name="wounds_location" placeholder="e.g. Left arm" />
+            </div>
+
+            <div class="form-group">
+                <label>Category</label>
+                <input name="category" placeholder="e.g. Category II" />
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Species of Animal</label>
+                <input name="animal_species" placeholder="Dog, Cat, etc." />
+            </div>
+
+            <div class="form-group">
+                <label>Animal Status</label>
+                <input name="animal_status" placeholder="e.g. Alive, Dead, Unknown" />
+            </div>
+        </div>
+
         <div class="form-group" style="grid-column:1/3;">
             <label>Description</label>
             <textarea name="description" placeholder="Enter case details..."></textarea>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Patient;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class PatientController extends Controller
@@ -16,7 +17,12 @@ class PatientController extends Controller
             $query->where('name', 'like', "%{$q}%")
                   ->orWhere('contact', 'like', "%{$q}%")
                   ->orWhere('email', 'like', "%{$q}%");
-        })->latest()->paginate(15)->withQueryString();
+        })
+        // Exclude patients that are actually admin or health_staff users (if linked via user_id)
+        ->whereDoesntHave('user', function($query) {
+            $query->whereIn('role', ['admin', 'health_staff']);
+        })
+        ->latest()->paginate(15)->withQueryString();
         return view('admin.patients', compact('patients'));
     }
 
@@ -30,7 +36,11 @@ class PatientController extends Controller
             $query->where('name', 'like', "%{$q}%")
                   ->orWhere('contact', 'like', "%{$q}%")
                   ->orWhere('email', 'like', "%{$q}%");
-        })->orderBy('name')->limit(20)->get();
+        })
+        ->whereDoesntHave('user', function($query) {
+            $query->whereIn('role', ['admin', 'health_staff']);
+        })
+        ->orderBy('name')->limit(20)->get();
 
         // choices.js expects items with value & label/text; we'll return id and a combined label
         $payload = $results->map(function($p){
@@ -106,7 +116,10 @@ class PatientController extends Controller
 
     public function edit(Patient $patient)
     {
-        return view('admin.patients-edit', compact('patient'));
+        // load assigned health staff relation and provide list of available health_staff users
+        $patient->load('assignedHealthStaff');
+        $healthStaff = User::where('role', 'health_staff')->orderBy('name')->get();
+        return view('admin.patients-edit', compact('patient', 'healthStaff'));
     }
 
     public function update(Request $request, Patient $patient)
@@ -151,6 +164,42 @@ class PatientController extends Controller
         ];
 
         $patient->update($payload);
+
+        // Sync assigned health staff if provided (accept a single id or an array)
+        if ($request->has('assigned_health_staff')) {
+            $input = $request->input('assigned_health_staff', null);
+            $assigned = [];
+            if (is_array($input)) {
+                $assigned = collect($input)->map(function($v){ return (int) $v; })->filter()->unique()->values()->all();
+            } elseif ($input) {
+                $assigned = [(int) $input];
+            }
+
+            // preserve existing pivot assigned_by/assigned_at when present
+            $existing = $patient->assignedHealthStaff()->get()->keyBy('id')->map(function($u){
+                return [
+                    'assigned_by' => $u->pivot->assigned_by ?? null,
+                    'assigned_at' => $u->pivot->assigned_at ?? null,
+                ];
+            })->toArray();
+
+            $syncData = [];
+            foreach ($assigned as $id) {
+                if (isset($existing[$id]) && $existing[$id]['assigned_by']) {
+                    $syncData[$id] = [
+                        'assigned_by' => $existing[$id]['assigned_by'],
+                        'assigned_at' => $existing[$id]['assigned_at'],
+                    ];
+                } else {
+                    $syncData[$id] = [
+                        'assigned_by' => auth()->id(),
+                        'assigned_at' => now(),
+                    ];
+                }
+            }
+
+            $patient->assignedHealthStaff()->sync($syncData);
+        }
 
         return redirect()->route('admin.patients.show', $patient)->with('success', 'Patient updated');
     }

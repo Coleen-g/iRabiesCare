@@ -17,6 +17,12 @@ class CaseModel extends Model
         'status',
         'description',
         'reported_by',
+        'exposure_date',
+        'exposure_type',
+        'wounds_location',
+        'category',
+        'animal_species',
+        'animal_status',
     ];
 
     public function patient()
