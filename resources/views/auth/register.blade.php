@@ -6,7 +6,7 @@
   <title>Patient Registration | iRabiesCare</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <style>
-    /* Global background aligned to login page */
+    /* Match login color scheme and improve layout */
     body {
       margin: 0;
       padding: 0;
@@ -15,27 +15,29 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      background: linear-gradient(135deg, #43a047, #66bb6a, #a8e6cf);
       color: #fff;
-      overflow: hidden;
+      overflow: auto; /* allow scrolling on small screens to avoid overlap */
     }
 
     .register-container {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(15px);
-      padding: 40px;
-      border-radius: 20px;
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(18px);
+      padding: 28px 28px 20px;
+      border-radius: 18px;
       width: 100%;
-      max-width: 500px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+      max-width: 820px;
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
       position: relative;
+      max-height: calc(100vh - 80px); /* keep container within viewport */
+      overflow-y: auto; /* allow internal scroll when content is tall */
     }
 
     .register-logo img {
       width: 140px;
       display: block;
-      margin: 0 auto 15px;
+      margin: 0 auto 10px;
     }
 
     h2 {
@@ -51,13 +53,28 @@
       margin-bottom: 20px;
     }
 
+    /* form steps use a responsive grid so inputs align nicely */
     .form-step {
       display: none;
-      animation: fadeIn 0.5s ease;
+      animation: fadeIn 0.4s ease;
+      padding-top: 6px;
+      box-sizing: border-box;
+      min-height: 0; /* allow grid children to shrink without overflow */
     }
 
     .form-step.active {
-      display: block;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      align-items: start;
+      align-content: start; /* ensure content starts at top */
+      row-gap: 12px;
+    }
+    @media (min-width: 760px) {
+      .form-step.active.two-col {
+        grid-template-columns: 1fr 1fr;
+      }
+      .form-step .full-span { grid-column: 1 / -1; }
     }
 
     @keyframes fadeIn {
@@ -67,13 +84,21 @@
 
     input, select {
       width: 100%;
-      padding: 10px 12px;
-      margin-bottom: 12px;
-      border: none;
+      display: block;
+      padding: 12px 14px;
+      margin: 0; /* spacing handled by grid gap */
+      border: 1px solid rgba(0,0,0,0.06);
       border-radius: 8px;
-      background: rgba(255,255,255,0.9);
-      color: #000;
+      background: rgba(255,255,255,0.98);
+      color: #082032;
       font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      box-shadow: 0 0 0 6px rgba(67,160,71,0.12);
+      border-color: rgba(67,160,71,0.9);
     }
 
     input::placeholder {
@@ -87,23 +112,32 @@
     .buttons {
       display: flex;
       justify-content: space-between;
-      margin-top: 15px;
+      margin-top: 12px;
+      gap: 8px;
+      align-items: center;
     }
 
-    button {
+    .btn-primary {
       background: linear-gradient(90deg, #43a047, #66bb6a);
       border: none;
       padding: 10px 18px;
       color: #fff;
-      border-radius: 25px;
-      font-weight: 600;
+      border-radius: 8px;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.3s ease;
+      box-shadow: 0 6px 18px rgba(67,160,71,0.18);
     }
 
-    button:hover {
-      transform: scale(1.07);
-      background: linear-gradient(90deg, #2e7d32, #4caf50);
+    .btn-primary:hover { transform: translateY(-2px); }
+
+    .btn-secondary {
+      background: transparent;
+      color: rgba(255,255,255,0.95);
+      border: 1px solid rgba(255,255,255,0.18);
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
     }
 
     .consent {
@@ -140,10 +174,10 @@
       <p class="step-indicator" id="stepIndicator">Step 1 of 4</p>
 
       <!-- Step 1 -->
-      <div class="form-step active">
-        <h3>Personal Information</h3>
-        <input type="text" name="fullName" placeholder="Full Name (e.g. Juan Dela Cruz)" required>
-  <input type="date" name="dob" placeholder="Date of Birth" required>
+      <div class="form-step active two-col">
+        <h3 class="full-span">Personal Information</h3>
+        <input class="full-span" type="text" name="fullName" placeholder="Full Name (e.g. Juan Dela Cruz)" required>
+        <input type="date" name="dob" placeholder="Date of Birth" required>
         <select name="gender" required>
           <option value="">Select Gender</option>
           <option>Male</option>
@@ -151,8 +185,8 @@
           <option>Other</option>
         </select>
         <!-- Municipality (Bohol) + Barangay (dynamic) -->
-        <label for="municipality" style="display:none">Municipality</label>
-        <select name="municipality" id="municipality" required>
+  <label for="municipality" style="display:none" class="full-span">Municipality</label>
+  <select class="full-span" name="municipality" id="municipality" required>
           <option value="">Select Municipality (Bohol)</option>
           <option>Alburquerque</option>
           <option>Alicia</option>
@@ -198,22 +232,21 @@
           <option>Ubay</option>
         </select>
 
-  <label for="barangay">Barangay</label>
-  <select name="barangay" id="barangay"></select>
-  <input type="text" name="barangay_other" id="barangay_other" placeholder="Barangay (type if not listed)" style="display:none" />
-  <!-- Hidden address field concatenated from municipality + barangay for DB storage -->
-  <input type="hidden" name="address" id="address_hidden" value="" />
-        <input type="text" name="contact" placeholder="Contact Number (mobile or landline)" required>
+        <label for="barangay" class="full-span">Barangay</label>
+        <select class="full-span" name="barangay" id="barangay"></select>
+        <input class="full-span" type="text" name="barangay_other" id="barangay_other" placeholder="Barangay (type if not listed)" style="display:none" />
+  <!-- Note: hidden combined address field removed. Municipality + Barangay are submitted separately. -->
+  <input id="contactInput" type="tel" name="contact" placeholder="Contact Number (mobile or landline)" required maxlength="15" inputmode="numeric" pattern="\d+" title="Digits only, max 15 characters">
         <input type="email" name="email" placeholder="Email (required)" required>
-        <div class="buttons">
+        <div class="buttons full-span">
           <span></span>
-          <button type="button" onclick="nextStep()">Next →</button>
+          <button type="button" class="btn-primary" onclick="nextStep()">Next →</button>
         </div>
       </div>
 
       <!-- Step 2 -->
-      <div class="form-step">
-        <h3>Medical Information</h3>
+  <div class="form-step two-col">
+    <h3 class="full-span">Medical Information</h3>
   <input type="date" name="exposureDate" placeholder="Exposure Date">
         <select name="exposureType">
           <option value="">Type of Exposure</option>
@@ -223,6 +256,7 @@
           <option>Other</option>
         </select>
         <input type="text" name="animal" placeholder="Animal Involved (e.g. Dog, Cat)">
+        <input type="text" name="woundsLocation" placeholder="Wounds location (e.g. left forearm, face)">
         <select name="vaccinationStatus">
           <option value="">Vaccination Status</option>
           <option>First time (no doses yet)</option>
@@ -230,33 +264,35 @@
           <option>Completed</option>
         </select>
   <input type="date" name="lastDoseDate" placeholder="Last Dose Date">
-        <input type="text" name="clinic" placeholder="Clinic/Hospital Name (if applicable)">
-        <div class="buttons">
-          <button type="button" onclick="prevStep()">← Back</button>
-          <button type="button" onclick="nextStep()">Next →</button>
+  <input type="text" name="clinic" placeholder="Clinic/Hospital Name (if applicable)" value="Talibon-Branch">
+        <div class="buttons full-span">
+          <button type="button" class="btn-secondary" onclick="prevStep()">← Back</button>
+          <button type="button" class="btn-primary" onclick="nextStep()">Next →</button>
         </div>
       </div>
 
       <!-- Step 3 -->
-      <div class="form-step">
-        <h3>Account Details</h3>
+      <div class="form-step two-col">
+        <h3 class="full-span">Account Details</h3>
         <p style="font-size: 14px; color: #ddd;">Your login credentials will be provided by the clinic administrator.</p>
-        <div class="buttons">
-          <button type="button" onclick="prevStep()">← Back</button>
-          <button type="button" onclick="nextStep()">Next →</button>
+        <div class="buttons full-span">
+          <button type="button" class="btn-secondary" onclick="prevStep()">← Back</button>
+          <button type="button" class="btn-primary" onclick="nextStep()">Next →</button>
         </div>
       </div>
 
       <!-- Step 4 -->
-      <div class="form-step">
-        <h3>Emergency Contact</h3>
-        <input type="text" name="emergencyContact" placeholder="Emergency Contact (Name & Number, e.g. Maria - 09171234567)" required>
-        <label class="consent">
-          <input type="checkbox" required> I consent to my data being used for vaccination monitoring.
-        </label>
-        <div class="buttons">
-          <button type="button" onclick="prevStep()">← Back</button>
-          <button type="button" onclick="submitRegistration()">Submit ✔</button>
+      <div class="form-step two-col">
+        <h3 class="full-span">Emergency Contact</h3>
+        <input class="full-span" type="text" name="emergencyContact" placeholder="Emergency Contact (Name & Number, e.g. Maria - 09171234567)" required>
+        <div class="full-span">
+          <label class="consent" style="justify-content:flex-start;">
+            <input type="checkbox" required style="margin-right:8px;"> I consent to my data being used for vaccination monitoring.
+          </label>
+        </div>
+        <div class="buttons full-span" style="margin-top:8px;">
+          <button type="button" class="btn-secondary" onclick="prevStep()">← Back</button>
+          <button type="button" class="btn-primary" onclick="submitRegistration()">Submit ✔</button>
         </div>
       </div>
     </form>
@@ -292,6 +328,13 @@
         if (input.type === 'email') {
           const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(".+"))@(([^<>()[\]\\.,;:\s@\"]+\.)+[^<>()[\]\\.,;:\s@\"]{2,})$/i;
           if (!re.test(input.value)) return false;
+        }
+
+        // extra check for contact number: digits only, max 15
+        if (input.name === 'contact') {
+          const val = input.value.replace(/\s+/g, '');
+          const reNum = /^\d{1,15}$/;
+          if (!reNum.test(val)) return false;
         }
       }
 
@@ -335,8 +378,6 @@
         alert('Please provide consent to continue.');
         return;
       }
-      // Ensure address hidden field is up-to-date before submitting
-      updateHiddenAddress();
       // Submit the form programmatically (avoids issues with multi-step buttons)
       document.getElementById('registerForm').submit();
     }
@@ -397,21 +438,82 @@
       setupDatePlaceholders();
       showStep(0);
       setupMunicipalityBarangays();
+      // sanitize contact input: allow digits only and enforce maxlength
+      const contact = document.getElementById('contactInput');
+      if (contact) {
+        contact.addEventListener('input', (e) => {
+          // remove non-digits
+          let cleaned = e.target.value.replace(/\D+/g, '');
+          // enforce maxlength
+          if (cleaned.length > 15) cleaned = cleaned.slice(0, 15);
+          if (cleaned !== e.target.value) e.target.value = cleaned;
+        });
+      }
     });
 
     // municipality -> barangays mapping loader
     function setupMunicipalityBarangays() {
       const inlineMapping = {
-        'Tagbilaran City': ['Bool', 'Cagbuan', 'Cogon', 'Danao', 'Daorong', 'Guingona', 'Kimsan', 'Manaba', 'Panglao', 'Tiptip'],
-        'Panglao': ['Doljo', 'Danao', 'Bohol', 'Pob.'],
-        'Carmen': ['Cantagay', 'Jaduan', 'Candabong', 'Mabini', 'Poblacion'],
-        'Anda': ['Buenavista', 'Cabuntog', 'Canhepoy', 'Poblacion'],
-        'Dauis': ['Agape', 'Bacani', 'Bogo', 'Buenavista', 'Dauis Poblacion']
+        "Alburquerque": ["Poblacion","Bugsoc","Danlugan","Lo-ok","Lugsong","San Isidro","Tugas"],
+        "Alicia": ["Poblacion","Bunga Mar","Sapang Dalaga","Santo Niño","San Roque","Cabangtuan"],
+        "Anda": ["Buenavista","Cabuntog","Can-iat","Can-oc","Canhepoy","Poblacion"],
+        "Antequera": ["Poblacion","Basak","Buenavista","Maitum","San Pedro"],
+        "Baclayon": ["Poblacion","Canhawit","Dangay","Looc","Poblacion West"],
+        "Balilihan": ["Poblacion","Bangkal","Cabacungan","Cansague","Tugas"],
+        "Batuan": ["Poblacion","Candayoc","Candili","Lo-ong","Santa Cruz"],
+        "Bien Unido": ["Poblacion","Bunga","Luyang","Napo","Talisay"],
+        "Buenavista": ["Poblacion","Guadalupe","San Roque","Tugas","Campo"],
+        "Calape": ["Poblacion","Cebulok","Cambaquiz","Calunasan","Punta"],
+        "Candijay": ["Poblacion","Bunga","Cagbong","Punta","San Miguel"],
+        "Carmen": ["Poblacion","Cantagay","Jadjao","Mabini","Punta"],
+        "Catigbian": ["Poblacion","Abihilan","San Isidro","Cubay","Tag-ilid"],
+        "Clarin": ["Poblacion","East Poblacion","West Poblacion","Cabug","San Vicente"],
+        "Corella": ["Poblacion","Cabuan","Linkon","Santo Niño"],
+        "Cortes": ["Poblacion","Canha-ayon","Palanas","San Roque"],
+        "Dagohoy": ["Poblacion","Kilahon","Cansuhay","San Isidro"],
+        "Danao": ["Poblacion","San Roque","Samboan","Tugas"],
+        "Dauis": ["Poblacion","Agape","Bacani","Buenavista","Dauis Poblacion"],
+        "Dimiao": ["Poblacion","Garcia","San Vicente","Tabalong"],
+        "Duero": ["Poblacion","San Miguel","Poblacion West","Tagbilaran"],
+        "Garcia Hernandez": ["Poblacion","Poblacion Norte","San Jose","Tag-oro"],
+        "Guindulman": ["Poblacion","Luna","San Roque","Tabuan"],
+        "Inabanga": ["Poblacion","Jandayan","San Isidro","Villa-Angeles"],
+        "Jagna": ["Poblacion","Alejawan","Balili","Boctol","Can-upao"],
+        "Lila": ["Poblacion","San Jose","Doljo","Mabini"],
+        "Loay": ["Poblacion","Tabuc","San Vicente","Can-uba"],
+        "Loboc": ["Poblacion","Bahian","Tabalong","Pangapasan"],
+        "Mabini": ["Poblacion","Maribojoc","San Roque","Punta"],
+        "Maribojoc": ["Poblacion","Busalian","Cansayang","San Miguel"],
+        "Panglao": ["Doljo","Danao","Bohol","Poblacion","Punta"],
+        "Pilar": ["Poblacion","Can-ayan","San Roque","Tagbilaran"],
+        "Pres. Carlos P. Garcia": ["Poblacion","Tagbilaran","Punta","San Roque"],
+        "Sagbayan": ["Poblacion","San Isidro","Canlaon","Campaclan"],
+        "Sikatuna": ["Poblacion","Can-avid","San Miguel","Tugas"],
+        "Sierra Bullones": ["Poblacion","Candas","Magsaysay","San Roque"],
+        "Tagbilaran City": ["Bool","Cagbuan","Cogon","Danao","Daorong","Guingona","Kimsan","Manaba","Panglao","Tiptip","Poblacion"],
+        "Talibon": ["Poblacion","Bagacay","Balintawak","Burgos","Busalian","San Roque"],
+        "Trinidad": ["Poblacion","Loay","Cabawan","San Miguel"],
+        "Tubigon": ["Poblacion","Bagongbanwa","Banlasan","Bunacan","Cabulihan","Tinangnan"],
+        "Ubay": ["Poblacion","Achila","Bay-ang","Buenavista","San Pascual","San Isidro"]
       };
 
       const municipality = document.getElementById('municipality');
       const barangaySel = document.getElementById('barangay');
       const barangayOther = document.getElementById('barangay_other');
+
+      // Centralized listener: toggle the manual barangay input when the barangay select changes.
+      // Having one listener prevents duplicate handlers when the select is rebuilt.
+      barangaySel.addEventListener('change', function () {
+        if (this.value === '__other__') {
+          barangayOther.style.display = '';
+          barangayOther.required = true;
+          barangaySel.required = false;
+        } else {
+          barangayOther.style.display = 'none';
+          barangayOther.required = false;
+          barangaySel.required = true;
+        }
+      });
 
       function clearBarangays() {
         barangaySel.innerHTML = '';
@@ -439,6 +541,7 @@
         barangaySel.required = true;
         barangayOther.style.display = 'none';
         barangayOther.required = false;
+        // Manual input visibility is handled by the centralized change listener.
       }
 
       // When municipality has no known barangays, present 'Other (type)' as the only option
@@ -457,6 +560,7 @@
         barangaySel.required = false;
         barangayOther.style.display = '';
         barangayOther.required = true;
+        // Manual input visibility is handled by the centralized change listener.
       }
 
       function attachMapping(mapping) {
@@ -472,7 +576,6 @@
             barangaySel.required = false;
             barangayOther.style.display = 'none';
             barangayOther.required = false;
-            updateHiddenAddress();
             return;
           }
 
@@ -502,47 +605,13 @@
         return r.json();
       }).then(json => {
         attachMapping(json);
-        // whenever mapping is attached, also wire address updates so the hidden address follows the selected values
-        wireAddressUpdater();
       }).catch(() => {
         // fallback to inline mapping
         attachMapping(inlineMapping);
-        wireAddressUpdater();
       });
     }
 
-    // Keep the hidden `address` input updated as "Municipality, Barangay"
-    function updateHiddenAddress() {
-      const muni = document.getElementById('municipality');
-      const barangaySel = document.getElementById('barangay');
-      const barangayOther = document.getElementById('barangay_other');
-      const hidden = document.getElementById('address_hidden');
-
-      const muniVal = muni && muni.value ? muni.value.trim() : '';
-      let barangayVal = '';
-      if (barangaySel && barangaySel.style.display !== 'none' && barangaySel.value) barangayVal = barangaySel.value.trim();
-      else if (barangayOther && barangayOther.style.display !== 'none' && barangayOther.value) barangayVal = barangayOther.value.trim();
-
-      let addr = '';
-      if (muniVal && barangayVal) addr = `${muniVal}, ${barangayVal}`;
-      else if (muniVal) addr = muniVal;
-      else if (barangayVal) addr = barangayVal;
-
-      if (hidden) hidden.value = addr;
-    }
-
-    // Wire change listeners so hidden address updates live when municipality/barangay change
-    function wireAddressUpdater() {
-      const muni = document.getElementById('municipality');
-      const barangaySel = document.getElementById('barangay');
-      const barangayOther = document.getElementById('barangay_other');
-
-      if (muni) muni.addEventListener('change', updateHiddenAddress);
-      if (barangaySel) barangaySel.addEventListener('change', updateHiddenAddress);
-      if (barangayOther) barangayOther.addEventListener('input', updateHiddenAddress);
-      // update now to reflect initial values
-      updateHiddenAddress();
-    }
+    // Hidden combined address logic removed. Municipality and barangay are submitted as separate fields.
   </script>
 </body>
 </html>

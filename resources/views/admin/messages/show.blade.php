@@ -1,5 +1,7 @@
 @extends('admin.layout')
 
+@section('title','Message')
+
 @section('content')
     <div class="container">
         <a href="{{ route('admin.messages.index') }}" class="btn-ghost" style="margin-bottom:12px; display:inline-block">&larr; Back to messages</a>
@@ -23,11 +25,7 @@
 
                 <div style="display:flex; gap:.5rem; align-items:center;">
                     <a href="{{ route('admin.messages.create') }}?recipient_id={{ $message->recipient_id }}" class="action-edit" title="Compose to this recipient">Compose</a>
-                    <form method="POST" action="{{ route('admin.messages.destroy', $message->id) }}" onsubmit="return confirm('Delete this message?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="action-delete">Delete</button>
-                    </form>
+                    {{-- Deletion is not implemented for admin messages; remove delete action to avoid RouteNotFoundException --}}
                 </div>
             </div>
 

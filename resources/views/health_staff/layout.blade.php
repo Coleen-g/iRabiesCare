@@ -6,6 +6,20 @@
     <title>@yield('title', 'Health Staff') - iRabiesCare</title>
     @vite(['resources/js/app.js', 'resources/css/app.css'])
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Ensure bootstrap icon elements render even if other CSS overrides are present */
+        .bi {
+            font-family: "bootstrap-icons" !important;
+            speak: none;
+            font-style: normal;
+            font-weight: normal;
+            font-variant: normal;
+            text-transform: none;
+            line-height: 1;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
     <!-- FontAwesome CDN for fa- icons (match admin layout) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKB4Imkb9hFQ9U1FVLtZL1YI7Di5urN6pN1Nsx3Rp3XIan+FJxux1DPZWS9Yuk3F7S3w7DtwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
@@ -123,18 +137,86 @@
         /* === Topbar === */
         .topbar {
             display: flex;
-            justify-content: flex-end;
             align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
             background: #fff;
-            padding: 0.75rem 1rem;
+            padding: 0.6rem 1rem;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
             margin-bottom: 1.5rem;
         }
 
-        .topbar strong {
-            color: #000;
+        .topbar-left {
+            display:flex;
+            align-items:center;
+            gap:1rem;
         }
+
+        .topbar-title {
+            font-size:1.05rem;
+            font-weight:700;
+            margin:0;
+            color:#111;
+        }
+
+        .topbar-search input {
+            padding:0.45rem 0.6rem;
+            border:1px solid #e6e6e6;
+            border-radius:8px;
+            min-width:260px;
+            outline:none;
+        }
+
+        .topbar-right {
+            display:flex;
+            align-items:center;
+            gap:0.75rem;
+        }
+
+        .topbar-right .notif {
+            position:relative;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width:40px;
+            height:40px;
+            border-radius:8px;
+            color:#111;
+            text-decoration:none;
+        }
+
+        .topbar-right .notif:hover { background:#f7f7f7 }
+
+        .topbar-right .notif .badge {
+            position:absolute;
+            top:6px;
+            right:6px;
+            background:#ef4444;
+            color:#fff;
+            font-size:11px;
+            padding:2px 6px;
+            border-radius:999px;
+            line-height:1;
+        }
+
+        .profile { display:flex; align-items:center; gap:0.5rem; padding:0.25rem 0.5rem; border-radius:6px }
+
+        .profile .profile-name { font-weight:600 }
+
+        .compose-inline {
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width:34px;
+            height:34px;
+            border-radius:6px;
+            background:transparent;
+            text-decoration:none;
+            border:1px solid rgba(0,0,0,0.08);
+        }
+
+        .compose-inline:hover { background: #f0f0f0 }
 
         /* === Card === */
         .card {
@@ -224,17 +306,43 @@
 
         <main class="content">
             <div class="topbar">
-                <div style="display:flex;align-items:center;gap:1rem">
-                    <div style="position:relative">
-                        <a href="{{ route('health_staff.notifications.index') }}" title="Notifications" style="color:#000;text-decoration:none">
-                            <i class="bi bi-bell" style="font-size:1.25rem"></i>
-                        </a>
-                        @php $unread = auth()->user()->unreadNotifications()->count(); @endphp
-                        @if($unread)
-                            <span style="position:absolute;top:-6px;right:-8px;background:#ef4444;color:#fff;border-radius:999px;padding:2px 6px;font-size:11px">{{ $unread }}</span>
-                        @endif
+                <div class="topbar-left">
+                    <h2 class="topbar-title">@yield('title', 'Health Staff')</h2>
+                    <div class="topbar-search">
+                        <form method="GET" action="{{ url()->current() }}">
+                            <input type="search" name="q" placeholder="Search..." value="{{ request('q') }}">
+                        </form>
                     </div>
-                    <div><i class="bi bi-person-circle" style="color:#000; margin-right:6px;"></i> Signed in as <strong>{{ auth()->user()->name }}</strong></div>
+                </div>
+
+                <div class="topbar-right">
+                    @if(auth()->check())
+                        @php $currentUser = auth()->user(); @endphp
+                        @if($currentUser && $currentUser->role === 'admin')
+                            <a href="{{ route('admin.notifications.index') }}" class="notif" title="Notifications">
+                        @elseif($currentUser && $currentUser->role === 'health_staff')
+                            <a href="{{ route('health_staff.notifications.index') }}" class="notif" title="Notifications">
+                        @else
+                            <a href="{{ route('user.notifications.index') }}" class="notif" title="Notifications">
+                        @endif
+                            <i class="bi bi-bell" style="font-size:18px;"></i>
+                            @php $unread = auth()->user()->unreadNotifications()->count(); @endphp
+                            @if($unread)
+                                <span class="badge">{{ $unread }}</span>
+                            @endif
+                        </a>
+                    @endif
+
+                    @if(auth()->check() && in_array(auth()->user()->role, ['admin','health_staff']))
+                        <a href="{{ route('health_staff.messages.create') }}" class="compose-inline" title="Compose message">
+                            <i class="bi bi-envelope-plus" style="font-size:16px;color:#000"></i>
+                        </a>
+                    @endif
+
+                    <div class="profile">
+                        <i class="bi bi-person-circle" style="font-size:20px;color:#000"></i>
+                        <div class="profile-name">{{ auth()->user()->name }}</div>
+                    </div>
                 </div>
             </div>
 
@@ -243,4 +351,3 @@
     </div>
 </body>
 </html>
-...existing code...

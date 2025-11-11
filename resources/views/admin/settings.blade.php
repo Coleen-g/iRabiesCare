@@ -1,96 +1,216 @@
 @extends('admin.layout')
 
-@section('title','Settings')
+@section('title', 'Settings')
 
 @section('content')
 <style>
-    body { background:#f5f6f7; font-family: "Inter", system-ui, sans-serif }
-    .edit-card { max-width: 1150px; margin: 2.5rem auto; background: #fff; border-radius: 14px; padding: 2rem; border:1px solid #e5e7eb; box-shadow:0 8px 20px rgba(0,0,0,0.05); }
-    .page-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem }
-    .page-title { display:flex; align-items:center; gap:.75rem }
-    .page-title i { background:#000;color:#fff;padding:0.45rem;border-radius:8px }
-    h2.page { margin:0; font-size:1.4rem; font-weight:700 }
+	:root {
+		--primary: #111827;
+		--accent: #2563eb;
+		--border: #e5e7eb;
+		--bg: #f9fafb;
+	}
 
-    .settings-section { margin-bottom:1.25rem }
-    .settings-title { font-size:1rem; font-weight:600; color:#065f46; margin-bottom:0.6rem; display:flex; gap:0.5rem; align-items:center }
+	body { background: var(--bg); font-family: "Inter", "Poppins", sans-serif; }
 
-    .settings-card { background:#f9fafb; border-radius:12px; padding:1rem; border:1px solid #e8f5e9 }
-    .settings-item { display:flex; align-items:center; justify-content:space-between; padding:0.6rem 0; border-bottom:1px solid #e5e7eb }
-    .settings-item:last-child{ border-bottom:none }
-    .settings-item span{ display:flex; align-items:center; gap:0.5rem }
+	.settings-container {
+		padding: 2rem 1.5rem;
+		max-width: 1300px;
+		margin: 0 auto;
+	}
 
-    .btn-primary { background:#000;color:#fff;padding:0.45rem 0.9rem;border-radius:8px;border:none }
-    .btn-secondary { background:#f3f4f6;color:#111;padding:0.45rem 0.9rem;border-radius:8px;border:none }
+	.settings-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-bottom: 2rem;
+	}
 
-    @media(max-width:700px){ .edit-card{padding:1.5rem} .settings-item{flex-direction:column;align-items:flex-start} .settings-item button{align-self:flex-end} }
+	.settings-title {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	.settings-title .icon {
+		width: 3.2rem;
+		height: 3.2rem;
+		border-radius: 14px;
+		background: linear-gradient(135deg, var(--accent), #1e3a8a);
+		color: #fff;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 1.25rem;
+		box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+	}
+
+	h1.page {
+		margin: 0;
+		font-size: 1.6rem;
+		font-weight: 700;
+		color: var(--primary);
+	}
+
+	.small-note {
+		color: #6b7280;
+		font-size: 0.9rem;
+	}
+
+	.btn {
+		padding: 0.6rem 1.2rem;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+		border: none;
+		transition: all 0.25s ease;
+	}
+
+	.btn.primary {
+		background: linear-gradient(90deg, var(--accent), #1e40af);
+		color: #fff;
+		box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+	}
+
+	.btn.primary:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
+	}
+
+	.btn.ghost {
+		background: #f3f4f6;
+		color: #111;
+		border: 1px solid var(--border);
+	}
+
+	.btn.ghost:hover {
+		background: #e5e7eb;
+	}
+
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1.5rem;
+	}
+
+	@media(max-width:1000px) {
+		.grid { grid-template-columns: 1fr; }
+	}
+
+	.card {
+		background: #fff;
+		border-radius: 14px;
+		padding: 1.5rem;
+		border: 1px solid var(--border);
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+		transition: all 0.25s ease;
+	}
+
+	.card:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+	}
+
+	.card-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1rem;
+	}
+
+	.card h3 {
+		margin: 0;
+		font-size: 1rem;
+		font-weight: 600;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		color: var(--primary);
+	}
+
+	.muted {
+		color: #6b7280;
+		font-size: 0.9rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.field {
+		margin-bottom: 0.8rem;
+	}
+
+	.field label {
+		display: block;
+		font-weight: 600;
+		margin-bottom: 0.3rem;
+		color: var(--primary);
+		font-size: 0.95rem;
+	}
+
+	.field input,
+	.field select,
+	.field textarea {
+		width: 100%;
+		padding: 0.55rem 0.75rem;
+		border-radius: 8px;
+		border: 1px solid #d1d5db;
+		background: #f9fafb;
+		font-size: 0.95rem;
+		transition: all 0.25s ease;
+	}
+
+	.field input:focus,
+	.field select:focus,
+	.field textarea:focus {
+		border-color: var(--accent);
+		outline: none;
+		background: #fff;
+		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+	}
+
+	.checkbox-row {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 0.6rem;
+	}
+
+	.small-note {
+		font-size: 0.85rem;
+		color: #6b7280;
+	}
 </style>
 
-<div class="edit-card">
-    <div class="page-header">
-        <div class="page-title">
-            <i class="fa-solid fa-gear"></i>
-            <h2 class="page">System Settings</h2>
-        </div>
-        <div>
-            <a href="#" class="btn-secondary">Save Changes</a>
-        </div>
-    </div>
+<div class="settings-container">
+	<div class="settings-header">
+		<div class="settings-title">
+			<div class="icon"><i class="bi bi-gear-fill"></i></div>
+			<div>
+				<h1 class="page">System Settings</h1>
+				<div class="small-note">Manage general, facility, vaccination, and notification configurations</div>
+			</div>
+		</div>
+		<button id="save_settings" class="btn primary">
+			<i class="bi bi-save2 me-1"></i> Save Changes
+		</button>
+	</div>
 
-    {{-- System Preferences --}}
-    <div class="settings-section">
-        <div class="settings-title"><i class="fa-solid fa-cogs"></i> System Preferences</div>
-        <div class="settings-card">
-            <div class="settings-item">
-                <span><i class="fa-solid fa-clock"></i> Date & Time Configuration</span>
-                <button class="btn-primary">Edit</button>
-            </div>
-            <div class="settings-item">
-                <span><i class="fa-solid fa-database"></i> Backup & Restore Database</span>
-                <button class="btn-primary">Manage</button>
-            </div>
-            <div class="settings-item">
-                <span><i class="fa-solid fa-syringe"></i> Vaccine Data Management</span>
-                <button class="btn-primary">Open</button>
-            </div>
-        </div>
-    </div>
+	<div class="grid">
+		<!-- LEFT COLUMN -->
+		<div>
+			@include('admin.settings.partials.profile')
+			@include('admin.settings.partials.facility')
+			@include('admin.settings.partials.vaccine')
+		</div>
 
-    {{-- Notification Settings --}}
-    <div class="settings-section">
-        <div class="settings-title"><i class="fa-solid fa-bell"></i> Notifications</div>
-        <div class="settings-card">
-            <div class="settings-item">
-                <span><i class="fa-solid fa-envelope"></i> Email Notifications</span>
-                <button class="btn-primary">Configure</button>
-            </div>
-            <div class="settings-item">
-                <span><i class="fa-solid fa-mobile-screen"></i> SMS Alerts</span>
-                <button class="btn-primary">Configure</button>
-            </div>
-            <div class="settings-item">
-                <span><i class="fa-solid fa-user-shield"></i> Admin Alerts</span>
-                <button class="btn-primary">View</button>
-            </div>
-        </div>
-    </div>
-
-    {{-- Account Settings --}}
-    <div class="settings-section">
-        <div class="settings-title"><i class="fa-solid fa-user-cog"></i> Account Settings</div>
-        <div class="settings-card">
-            <div class="settings-item">
-                <span><i class="fa-solid fa-user-pen"></i> Edit Profile</span>
-                <button class="btn-primary">Edit</button>
-            </div>
-            <div class="settings-item">
-                <span><i class="fa-solid fa-key"></i> Change Password</span>
-                <button class="btn-primary">Change</button>
-            </div>
-            <div class="settings-item">
-                <span><i class="fa-solid fa-right-from-bracket"></i> Logout All Devices</span>
-                <button class="btn-primary">Logout</button>
-            </div>
-        </div>
-    </div>
+		<!-- RIGHT COLUMN -->
+		<div>
+			@include('admin.settings.partials.location')
+			@include('admin.settings.partials.notification')
+			@include('admin.settings.partials.users')
+			@include('admin.settings.partials.appearance')
+			@include('admin.settings.partials.security')
+		</div>
+	</div>
 </div>
 @endsection

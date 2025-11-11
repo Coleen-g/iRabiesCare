@@ -54,7 +54,7 @@ class VaccinationController extends AdminVaccinationController
             'vaccine' => 'nullable|string|max:255',
             'dose' => 'nullable|string|max:100',
             'administered_by' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
+            'remarks' => 'nullable|string',
         ]);
         // ensure the patient is assigned to this health staff
         $userId = optional(auth()->user())->id;
@@ -119,7 +119,7 @@ class VaccinationController extends AdminVaccinationController
             'vaccine' => 'nullable|string|max:255',
             'dose' => 'nullable|string|max:100',
             'administered_by' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
+            'remarks' => 'nullable|string',
         ]);
         $userId = optional(auth()->user())->id;
         $allowed = Patient::where('id', $data['patient_id'])

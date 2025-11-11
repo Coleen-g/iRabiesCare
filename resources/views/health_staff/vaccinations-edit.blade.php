@@ -4,188 +4,208 @@
 
 @section('content')
 <style>
-    body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f9fafb;
-    }
+	/* ===== Unified Styling for Health Staff Forms ===== */
+	body { background-color: #f9fafb; font-family: "Inter", "Segoe UI", sans-serif; }
 
-    .edit-container {
-        max-width: 700px;
-        margin: 2rem auto;
-        background: #fff;
-        padding: 2rem 2.5rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
+	.edit-card {
+		max-width: 950px;
+		margin: 2.5rem auto;
+		background: #fff;
+		border-radius: 14px;
+		padding: 2rem;
+		border: 1px solid #e5e7eb;
+		box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+	}
 
-    .edit-container h2 {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 1.5rem;
-        border-bottom: 2px solid #2563eb;
-        padding-bottom: 0.5rem;
-    }
+	.edit-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 1.75rem;
+	}
 
-    .edit-container h2 i {
-        color: #2563eb;
-    }
+	.edit-title {
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+	}
 
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 1.2rem;
-    }
+	.edit-icon {
+		width: 3rem;
+		height: 3rem;
+		background: #2563eb;
+		color: #fff;
+		border-radius: 12px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 1.3rem;
+		box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+	}
 
-    label {
-        font-weight: 600;
-        color: #374151;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 0.25rem;
-    }
+	.edit-header h2 { margin: 0; font-size: 1.4rem; font-weight: 600; color: #111827; }
+	.edit-header small { color: #6b7280; font-size: 0.9rem; }
 
-    label i {
-        color: #2563eb;
-        font-size: 1rem;
-    }
+	.form-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1.25rem 2rem;
+	}
 
-    input[type="text"],
-    input[type="date"],
-    select,
-    textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        transition: border 0.3s ease, box-shadow 0.3s ease;
-    }
+	.form-group { display: flex; flex-direction: column; }
+	.form-group label {
+		font-weight: 600;
+		color: #374151;
+		margin-bottom: 0.35rem;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.9rem;
+	}
 
-    input:focus,
-    select:focus,
-    textarea:focus {
-        outline: none;
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-    }
+	.form-group label i { color: #2563eb; }
 
-    textarea {
-        resize: vertical;
-        min-height: 100px;
-    }
+	.form-group input,
+	.form-group select,
+	.form-group textarea {
+		padding: 0.7rem;
+		border: 1px solid #d1d5db;
+		border-radius: 8px;
+		font-size: 0.95rem;
+		background: #f9fafb;
+		transition: all 0.2s ease;
+	}
 
-    .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 1rem;
-        margin-top: 1.5rem;
-    }
+	.form-group input:focus,
+	.form-group select:focus,
+	.form-group textarea:focus {
+		border-color: #2563eb;
+		background: #fff;
+		outline: none;
+		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+	}
 
-    button {
-        background-color: #2563eb;
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
-        cursor: pointer;
-        font-size: 0.95rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-    }
+	.form-group textarea { min-height: 120px; resize: vertical; }
 
-    button:hover {
-        background-color: #1d4ed8;
-        transform: translateY(-2px);
-    }
+	.form-actions {
+		display: flex;
+		gap: 1rem;
+		justify-content: flex-end;
+		margin-top: 1.75rem;
+	}
 
-    a.back-link {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        text-decoration: none;
-        color: #374151;
-        font-weight: 500;
-        font-size: 0.95rem;
-        transition: color 0.3s ease;
-    }
+	.btn-primary {
+		background: linear-gradient(90deg, #2563eb, #1e40af);
+		color: #fff;
+		padding: 0.75rem 1.4rem;
+		border-radius: 8px;
+		border: none;
+		font-weight: 600;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+		transition: all 0.25s ease;
+	}
 
-    a.back-link:hover {
-        color: #2563eb;
-    }
+	.btn-primary:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
+	}
 
-    @media (max-width: 600px) {
-        .edit-container {
-            padding: 1.5rem;
-        }
+	.btn-secondary {
+		background: #f3f4f6;
+		color: #111;
+		padding: 0.75rem 1.4rem;
+		border-radius: 8px;
+		text-decoration: none;
+		font-weight: 600;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		border: 1px solid #e5e7eb;
+		transition: all 0.25s ease;
+	}
 
-        .form-actions {
-            flex-direction: column;
-            align-items: stretch;
-        }
+	.btn-secondary:hover {
+		background: #e5e7eb;
+	}
 
-        button, .back-link {
-            width: 100%;
-            justify-content: center;
-        }
-    }
+	@media (max-width: 800px) {
+		.form-grid { grid-template-columns: 1fr; }
+		.form-actions { flex-direction: column; }
+	}
 </style>
 
-<div class="edit-container">
-    <h2><i class="fa-solid fa-syringe"></i> Edit Vaccination</h2>
+<div class="edit-card">
+	<div class="edit-header">
+		<div class="edit-title">
+			<div class="edit-icon"><i class="fa-solid fa-syringe"></i></div>
+			<div>
+				<h2>Edit Vaccination</h2>
+				<small>Update vaccination details for a patient</small>
+			</div>
+		</div>
+		<a href="{{ route('health_staff.vaccinations.index') }}" class="btn-secondary">
+			<i class="fa-solid fa-arrow-left"></i> Back to Vaccinations
+		</a>
+	</div>
 
-    <form method="POST" action="{{ route('health_staff.vaccinations.update', $vaccination) }}">
-        @csrf
-        @method('PUT')
+	<form method="POST" action="{{ route('health_staff.vaccinations.update', $vaccination) }}">
+		@csrf
+		@method('PUT')
 
-        <div>
-            <label><i class="fa-solid fa-user"></i> Patient</label>
-            <select name="patient_id" required class="searchable-patient-select">
-                @foreach($patients as $pt)
-                    <option value="{{ $pt->id }}" {{ $pt->id == $vaccination->patient_id ? 'selected' : '' }}>
-                        {{ $pt->name }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
+		<div class="form-grid">
+			<div class="form-group">
+				<label><i class="fa-solid fa-user"></i> Patient</label>
+				<select name="patient_id" required class="searchable-patient-select">
+					@foreach($patients as $pt)
+						<option value="{{ $pt->id }}" {{ $pt->id == $vaccination->patient_id ? 'selected' : '' }}>
+							{{ $pt->name }}
+						</option>
+					@endforeach
+				</select>
+			</div>
 
-        <div>
-            <label><i class="fa-solid fa-calendar-day"></i> Date Given</label>
-            <input name="date_given" type="date" value="{{ $vaccination->date_given }}" />
-        </div>
+			<div class="form-group">
+				<label><i class="fa-solid fa-calendar-day"></i> Date Given</label>
+				<input name="date_given" type="date" value="{{ $vaccination->date_given }}" />
+			</div>
+		</div>
 
-        <div>
-            <label><i class="fa-solid fa-prescription-bottle-medical"></i> Vaccine</label>
-            <input name="vaccine" value="{{ $vaccination->vaccine }}" placeholder="e.g. Rabivax" />
-        </div>
+		<div class="form-grid">
+			<div class="form-group">
+				<label><i class="fa-solid fa-prescription-bottle-medical"></i> Vaccine</label>
+				<input name="vaccine" value="{{ $vaccination->vaccine }}" placeholder="e.g. Rabivax" />
+			</div>
 
-        <div>
-            <label><i class="fa-solid fa-vial"></i> Dose</label>
-            <input name="dose" value="{{ $vaccination->dose }}" placeholder="e.g. 0.5 mL" />
-        </div>
+			<div class="form-group">
+				<label><i class="fa-solid fa-vial"></i> Dose</label>
+				<input name="dose" value="{{ $vaccination->dose }}" placeholder="e.g. 0.5 mL" />
+			</div>
+		</div>
 
-        <div>
-            <label><i class="fa-solid fa-user-nurse"></i> Administered By</label>
-            <input name="administered_by" value="{{ $vaccination->administered_by }}" placeholder="e.g. Dr. Smith" />
-        </div>
+		<div class="form-grid">
+			<div class="form-group" style="grid-column: 1 / -1;">
+				<label><i class="fa-solid fa-user-nurse"></i> Administered By</label>
+				<input name="administered_by" value="{{ $vaccination->administered_by }}" placeholder="e.g. Dr. Smith" />
+			</div>
 
-        <div>
-            <label><i class="fa-solid fa-notes-medical"></i> Notes</label>
-            <textarea name="notes" placeholder="Additional remarks...">{{ $vaccination->notes }}</textarea>
-        </div>
+			<div class="form-group" style="grid-column: 1 / -1;">
+				<label><i class="fa-solid fa-notes-medical"></i> Remarks</label>
+				<textarea name="remarks" placeholder="Additional remarks...">{{ $vaccination->remarks ?? '' }}</textarea>
+			</div>
+		</div>
 
-        <div class="form-actions">
-            <button type="submit"><i class="fa-solid fa-floppy-disk"></i> Update Vaccination</button>
-            <a href="{{ route('health_staff.vaccinations.index') }}" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back</a>
-        </div>
-    </form>
+		<div class="form-actions">
+			<button type="submit" class="btn-primary">
+				<i class="fa-solid fa-floppy-disk"></i> Update Vaccination
+			</button>
+			<a href="{{ route('health_staff.vaccinations.index') }}" class="btn-secondary">
+				<i class="fa-solid fa-xmark"></i> Cancel
+			</a>
+		</div>
+	</form>
 </div>
 @endsection

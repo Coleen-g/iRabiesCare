@@ -156,9 +156,12 @@
         margin-bottom: .75rem;
     }
 
-    /* Scheduled row highlight */
+    /* Scheduled row highlight - keep subtle border only so per-schedule cell colors can take effect */
     .scheduled-row td {
-        background: linear-gradient(90deg, rgba(217, 249, 233, 0.6), rgba(240, 255, 244, 0.4));
+        /* Avoid setting a background here because it conflicts with per-cell classes
+           like .td-done/.td-missed (specificity/override issues). Use a subtle left
+           border to indicate scheduled rows without masking cell colors. */
+        border-left: 4px solid rgba(34,197,94,0.06);
     }
     .scheduled-badge {
         display: inline-block;
@@ -170,6 +173,30 @@
         margin-left: 0.5rem;
         vertical-align: middle;
     }
+    .remarks-pill { display:inline-flex;align-items:center;gap:.5rem;padding:.25rem .5rem;border-radius:999px;margin-left:.5rem;font-size:.8rem }
+    .remarks-icon { font-size:0.85rem;opacity:.9 }
+    .remarks-text { color:#0f172a }
+    .badge-completed { background:#d1fae5;color:#065f46 }
+    .badge-missed { background:#fee2e2;color:#991b1b }
+    .badge-pending { background:#fff7ed;color:#92400e }
+    /* remark cell backgrounds: done -> blue, missed -> red, pending -> amber */
+    /* Match schedule-edit feedback colors and don't change text color */
+     /* Make these selectors element+class so they have at least the same specificity
+         as the `.scheduled-row td` rule. This ensures the per-schedule cell backgrounds
+         show up correctly. */
+      /* Use stronger, fully opaque backgrounds so they don't look transparent
+          when the row hover background shows through. These are readable and
+          still match the schedule-edit color palette. */
+      td.td-done { background: #bfdbfe; color: inherit; }
+      td.td-missed { background: #fecaca; color: inherit; }
+      td.td-pending { background: #fed7aa; color: inherit; }
+
+      /* Ensure the hover effect does not override colored status cells. Only
+          apply the hover background to cells that don't have a status class. */
+      .admin-table tr:hover td:not(.td-done):not(.td-missed):not(.td-pending) {
+            background: #f5f5f5;
+      }
+    .remarks-text-inline { display:block; margin-top:8px; font-size:0.95rem; font-weight:500; }
 </style>
 
 <div class="list-header">
@@ -202,13 +229,13 @@
                     <th>Schedule 2</th>
                     <th>Schedule 3</th>
                     <th>Administered By</th>
-                    <th>Notes</th>
+                    <th>Remarks</th>
                     <th style="width:180px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($vaccinations as $v)
-                    <tr class="{{ optional(optional($v->patient->user)->vaccinationSchedule)->schedule_1 || 
+                    <tr data-user-id="{{ optional($v->patient->user)->id }}" data-vaccination-id="{{ $v->id }}" class="{{ optional(optional($v->patient->user)->vaccinationSchedule)->schedule_1 || 
                               optional(optional($v->patient->user)->vaccinationSchedule)->schedule_2 || 
                               optional(optional($v->patient->user)->vaccinationSchedule)->schedule_3 ? 'scheduled-row' : '' }}">
                         <td>{{ $v->id }}</td>
@@ -216,11 +243,49 @@
                         <td>{{ $v->date_given ? \Illuminate\Support\Carbon::parse($v->date_given)->format('Y-m-d') : '—' }}</td>
                         <td>{{ $v->vaccine ?? '—' }}</td>
                         <td>{{ $v->dose ?? '—' }}</td>
-                        <td>{{ optional(optional($v->patient->user)->vaccinationSchedule)->schedule_1 ? \Illuminate\Support\Carbon::parse(optional($v->patient->user->vaccinationSchedule)->schedule_1)->format('Y-m-d') : '—' }}</td>
-                        <td>{{ optional(optional($v->patient->user)->vaccinationSchedule)->schedule_2 ? \Illuminate\Support\Carbon::parse(optional($v->patient->user->vaccinationSchedule)->schedule_2)->format('Y-m-d') : '—' }}</td>
-                        <td>{{ optional(optional($v->patient->user)->vaccinationSchedule)->schedule_3 ? \Illuminate\Support\Carbon::parse(optional($v->patient->user->vaccinationSchedule)->schedule_3)->format('Y-m-d') : '—' }}</td>
+                        @php
+                            $vs = optional(optional($v->patient->user)->vaccinationSchedule);
+                            $s1 = $vs && $vs->schedule_1 ? \Illuminate\Support\Carbon::parse($vs->schedule_1)->format('Y-m-d') : null;
+                            $s2 = $vs && $vs->schedule_2 ? \Illuminate\Support\Carbon::parse($vs->schedule_2)->format('Y-m-d') : null;
+                            $s3 = $vs && $vs->schedule_3 ? \Illuminate\Support\Carbon::parse($vs->schedule_3)->format('Y-m-d') : null;
+                            $s1_status = $vs->schedule_1_status ?? 'pending';
+                            $s2_status = $vs->schedule_2_status ?? 'pending';
+                            $s3_status = $vs->schedule_3_status ?? 'pending';
+                            $s1_remarks = trim($vs->schedule_1_remarks ?? '') ?: null;
+                            $s2_remarks = trim($vs->schedule_2_remarks ?? '') ?: null;
+                            $s3_remarks = trim($vs->schedule_3_remarks ?? '') ?: null;
+
+                            $badgeClass = function($status) {
+                                if ($status === 'completed') return 'badge-completed';
+                                if ($status === 'missed') return 'badge-missed';
+                                return 'badge-pending';
+                            };
+                        @endphp
+
+                        <td class="{{ $s1_status === 'completed' ? 'td-done' : ($s1_status === 'missed' ? 'td-missed' : '') }}">
+                            <div class="schedule-date">{{ $s1 ?? '—' }}</div>
+                        </td>
+                        <td class="{{ $s2_status === 'completed' ? 'td-done' : ($s2_status === 'missed' ? 'td-missed' : '') }}">
+                            <div class="schedule-date">{{ $s2 ?? '—' }}</div>
+                        </td>
+                        <td class="{{ $s3_status === 'completed' ? 'td-done' : ($s3_status === 'missed' ? 'td-missed' : '') }}">
+                            <div class="schedule-date">{{ $s3 ?? '—' }}</div>
+                        </td>
                         <td>{{ $v->administered_by ?? '—' }}</td>
-                        <td>{{ \Illuminate\Support\Str::limit($v->notes, 100, '...') }}</td>
+                        @php
+                            // Show the overall schedule remark (from the user's vaccination schedule)
+                            // instead of per-vaccination notes/remarks. This keeps schedule-level notes
+                            // consistent across admin/health staff views.
+                            $overall_schedule_remarks = trim(optional($vs)->overall_remarks ?? '');
+                            $consolidated_status = strtolower($v->status ?? 'pending');
+                        @endphp
+                        <td class="{{ $overall_schedule_remarks ? ($consolidated_status === 'completed' ? 'td-done' : ($consolidated_status === 'missed' ? 'td-missed' : 'td-pending')) : '' }}" title="{{ $overall_schedule_remarks ?? '' }}">
+                            @if($overall_schedule_remarks)
+                                <div class="remarks-text-inline">{{ \Illuminate\Support\Str::limit($overall_schedule_remarks, 100) }}</div>
+                            @else
+                                <span class="muted">No remarks</span>
+                            @endif
+                        </td>
                         <td>
                             <div class="actions">
                                 <a class="action-btn action-edit" href="{{ route('admin.vaccinations.edit', $v) }}">
@@ -241,6 +306,17 @@
                             </div>
                         </td>
                     </tr>
+                    @php
+                        $vs = optional(optional($v->patient->user)->vaccinationSchedule);
+                        $overall_schedule_remarks = trim($vs->overall_remarks ?? '');
+                    @endphp
+                    @if($overall_schedule_remarks)
+                        <tr class="schedule-overall-remarks-row">
+                            <td colspan="11" style="background:#fff7ed;color:#92400e;padding:8px 10px;font-weight:600;border-bottom:1px solid #eee;">
+                                <strong>Schedule remark:</strong> {{ \Illuminate\Support\Str::limit($overall_schedule_remarks, 300) }}
+                            </td>
+                        </tr>
+                    @endif
                 @endforeach
             </tbody>
         </table>
@@ -252,4 +328,96 @@
         <div>No vaccinations yet.</div>
     @endif
 </div>
+    <script>
+        // Poll for schedule updates and update remark pills in-place.
+        (function(){
+            // Resolve updates endpoint only if the named route exists to avoid RouteNotFoundException
+            let route = '';
+            @if (\Illuminate\Support\Facades\Route::has('admin.vaccination-schedules.updates'))
+                route = @json(route('admin.vaccination-schedules.updates'));
+            @endif
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || document.querySelector('input[name="_token"]')?.value || '';
+
+            async function fetchUpdates() {
+                try {
+                    const rows = Array.from(document.querySelectorAll('tr[data-user-id]'));
+                    const userIds = [...new Set(rows.map(r => r.getAttribute('data-user-id')).filter(Boolean))];
+                    if (!userIds.length) return;
+                    if (!route) return; // no updates endpoint available
+
+                    const fd = new FormData();
+                    userIds.forEach(id => fd.append('user_ids[]', id));
+
+                    const res = await fetch(route, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': csrf,
+                        },
+                        body: fd,
+                        credentials: 'same-origin'
+                    });
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    if (!data.success || !data.schedules) return;
+
+                    // update DOM for each schedule pill in its specific schedule cell
+                    const cellMap = { schedule_1: 6, schedule_2: 7, schedule_3: 8 };
+                    Object.entries(data.schedules).forEach(([userId, schedule]) => {
+                        ['schedule_1','schedule_2','schedule_3'].forEach(k => {
+                            const remarks = schedule[`${k}_remarks`] || null;
+                            const status = schedule[`${k}_status`] || 'pending';
+                            const row = document.querySelector(`tr[data-user-id="${userId}"]`);
+                            if (!row) return;
+                            const td = row.querySelector(`td:nth-child(${cellMap[k]})`);
+                            if (!td) return;
+
+                            // set appropriate td class based on status (color only)
+                            td.classList.remove('td-done','td-missed','td-pending');
+                            if (status === 'completed') td.classList.add('td-done');
+                            else if (status === 'missed') td.classList.add('td-missed');
+                            // do NOT insert inline remark text or set title — only color the cell
+                        });
+                        // handle overall schedule remark (may apply to multiple rows for same user)
+                        const overall = schedule['overall_remarks'] || null;
+                        const userRows = Array.from(document.querySelectorAll(`tr[data-user-id="${userId}"]`));
+                        userRows.forEach(r => {
+                            const next = r.nextElementSibling;
+                            if (overall && overall.trim() !== '') {
+                                // if an existing overall row present, update it, else create one
+                                if (next && next.classList && next.classList.contains('schedule-overall-remarks-row')) {
+                                    const cell = next.querySelector('td');
+                                    if (cell) cell.innerHTML = `<strong>Schedule remark:</strong> ${overall.substring(0,300)}`;
+                                } else {
+                                    const tr = document.createElement('tr');
+                                    tr.className = 'schedule-overall-remarks-row';
+                                    const td = document.createElement('td');
+                                    td.setAttribute('colspan', 11);
+                                    td.style.background = '#fff7ed';
+                                    td.style.color = '#92400e';
+                                    td.style.padding = '8px 10px';
+                                    td.style.fontWeight = '600';
+                                    td.style.borderBottom = '1px solid #eee';
+                                    td.innerHTML = `<strong>Schedule remark:</strong> ${overall.substring(0,300)}`;
+                                    tr.appendChild(td);
+                                    r.parentNode.insertBefore(tr, r.nextSibling);
+                                }
+                            } else {
+                                // remove existing overall remark row if previously present but now cleared
+                                if (next && next.classList && next.classList.contains('schedule-overall-remarks-row')) {
+                                    next.remove();
+                                }
+                            }
+                        });
+                    });
+                } catch (err) {
+                    console.error('Error fetching schedule updates', err);
+                }
+            }
+
+            // initial fetch and then poll every 8s
+            fetchUpdates();
+            setInterval(fetchUpdates, 8000);
+        })();
+    </script>
 @endsection

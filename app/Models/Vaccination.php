@@ -15,7 +15,7 @@ class Vaccination extends Model
         'vaccine',
         'dose',
         'administered_by',
-        'notes',
+        'remarks',
     ];
 
     public function patient()

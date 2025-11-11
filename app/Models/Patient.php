@@ -10,6 +10,9 @@ class Patient extends Model
     use HasFactory;
 
     protected $fillable = [
+        // user_username and user_password_encrypted mirror linked user credentials
+        'user_username',
+        'user_password_encrypted',
         'name',
         'dob',
         'gender',

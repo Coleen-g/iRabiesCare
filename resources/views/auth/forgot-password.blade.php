@@ -4,8 +4,11 @@
     <h2>Reset password</h2>
     <p class="login-sub">Enter your email and we'll send a reset link.</p>
 
-    @if(session('status'))
-        <p class="register-text" style="color:green">{{ session('status') }}</p>
+    @if(session('success'))
+        <p class="register-text" style="color:green">{{ session('success') }}</p>
+    @endif
+    @if(session('error'))
+        <p class="error-text">{{ session('error') }}</p>
     @endif
 
     <form method="POST" action="{{ route('password.email') }}">

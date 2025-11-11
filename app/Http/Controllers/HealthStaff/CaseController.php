@@ -53,6 +53,9 @@ class CaseController extends AdminCaseController
             'exposure_date' => 'nullable|date',
             'exposure_type' => 'nullable|string|max:255',
             'animal_species' => 'nullable|string|max:255',
+            'animal_status' => 'nullable|string|max:255',
+            'wounds_location' => 'nullable|string|max:255',
+            'category' => 'nullable|string|max:255',
         ]);
 
         $data['reported_by'] = Auth::id();
@@ -64,6 +67,9 @@ class CaseController extends AdminCaseController
                 $data['exposure_date'] = $data['exposure_date'] ?? ($patient->exposure_date ?? null);
                 $data['exposure_type'] = $data['exposure_type'] ?? ($patient->exposure_type ?? null);
                 $data['animal_species'] = $data['animal_species'] ?? ($patient->animal ?? null);
+                    $data['animal_status'] = $data['animal_status'] ?? ($patient->animal_status ?? null);
+                    $data['wounds_location'] = $data['wounds_location'] ?? ($patient->wounds_location ?? null);
+                    $data['category'] = $data['category'] ?? ($patient->category ?? null);
             }
         }
 
@@ -99,6 +105,9 @@ class CaseController extends AdminCaseController
             'exposure_date' => 'nullable|date',
             'exposure_type' => 'nullable|string|max:255',
             'animal_species' => 'nullable|string|max:255',
+            'animal_status' => 'nullable|string|max:255',
+            'wounds_location' => 'nullable|string|max:255',
+            'category' => 'nullable|string|max:255',
         ]);
 
         // If missing, copy exposure/animal from patient
@@ -108,6 +117,9 @@ class CaseController extends AdminCaseController
                 $data['exposure_date'] = $data['exposure_date'] ?? ($patient->exposure_date ?? null);
                 $data['exposure_type'] = $data['exposure_type'] ?? ($patient->exposure_type ?? null);
                 $data['animal_species'] = $data['animal_species'] ?? ($patient->animal ?? null);
+                    $data['animal_status'] = $data['animal_status'] ?? ($patient->animal_status ?? null);
+                    $data['wounds_location'] = $data['wounds_location'] ?? ($patient->wounds_location ?? null);
+                    $data['category'] = $data['category'] ?? ($patient->category ?? null);
             }
         }
 

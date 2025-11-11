@@ -79,10 +79,17 @@
 		<div class="form-grid">
 			<div class="form-group">
 				<label>Patient</label>
-				<select name="patient_id" required>
+				<select name="patient_id" id="patientSelect" required>
 					<option value="">-- Select Patient --</option>
 					@foreach($patients ?? [] as $pt)
-						<option value="{{ $pt->id }}">{{ $pt->name }}</option>
+							<option value="{{ $pt->id }}"
+								data-exposure_date="{{ $pt->exposure_date ?? '' }}"
+								data-exposure_type="{{ $pt->exposure_type ?? '' }}"
+								data-wounds_location="{{ $pt->wounds_location ?? '' }}"
+								data-animal="{{ $pt->animal ?? '' }}"
+								data-animal_status="{{ $pt->animal_status ?? '' }}"
+								data-clinic="{{ $pt->clinic ?? '' }}"
+							>{{ $pt->name }}</option>
 					@endforeach
 				</select>
 			</div>
@@ -124,7 +131,7 @@
 		<div class="form-grid">
 			<div class="form-group">
 				<label>Location of Wounds</label>
-				<input name="wounds_location" placeholder="e.g. Left arm" />
+				<input name="wounds_location" id="wounds_location" placeholder="e.g. Left arm" />
 			</div>
 
 			<div class="form-group">
@@ -159,5 +166,48 @@
 			</a>
 		</div>
 	</form>
+</div>
+
+<script>
+	// When a patient is selected, prefill fields from their registration so staff don't need to re-enter
+	(function(){
+		const patientSelect = document.getElementById('patientSelect');
+		if (!patientSelect) return;
+
+		const exposureDateInput = document.querySelector('input[name="exposure_date"]');
+		const exposureTypeInput = document.querySelector('input[name="exposure_type"]');
+		const woundsInput = document.getElementById('wounds_location');
+		const animalInput = document.querySelector('input[name="animal_species"]');
+		const animalStatusInput = document.querySelector('input[name="animal_status"]');
+
+		function applyPatientData() {
+			const opt = patientSelect.options[patientSelect.selectedIndex];
+			if (!opt || !opt.value) {
+				// clear fields
+				if (exposureDateInput) exposureDateInput.value = '';
+				if (exposureTypeInput) exposureTypeInput.value = '';
+				if (woundsInput) woundsInput.value = '';
+				if (animalInput) animalInput.value = '';
+				return;
+			}
+
+			const exposureDate = opt.getAttribute('data-exposure_date') || '';
+			const exposureType = opt.getAttribute('data-exposure_type') || '';
+			const wounds = opt.getAttribute('data-wounds_location') || '';
+			const animal = opt.getAttribute('data-animal') || '';
+			const animalStatus = opt.getAttribute('data-animal_status') || '';
+
+			if (exposureDateInput && exposureDate) exposureDateInput.value = exposureDate;
+			if (exposureTypeInput && exposureType) exposureTypeInput.value = exposureType;
+			if (woundsInput && wounds) woundsInput.value = wounds;
+			if (animalInput && animal) animalInput.value = animal;
+			if (animalStatusInput && animalStatus) animalStatusInput.value = animalStatus;
+		}
+
+		patientSelect.addEventListener('change', applyPatientData);
+		// if a patient is pre-selected (old input), apply on load
+		document.addEventListener('DOMContentLoaded', applyPatientData);
+	})();
+</script>
 </div>
 @endsection

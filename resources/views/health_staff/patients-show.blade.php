@@ -27,7 +27,12 @@ body{background:#f5f6f7;font-family:Inter,system-ui,sans-serif}
                 <small style="color:#6b7280;font-size:0.95rem;">{{ $patient->type ?? '' }}</small>
             </div>
         </div>
-        <a href="{{ route('health_staff.patients.edit', $patient) }}" class="btn-primary">Edit</a>
+        <div style="display:flex;gap:.5rem;align-items:center">
+            <a href="#" onclick="history.back(); return false;" class="btn-primary" style="background:#fff;color:#111;border:1px solid #e5e7eb;"> 
+                <i class="bi bi-arrow-left" style="margin-right:.5rem"></i> Back
+            </a>
+            <a href="{{ route('health_staff.patients.edit', $patient) }}" class="btn-primary">Edit</a>
+        </div>
     </div>
 
     <div class="patient-main">
@@ -65,4 +70,3 @@ body{background:#f5f6f7;font-family:Inter,system-ui,sans-serif}
     </div>
 </div>
 @endsection
-...existing code...

@@ -29,23 +29,10 @@ Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
 })->name('password.request');
 
-// Send reset link and redirect to a "check your email" confirmation page
-Route::post('/forgot-password', function (\Illuminate\Http\Request $request) {
-    $request->validate(['email' => 'required|email']);
-
-    // Attempt to send the reset link. For security we will always redirect
-    // to the confirmation page so the response doesn't reveal whether the
-    // email exists in the system. Preserve the provided email in the session
-    // so the check-email page can prefill the resend form.
-    $status = \Illuminate\Support\Facades\Password::sendResetLink(
-        $request->only('email')
-    );
-
-    // Redirect to a friendly page that instructs the user to check their mail.
-    return redirect()->route('password.check_email')
-                     ->with('status', __($status))
-                     ->withInput($request->only('email'));
-})->middleware('throttle:3,1')->name('password.email');
+// Send temporary password via email (overrides default reset-link behavior)
+Route::post('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetPassword'])
+    ->middleware('throttle:3,1')
+    ->name('password.email');
 
 // Check-your-email confirmation page
 Route::get('/forgot-password/sent', function () {
@@ -108,12 +95,14 @@ Route::get('/admin/dashboard', function () {
     if (!$user || $user->role !== 'admin') {
         abort(403, 'Forbidden');
     }
+        
 
     // Gather counts for dashboard
     // Exclude any patients that are actually admin/health_staff users (keeps dashboard aligned with admin listing)
     $patientsCount = \App\Models\Patient::whereDoesntHave('user', function($q){
         $q->whereIn('role', ['admin','health_staff']);
     })->count();
+
     $casesCount = \App\Models\CaseModel::count();
     $vaccinationsCount = \App\Models\Vaccination::count();
 
@@ -155,6 +144,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('patients/search', [\App\Http\Controllers\Admin\PatientController::class, 'search'])->name('patients.search');
     Route::post('patients/{patient}/generate', [\App\Http\Controllers\Admin\UserGeneratorController::class, 'generateForPatient'])->name('patients.generate');
     Route::post('patients/{patient}/regenerate', [\App\Http\Controllers\Admin\UserGeneratorController::class, 'regeneratePassword'])->name('patients.regenerate');
+    // Health staff account generator (create/regenerate linked user accounts)
+    Route::post('health-staffs/{health_staff}/generate', [\App\Http\Controllers\Admin\HealthStaffController::class, 'generateForStaff'])->name('health-staffs.generate');
+    Route::post('health-staffs/{health_staff}/regenerate', [\App\Http\Controllers\Admin\HealthStaffController::class, 'regeneratePassword'])->name('health-staffs.regenerate');
     Route::resource('cases', CaseController::class)->parameters(['cases' => 'case'])->only(['index','create','store','edit','update','destroy']);
     Route::resource('vaccinations', VaccinationController::class)->parameters(['vaccinations' => 'vaccination'])->only(['index','create','store','edit','update','destroy']);
 
@@ -166,13 +158,31 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('generate-users', [\App\Http\Controllers\Admin\UserGeneratorController::class, 'generate'])->name('generate-users');
     Route::get('generate-users/download', [\App\Http\Controllers\Admin\UserGeneratorController::class, 'downloadCsv'])->name('generate-users.download');
 
-    // Reports and settings views remain simple for now
-    Route::get('reports', function () { $user = Auth::user(); if (!$user || $user->role !== 'admin') abort(403); return view('admin.reports'); })->name('reports');
+
+
+
+
+    // Reports page (lightweight view-only route)
+    Route::get('reports', function () {
+        $user = Auth::user(); if (!$user || $user->role !== 'admin') abort(403);
+        // For now return the view without running heavy aggregations here.
+        // Move aggregation logic into Admin\ReportsController later.
+        return view('admin.reports');
+    })->name('reports');
     Route::get('settings', function () { $user = Auth::user(); if (!$user || $user->role !== 'admin') abort(403); return view('admin.settings'); })->name('settings');
+
+    // Admin notifications - allow admin to view notifications (e.g., those sent by health staff)
+    Route::get('notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('notifications/{id}', [\App\Http\Controllers\Admin\NotificationController::class, 'show'])->name('notifications.show');
+    Route::post('notifications/{id}/mark-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('notifications.mark_read');
 
     // Vaccination schedule management (admin)
     Route::get('users/{user}/vaccination-schedule', [\App\Http\Controllers\Admin\VaccinationScheduleController::class, 'edit'])->name('vaccination-schedule.edit');
     Route::put('users/{user}/vaccination-schedule', [\App\Http\Controllers\Admin\VaccinationScheduleController::class, 'update'])->name('vaccination-schedule.update');
+    Route::post('admin/vaccination-schedules/updates', [\App\Http\Controllers\Admin\VaccinationScheduleController::class, 'updates'])->name('admin.vaccination-schedules.updates');
+
+    // Health staff management (admin)
+    Route::resource('health-staffs', \App\Http\Controllers\Admin\HealthStaffController::class)->parameters(['health-staffs' => 'health_staff']);
 });
 
 // Health staff routes (mirror admin routes but scoped to health_staff)
@@ -192,9 +202,10 @@ Route::middleware(['auth'])->prefix('health_staff')->name('health_staff.')->grou
         })->count();
 
         // Cases related to patients assigned to this staff
+        // Match statuses used in the case form (open / in-progress) as active states
         $activeCasesCount = \App\Models\CaseModel::whereHas('patient.assignedHealthStaff', function($q) use ($userId) {
             $q->where('users.id', $userId);
-        })->where('status', 'Active')->count();
+        })->whereIn('status', ['open', 'in-progress'])->count();
 
         // Vaccinations given to patients assigned to this staff
         $completedVaccinationsCount = \App\Models\Vaccination::whereHas('patient.assignedHealthStaff', function($q) use ($userId) {
@@ -203,7 +214,7 @@ Route::middleware(['auth'])->prefix('health_staff')->name('health_staff.')->grou
 
         $today = now()->toDateString();
 
-        // Today's appointments: not implemented as a model; reuse 0 for clarity
+        // Today's appointments: not implemented as a model; keep 0 for now
         $todayAppointments = 0;
 
         // Today's vaccinations given to assigned patients
@@ -233,6 +244,49 @@ Route::middleware(['auth'])->prefix('health_staff')->name('health_staff.')->grou
         ));
     })->name('dashboard');
 
+    // JSON stats endpoint for dashboard cards (used by AJAX polling)
+    Route::get('dashboard/stats', function () {
+        $user = Auth::user();
+        if (!$user || $user->role !== 'health_staff') {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $userId = $user->id;
+
+        $myPatientsCount = \App\Models\Patient::whereHas('assignedHealthStaff', function($q) use ($userId) {
+            $q->where('users.id', $userId);
+        })->count();
+
+        // Active case states: align with form values
+        $activeCasesCount = \App\Models\CaseModel::whereHas('patient.assignedHealthStaff', function($q) use ($userId) {
+            $q->where('users.id', $userId);
+        })->whereIn('status', ['open', 'in-progress'])->count();
+
+        $completedVaccinationsCount = \App\Models\Vaccination::whereHas('patient.assignedHealthStaff', function($q) use ($userId) {
+            $q->where('users.id', $userId);
+        })->count();
+
+        // Today's activity
+        $today = now()->toDateString();
+        $todayAppointments = 0; // placeholder
+        $todayVaccinations = \App\Models\Vaccination::whereHas('patient.assignedHealthStaff', function($q) use ($userId) {
+            $q->where('users.id', $userId);
+        })->whereDate('date_given', $today)->count();
+
+        $todayNewCases = \App\Models\CaseModel::whereHas('patient.assignedHealthStaff', function($q) use ($userId) {
+            $q->where('users.id', $userId);
+        })->whereDate('date_reported', $today)->count();
+
+        return response()->json([
+            'myPatientsCount' => $myPatientsCount,
+            'activeCasesCount' => $activeCasesCount,
+            'completedVaccinationsCount' => $completedVaccinationsCount,
+            'todayAppointments' => $todayAppointments,
+            'todayVaccinations' => $todayVaccinations,
+            'todayNewCases' => $todayNewCases,
+        ]);
+    })->name('dashboard.stats');
+
     // Independent health_staff controllers and routes
     Route::resource('patients', \App\Http\Controllers\HealthStaff\PatientController::class)->only(['index','show','create','store','edit','update','destroy']);
     Route::get('patients/search', [\App\Http\Controllers\HealthStaff\PatientController::class, 'search'])->name('patients.search');
@@ -244,13 +298,15 @@ Route::middleware(['auth'])->prefix('health_staff')->name('health_staff.')->grou
     Route::get('notifications', [\App\Http\Controllers\HealthStaff\NotificationController::class, 'index'])->name('notifications.index');
     Route::post('notifications/{id}/read', [\App\Http\Controllers\HealthStaff\NotificationController::class, 'markAsRead'])->name('notifications.read');
 
-    // Messages (health staff inbox) - reuse User\MessageController for listing and viewing
-    Route::get('messages', [\App\Http\Controllers\User\MessageController::class, 'index'])->name('messages.index');
-    Route::get('messages/{message}', [\App\Http\Controllers\User\MessageController::class, 'show'])->name('messages.show');
-
     // Vaccination schedule management (health_staff) - allow staff to edit schedules for patients they manage
     Route::get('users/{user}/vaccination-schedule', [\App\Http\Controllers\HealthStaff\VaccinationScheduleController::class, 'edit'])->name('vaccination-schedule.edit');
     Route::put('users/{user}/vaccination-schedule', [\App\Http\Controllers\HealthStaff\VaccinationScheduleController::class, 'update'])->name('vaccination-schedule.update');
+
+    // Health staff messaging: allow staff to send messages to admin and users, and view inbox
+    Route::get('messages', [\App\Http\Controllers\HealthStaff\MessageController::class, 'index'])->name('messages.index');
+    Route::get('messages/create', [\App\Http\Controllers\HealthStaff\MessageController::class, 'create'])->name('messages.create');
+    Route::post('messages', [\App\Http\Controllers\HealthStaff\MessageController::class, 'store'])->name('messages.store');
+    Route::get('messages/{message}', [\App\Http\Controllers\HealthStaff\MessageController::class, 'show'])->name('messages.show');
 });
 
 // User routes
@@ -259,6 +315,10 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
     Route::get('cases', [UserController::class, 'cases'])->name('cases');
     Route::get('vaccinations', [UserController::class, 'vaccinations'])->name('vaccinations');
     Route::get('profile', [UserController::class, 'profile'])->name('profile');
+    Route::get('profile/edit', [UserController::class, 'edit'])->name('profile.edit');
+    Route::put('profile', [UserController::class, 'update'])->name('profile.update');
+
+
     // User case submission
     Route::get('cases/create', [\App\Http\Controllers\UserCaseController::class, 'create'])->name('cases.create');
     Route::post('cases', [\App\Http\Controllers\UserCaseController::class, 'store'])->name('cases.store');

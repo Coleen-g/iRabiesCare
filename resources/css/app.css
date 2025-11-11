@@ -1,13 +1,3 @@
-/* Tailwind base layers */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Optional: Add your project's custom properties or utilities here */
-:root {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-}
-
-/* Import shared styles so Vite bundles them with app.css */
-@import './Sidebar.css';
-@import './user.css';

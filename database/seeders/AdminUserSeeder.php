@@ -13,7 +13,7 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Change these credentials as needed
+        // Default admin (existing)
         $email = 'admin@irabies.local';
         $name = 'admin';
         $password = 'secret123';
@@ -23,6 +23,20 @@ class AdminUserSeeder extends Seeder
                 'name' => $name,
                 'email' => $email,
                 'password' => Hash::make($password),
+                'role' => 'admin',
+            ]);
+        }
+
+        // Add requested admin user Coleen
+        $coleenEmail = 'coleen@irabies.local';
+        $coleenName = 'Coleen';
+        $coleenPassword = 'admincoleen';
+
+        if (!User::where('email', $coleenEmail)->exists()) {
+            User::create([
+                'name' => $coleenName,
+                'email' => $coleenEmail,
+                'password' => Hash::make($coleenPassword),
                 'role' => 'admin',
             ]);
         }

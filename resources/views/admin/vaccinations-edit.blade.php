@@ -3,188 +3,236 @@
 @section('title', 'Edit Vaccination')
 
 @section('content')
+{{-- Ensure Bootstrap Icons are loaded --}}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
 <style>
-    body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f9fafb;
-    }
-
-    .edit-container {
-        max-width: 700px;
-        margin: 2rem auto;
+    /* Unified admin form styling (matches Edit Case / Create Case) */
+    .edit-card {
+        max-width: 1150px;
+        margin: 2.5rem auto;
         background: #fff;
-        padding: 2rem 2.5rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+        padding: 2rem;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
     }
 
-    .edit-container h2 {
+    .edit-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .edit-title {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .edit-icon {
+        width: 3rem;
+        height: 3rem;
+        background: #000;
+        color: #fff;
+        border-radius: 12px;
         display: flex;
         align-items: center;
-        gap: 0.6rem;
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 1.5rem;
-        border-bottom: 2px solid #2563eb;
-        padding-bottom: 0.5rem;
+        justify-content: center;
+        font-size: 1.25rem;
     }
 
-    .edit-container h2 i {
-        color: #2563eb;
+    .edit-header h2 {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 600;
     }
 
-    form {
+    .edit-header small {
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem 2rem;
+    }
+
+    .form-group {
         display: flex;
         flex-direction: column;
-        gap: 1.2rem;
     }
 
-    label {
+    .form-group label {
         font-weight: 600;
         color: #374151;
+        margin-bottom: 0.35rem;
+        font-size: 0.9rem;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 0.25rem;
+        gap: 0.4rem;
     }
 
-    label i {
-        color: #2563eb;
+    .form-group label i {
+        color: #000;
         font-size: 1rem;
     }
 
-    input[type="text"],
-    input[type="date"],
-    select,
-    textarea {
-        width: 100%;
-        padding: 0.75rem;
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        padding: 0.7rem;
         border: 1px solid #d1d5db;
         border-radius: 8px;
         font-size: 0.95rem;
-        transition: border 0.3s ease, box-shadow 0.3s ease;
+        background: #f9fafb;
+        transition: all 0.2s ease;
     }
 
-    input:focus,
-    select:focus,
-    textarea:focus {
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        border-color: #000;
+        background: #fff;
         outline: none;
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
     }
 
-    textarea {
+    .form-group textarea {
+        min-height: 120px;
         resize: vertical;
-        min-height: 100px;
     }
 
     .form-actions {
         display: flex;
-        justify-content: flex-end;
-        align-items: center;
         gap: 1rem;
+        justify-content: flex-end;
         margin-top: 1.5rem;
     }
 
-    button {
-        background-color: #2563eb;
+    .btn-primary {
+        background: #000;
         color: #fff;
-        border: none;
+        padding: 0.7rem 1.3rem;
         border-radius: 8px;
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
+        border: none;
         cursor: pointer;
-        font-size: 0.95rem;
+        font-weight: 500;
+        transition: background 0.2s, transform 0.2s;
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
-    button:hover {
-        background-color: #1d4ed8;
-        transform: translateY(-2px);
+    .btn-primary:hover {
+        background: #111827;
+        transform: translateY(-1px);
     }
 
-    a.back-link {
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #111;
+        padding: 0.7rem 1.3rem;
+        border-radius: 8px;
+        border: none;
+        text-decoration: none;
+        font-weight: 500;
+        transition: background 0.2s;
         display: flex;
         align-items: center;
-        gap: 0.4rem;
-        text-decoration: none;
-        color: #374151;
-        font-weight: 500;
-        font-size: 0.95rem;
-        transition: color 0.3s ease;
+        gap: 0.5rem;
     }
 
-    a.back-link:hover {
-        color: #2563eb;
+    .btn-secondary:hover {
+        background: #e5e7eb;
     }
 
-    @media (max-width: 600px) {
-        .edit-container {
-            padding: 1.5rem;
+    @media (max-width: 800px) {
+        .form-grid {
+            grid-template-columns: 1fr;
         }
 
         .form-actions {
             flex-direction: column;
-            align-items: stretch;
         }
 
-        button, .back-link {
+        .btn-primary,
+        .btn-secondary {
             width: 100%;
             justify-content: center;
         }
     }
 </style>
 
-<div class="edit-container">
-    <h2><i class="fa-solid fa-syringe"></i> Edit Vaccination</h2>
+<div class="edit-card">
+    <div class="edit-header">
+        <div class="edit-title">
+            <div class="edit-icon"><i class="bi bi-syringe"></i></div>
+            <div>
+                <h2>Edit Vaccination</h2>
+                <small>Modify vaccination details</small>
+            </div>
+        </div>
+        <a href="{{ route('admin.vaccinations.index') }}" class="btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Vaccinations
+        </a>
+    </div>
 
     <form method="POST" action="{{ route('admin.vaccinations.update', $vaccination) }}">
         @csrf
         @method('PUT')
 
-        <div>
-            <label><i class="fa-solid fa-user"></i> Patient</label>
-            <select name="patient_id" required class="searchable-patient-select">
-                @foreach($patients as $pt)
-                    <option value="{{ $pt->id }}" {{ $pt->id == $vaccination->patient_id ? 'selected' : '' }}>
-                        {{ $pt->name }}
-                    </option>
-                @endforeach
-            </select>
+        <div class="form-grid">
+            <div class="form-group">
+                <label><i class="bi bi-person"></i> Patient</label>
+                <select name="patient_id" required class="searchable-patient-select">
+                    @foreach($patients as $pt)
+                        <option value="{{ $pt->id }}" {{ $pt->id == $vaccination->patient_id ? 'selected' : '' }}>
+                            {{ $pt->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label><i class="bi bi-calendar3"></i> Date Given</label>
+                <input name="date_given" type="date" value="{{ $vaccination->date_given }}" />
+            </div>
         </div>
 
-        <div>
-            <label><i class="fa-solid fa-calendar-day"></i> Date Given</label>
-            <input name="date_given" type="date" value="{{ $vaccination->date_given }}" />
+        <div class="form-grid">
+            <div class="form-group">
+                <label><i class="bi bi-prescription2"></i> Vaccine</label>
+                <input name="vaccine" value="{{ $vaccination->vaccine }}" placeholder="e.g. Rabivax" />
+            </div>
+
+            <div class="form-group">
+                <label><i class="bi bi-droplet"></i> Dose</label>
+                <input name="dose" value="{{ $vaccination->dose }}" placeholder="e.g. 0.5 mL" />
+            </div>
         </div>
 
-        <div>
-            <label><i class="fa-solid fa-prescription-bottle-medical"></i> Vaccine</label>
-            <input name="vaccine" value="{{ $vaccination->vaccine }}" placeholder="e.g. Rabivax" />
-        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label><i class="bi bi-person-badge"></i> Administered By</label>
+                <input name="administered_by" value="{{ $vaccination->administered_by }}" placeholder="e.g. Dr. Smith" />
+            </div>
 
-        <div>
-            <label><i class="fa-solid fa-vial"></i> Dose</label>
-            <input name="dose" value="{{ $vaccination->dose }}" placeholder="e.g. 0.5 mL" />
-        </div>
-
-        <div>
-            <label><i class="fa-solid fa-user-nurse"></i> Administered By</label>
-            <input name="administered_by" value="{{ $vaccination->administered_by }}" placeholder="e.g. Dr. Smith" />
-        </div>
-
-        <div>
-            <label><i class="fa-solid fa-notes-medical"></i> Notes</label>
-            <textarea name="notes" placeholder="Additional remarks...">{{ $vaccination->notes }}</textarea>
+            <div class="form-group">
+                <label><i class="bi bi-journal-medical"></i> Remarks</label>
+                <textarea name="remarks" placeholder="Additional remarks...">{{ $vaccination->remarks ?? '' }}</textarea>
+            </div>
         </div>
 
         <div class="form-actions">
-            <button type="submit"><i class="fa-solid fa-floppy-disk"></i> Update Vaccination</button>
-            <a href="{{ route('admin.vaccinations.index') }}" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back</a>
+            <button type="submit" class="btn-primary">
+                <i class="bi bi-save"></i> Update Vaccination
+            </button>
+            <a href="{{ route('admin.vaccinations.index') }}" class="btn-secondary">
+                <i class="bi bi-x-circle"></i> Cancel
+            </a>
         </div>
     </form>
 </div>

@@ -239,10 +239,10 @@
                         @endphp
                         <td>{{ $exposureDate ? \Illuminate\Support\Carbon::parse($exposureDate)->format('Y-m-d') : '—' }}</td>
                         <td>{{ $c->exposure_type ?? ($c->patient->exposure_type ?? '—') }}</td>
-                        <td>{{ $c->wounds_location ?? '—' }}</td>
+                            <td>{{ $c->wounds_location ?? ($c->patient->wounds_location ?? '—') }}</td>
                         <td>{{ $c->category ?? '—' }}</td>
                         <td>{{ $c->animal_species ?? ($c->patient->animal ?? '—') }}</td>
-                        <td>{{ $c->animal_status ?? '—' }}</td>
+                        <td>{{ $c->animal_status ?? ($c->patient->animal_status ?? '—') }}</td>
                         <td>{{ optional($c->reporter)->name ?? optional($c->reporter)->email ?? '—' }}</td>
                         <td>{{ \Illuminate\Support\Str::limit($c->description, 100, '...') }}</td>
                         <td>

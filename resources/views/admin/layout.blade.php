@@ -6,6 +6,20 @@
     <title>@yield('title', 'Admin') - iRabiesCare</title>
     @vite(['resources/js/app.js', 'resources/css/app.css'])
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Ensure bootstrap icon elements render even if other CSS overrides are present */
+        .bi {
+            font-family: "bootstrap-icons" !important;
+            speak: none;
+            font-style: normal;
+            font-weight: normal;
+            font-variant: normal;
+            text-transform: none;
+            line-height: 1;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
     <!-- FontAwesome CDN for fa- icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKB4Imkb9hFQ9U1FVLtZL1YI7Di5urN6pN1Nsx3Rp3XIan+FJxux1DPZWS9Yuk3F7S3w7DtwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
@@ -272,6 +286,9 @@
                     <a href="/admin/patients" class="{{ request()->is('admin/patients*') ? 'active' : '' }}">
                         <i class="bi bi-people"></i> <span>Patients</span>
                     </a>
+                    <a href="/admin/health-staffs" class="{{ request()->is('admin/health-staffs*') ? 'active' : '' }}">
+                        <i class="bi bi-person-badge"></i> <span>Health Staff</span>
+                    </a>
                     <a href="/admin/cases" class="{{ request()->is('admin/cases*') ? 'active' : '' }}">
                         <i class="bi bi-journal-medical"></i> <span>Cases</span>
                     </a>
@@ -313,7 +330,14 @@
 
                 <div class="topbar-right">
                     @if(auth()->check())
-                        <a href="{{ route('user.notifications.index') }}" class="notif" title="Notifications">
+                        @php $currentUser = auth()->user(); @endphp
+                        @if($currentUser && $currentUser->role === 'admin')
+                            <a href="{{ route('admin.notifications.index') }}" class="notif" title="Notifications">
+                        @elseif($currentUser && $currentUser->role === 'health_staff')
+                            <a href="{{ route('health_staff.notifications.index') }}" class="notif" title="Notifications">
+                        @else
+                            <a href="{{ route('user.notifications.index') }}" class="notif" title="Notifications">
+                        @endif
                             <i class="bi bi-bell" style="font-size:18px;"></i>
                             @php $unread = auth()->user()->unreadNotifications()->count(); @endphp
                             @if($unread)

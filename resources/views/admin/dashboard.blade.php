@@ -67,9 +67,10 @@
     }
 
     .stat-card {
-        background: white;
+        background: linear-gradient(180deg,#ffffff,#fbfdff);
         border-radius: 16px;
         padding: 1.5rem;
+        padding-left: calc(1.5rem + 8px);
         position: relative;
         overflow: hidden;
         display: flex;
@@ -77,6 +78,51 @@
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         border: 1px solid #e5e7eb;
         transition: all 0.3s ease;
+    }
+
+    /* Decorative left accent bar for quick visual scanning */
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        border-top-left-radius: 16px;
+        border-bottom-left-radius: 16px;
+        pointer-events: none;
+    }
+
+    /* Variant gradients for cards */
+    .stat-card.primary { background: linear-gradient(135deg,#f8fafc,#ffffff); }
+    .stat-card.info { background: linear-gradient(135deg,#eff6ff,#ffffff); }
+    .stat-card.success { background: linear-gradient(135deg,#ecfdf5,#ffffff); }
+
+    .stat-card.primary::before { background: linear-gradient(180deg,#000000,#374151); }
+    .stat-card.info::before { background: linear-gradient(180deg,#3b82f6,#1e40af); }
+    .stat-card.success::before { background: linear-gradient(180deg,#10b981,#047857); }
+
+    /* Anchor-wrapped card styles for accessibility and consistent layout */
+    .stat-card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        border-radius: 16px;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    /* Focus-visible for keyboard users */
+    .stat-card-link:focus-visible {
+        outline: 3px solid rgba(59,130,246,0.18);
+        outline-offset: 3px;
+    }
+
+    /* Slightly stronger hover state for anchor-wrapped cards */
+    .stat-card-link:hover .stat-card,
+    .stat-card-link:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 16px 30px -12px rgba(2,6,23,0.2);
+        border-color: #d1d5db;
     }
 
     .stat-card:hover {
@@ -392,57 +438,66 @@
 
     <!-- Stats Grid -->
     <div class="stats-grid">
-        <a href="{{ route('admin.patients.index') }}" style="text-decoration:none;color:inherit;">
-            <div class="stat-card">
-            <div class="stat-header">
-                <div class="stat-icon primary">
-                    <i class="bi bi-people"></i>
+        <a href="{{ route('admin.patients.index') }}" class="stat-card-link" aria-label="View patients">
+            <div class="stat-card primary">
+                <div class="stat-header">
+                    <div class="stat-icon primary" aria-hidden="true">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div class="stat-meta">
+                        <small style="color:#6b7280;font-weight:600;">Patients</small>
+                    </div>
                 </div>
-            </div>
-            <div class="stat-content">
-                <div class="stat-label">Total Patients</div>
-                <div class="stat-value">{{ $patientsCount ?? 0 }}</div>
-                <div class="stat-trend primary">
-                    <i class="bi bi-person-plus"></i>
-                    <span>Active Patients</span>
+                <div class="stat-content">
+                    <div class="stat-label">Total Patients</div>
+                    <div class="stat-value">{{ $patientsCount ?? 0 }}</div>
+                    <div class="stat-trend primary">
+                        <i class="bi bi-person-plus"></i>
+                        <span>Active Patients</span>
+                    </div>
                 </div>
-            </div>
             </div>
         </a>
 
-        <a href="{{ route('admin.cases.index') }}" style="text-decoration:none;color:inherit;">
-            <div class="stat-card">
-            <div class="stat-header">
-                <div class="stat-icon info">
-                    <i class="bi bi-journal-medical"></i>
+        <a href="{{ route('admin.cases.index') }}" class="stat-card-link" aria-label="View reported cases">
+            <div class="stat-card info">
+                <div class="stat-header">
+                    <div class="stat-icon info" aria-hidden="true">
+                        <i class="bi bi-journal-medical"></i>
+                    </div>
+                    <div class="stat-meta">
+                        <small style="color:#6b7280;font-weight:600;">Cases</small>
+                    </div>
                 </div>
-            </div>
-            <div class="stat-content">
-                <div class="stat-label">Reported Cases</div>
-                <div class="stat-value">{{ $casesCount ?? 0 }}</div>
-                <div class="stat-trend info">
-                    <i class="bi bi-clipboard-data"></i>
-                    <span>Total Reports</span>
+                <div class="stat-content">
+                    <div class="stat-label">Reported Cases</div>
+                    <div class="stat-value">{{ $casesCount ?? 0 }}</div>
+                    <div class="stat-trend info">
+                        <i class="bi bi-clipboard-data"></i>
+                        <span>Total Reports</span>
+                    </div>
                 </div>
-            </div>
             </div>
         </a>
 
-        <a href="{{ route('admin.vaccinations.index') }}" style="text-decoration:none;color:inherit;">
-            <div class="stat-card">
-            <div class="stat-header">
-                <div class="stat-icon success">
-                    <i class="bi bi-capsule"></i>
+        <a href="{{ route('admin.vaccinations.index') }}" class="stat-card-link" aria-label="View vaccinations">
+            <div class="stat-card success">
+                <div class="stat-header">
+                    <div class="stat-icon success" aria-hidden="true">
+                        <i class="bi bi-capsule"></i>
+                    </div>
+                    <div class="stat-meta">
+                        <small style="color:#6b7280;font-weight:600;">Vaccinations</small>
+                    </div>
                 </div>
-            </div>
-            <div class="stat-content">
-                <div class="stat-label">Vaccinations Given</div>
-                <div class="stat-value">{{ $vaccinationsCount ?? 0 }}</div>
-                <div class="stat-trend success">
-                    <i class="bi bi-check-circle"></i>
-                    <span>Completed</span>
+                <div class="stat-content">
+                    <div class="stat-label">Vaccinations Given</div>
+                    <div class="stat-value">{{ $vaccinationsCount ?? 0 }}</div>
+                    <div class="stat-trend success">
+                        <i class="bi bi-check-circle"></i>
+                        <span>Completed</span>
+                    </div>
                 </div>
-            </div>
             </div>
         </a>
     </div>

@@ -57,6 +57,8 @@
             margin-top: 0.25rem;
         }
 
+        
+
         .vaccine-dose {
             background: #eff6ff;
             color: #1e40af;
@@ -66,6 +68,22 @@
             font-size: 0.85rem;
             white-space: nowrap;
         }
+
+        /* Status badges */
+        .status-badge {
+            display:inline-block;padding:0.25rem 0.5rem;border-radius:6px;font-weight:600;font-size:0.8rem;color:#fff;
+        }
+        .status-completed { background: #2563eb; } /* blue */
+        .status-missed { background: #dc2626; } /* red */
+        .status-pending { background: #6b7280; } /* gray */
+
+        .admin-actions { display:flex;gap:.5rem;align-items:center;margin-top:.5rem }
+        .admin-actions form { display:inline-flex; gap:.5rem; align-items:center }
+        .admin-actions .btn { padding:.35rem .6rem;border-radius:6px;border:none;cursor:pointer }
+        .btn-save { background:#2563eb;color:#fff }
+        .btn-missed { background:#dc2626;color:#fff }
+        .btn-done { background:#06b6d4;color:#fff }
+        .remarks-input { padding:.4rem .6rem;border:1px solid #d1d5db;border-radius:6px }
 
         .page-header {
             display: flex;
@@ -91,6 +109,13 @@
         .muted {
             color: #6b7280;
         }
+        /* Scheduled row subtle indicator and per-cell status colors to match admin/health staff views */
+        .scheduled-row td { border-left: 4px solid rgba(34,197,94,0.06); }
+        td.td-done { background: #bfdbfe; color: inherit; }
+        td.td-missed { background: #fecaca; color: inherit; }
+        td.td-pending { background: #fed7aa; color: inherit; }
+        /* prevent hover from washing out status cells */
+        table tr:hover td:not(.td-done):not(.td-missed):not(.td-pending) { background: #f5f5f5; }
     </style>
 
     <div class="card vaccination-card">
@@ -119,38 +144,56 @@
                                 <th style="background:#f0fdf4;color:#065f46;padding:0.75rem;text-align:left;border-bottom:2px solid #dcfce7;font-weight:600;">First Schedule</th>
                                 <th style="background:#f0fdf4;color:#065f46;padding:0.75rem;text-align:left;border-bottom:2px solid #dcfce7;font-weight:600;">Second Schedule</th>
                                 <th style="background:#f0fdf4;color:#065f46;padding:0.75rem;text-align:left;border-bottom:2px solid #dcfce7;font-weight:600;">Third Schedule</th>
+                                <th style="background:#f0fdf4;color:#065f46;padding:0.75rem;text-align:left;border-bottom:2px solid #dcfce7;font-weight:600;">Remarks</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td style="padding:1rem 0.75rem;border-bottom:1px solid #f0fdf4;">
-                                    @if($schedule->schedule_1)
+                    <tbody>
+                                <tr data-user-id="{{ auth()->id() }}">
+                                @php
+                                    $s1 = $schedule->schedule_1 ? \Illuminate\Support\Carbon::parse($schedule->schedule_1)->format('M d, Y') : null;
+                                    $s2 = $schedule->schedule_2 ? \Illuminate\Support\Carbon::parse($schedule->schedule_2)->format('M d, Y') : null;
+                                    $s3 = $schedule->schedule_3 ? \Illuminate\Support\Carbon::parse($schedule->schedule_3)->format('M d, Y') : null;
+                                    $s1_status = $schedule->schedule_1_status ?? 'pending';
+                                    $s2_status = $schedule->schedule_2_status ?? 'pending';
+                                    $s3_status = $schedule->schedule_3_status ?? 'pending';
+                                    // overall remarks only (not per-schedule) - read from vaccination_schedules.overall_remarks
+                                    $overall_remarks = $schedule->overall_remarks ?? null;
+                                @endphp
+                                <td class="{{ $s1_status === 'completed' ? 'td-done' : ($s1_status === 'missed' ? 'td-missed' : '') }}" style="padding:1rem 0.75rem;border-bottom:1px solid #f0fdf4;">
+                                    @if($s1)
                                         <div style="display:flex;align-items:center;gap:0.5rem;">
                                             <i class="fas fa-calendar-day" style="color:#065f46"></i>
-                                            <span>{{ \Illuminate\Support\Carbon::parse($schedule->schedule_1)->format('M d, Y') }}</span>
+                                            <span>{{ $s1 }}</span>
                                         </div>
                                     @else
                                         <span style="color:#6b7280;">Not scheduled</span>
                                     @endif
                                 </td>
-                                <td style="padding:1rem 0.75rem;border-bottom:1px solid #f0fdf4;">
-                                    @if($schedule->schedule_2)
+                                <td class="{{ $s2_status === 'completed' ? 'td-done' : ($s2_status === 'missed' ? 'td-missed' : '') }}" style="padding:1rem 0.75rem;border-bottom:1px solid #f0fdf4;">
+                                    @if($s2)
                                         <div style="display:flex;align-items:center;gap:0.5rem;">
                                             <i class="fas fa-calendar-day" style="color:#065f46"></i>
-                                            <span>{{ \Illuminate\Support\Carbon::parse($schedule->schedule_2)->format('M d, Y') }}</span>
+                                            <span>{{ $s2 }}</span>
                                         </div>
                                     @else
                                         <span style="color:#6b7280;">Not scheduled</span>
                                     @endif
                                 </td>
-                                <td style="padding:1rem 0.75rem;border-bottom:1px solid #f0fdf4;">
-                                    @if($schedule->schedule_3)
+                                <td class="{{ $s3_status === 'completed' ? 'td-done' : ($s3_status === 'missed' ? 'td-missed' : '') }}" style="padding:1rem 0.75rem;border-bottom:1px solid #f0fdf4;">
+                                    @if($s3)
                                         <div style="display:flex;align-items:center;gap:0.5rem;">
                                             <i class="fas fa-calendar-day" style="color:#065f46"></i>
-                                            <span>{{ \Illuminate\Support\Carbon::parse($schedule->schedule_3)->format('M d, Y') }}</span>
+                                            <span>{{ $s3 }}</span>
                                         </div>
                                     @else
                                         <span style="color:#6b7280;">Not scheduled</span>
+                                    @endif
+                                </td>
+                                <td id="user-schedule-remarks" style="padding:1rem 0.75rem;border-bottom:1px solid #f0fdf4;max-width:360px;">
+                                    @if($overall_remarks)
+                                        <div style="color:#374151;">{{ \Illuminate\Support\Str::limit($overall_remarks, 200) }}</div>
+                                    @else
+                                        <span style="color:#6b7280;" id="user-no-remarks">No remarks</span>
                                     @endif
                                 </td>
                             </tr>
@@ -179,17 +222,65 @@
                             <div class="vaccine-date">
                                 {{ $v->date_given ? \Illuminate\Support\Carbon::parse($v->date_given)->format('M d, Y') : 'No Date Recorded' }}
                             </div>
-                            @if($v->notes)
+                            @if(!empty($v->remarks))
+                                <div class="vaccine-notes">
+                                    <strong>Remarks:</strong> {{ \Illuminate\Support\Str::limit($v->remarks, 180) }}
+                                </div>
+                            @elseif($v->notes)
                                 <div class="vaccine-notes">
                                     {{ Str::limit($v->notes, 120) }}
                                 </div>
                             @endif
                         </div>
                     </div>
-                    <div class="vaccine-dose">
-                        Dose {{ $v->dose ?? '—' }}
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.5rem;">
+                        <div style="display:flex;align-items:center;gap:.5rem">
+                            <div class="vaccine-dose">
+                                Dose {{ $v->dose ?? '—' }}
+                            </div>
+                            @php
+                                $status = strtolower($v->status ?? 'pending');
+                            @endphp
+                            @if($status === 'completed')
+                                <span class="status-badge status-completed">Completed</span>
+                            @elseif($status === 'missed')
+                                <span class="status-badge status-missed">Missed</span>
+                            @else
+                                <span class="status-badge status-pending">{{ ucfirst($status) }}</span>
+                            @endif
+                        </div>
+
+                        {{-- Admin controls: mark missed/done and add remarks --}}
+                        @if(optional(auth()->user())->role === 'admin')
+                            <div class="admin-actions">
+                                <form method="POST" action="{{ route('admin.vaccinations.update', $v->id) }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="status" value="missed" />
+                                    <input type="hidden" name="remarks" value="" />
+                                    <button type="submit" class="btn btn-missed" title="Mark missed">Mark Missed</button>
+                                </form>
+
+                                <form method="POST" action="{{ route('admin.vaccinations.update', $v->id) }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="status" value="completed" />
+                                    <input type="hidden" name="remarks" value="" />
+                                    <button type="submit" class="btn btn-done" title="Mark completed">Mark Done</button>
+                                </form>
+
+                                <form method="POST" action="{{ route('admin.vaccinations.update', $v->id) }}" style="min-width:240px;">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="status" value="{{ $v->status ?? 'pending' }}" />
+                                    <input type="text" name="remarks" placeholder="Add remarks" class="remarks-input" value="{{ $v->remarks ?? '' }}" />
+                                    <button type="submit" class="btn btn-save">Save</button>
+                                </form>
+                            </div>
+                        @endif
                     </div>
                 </div>
+
             @endforeach
 
             @if(method_exists($vaccinations, 'links'))
@@ -204,4 +295,71 @@
 
     {{-- Font Awesome for icons --}}
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script>
+        // Poll the schedule updates endpoint so the user's schedule remark and per-schedule cell colors
+        // update automatically when an admin/health_staff edits the schedule.
+        (function(){
+            let route = '';
+            @if (\Illuminate\Support\Facades\Route::has('admin.vaccination-schedules.updates'))
+                route = @json(route('admin.vaccination-schedules.updates'));
+            @endif
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || document.querySelector('input[name="_token"]')?.value || '';
+
+            async function fetchUpdate() {
+                try {
+                    if (!route) return;
+                    const userId = '{{ auth()->id() }}';
+                    const fd = new FormData();
+                    fd.append('user_ids[]', userId);
+
+                    const res = await fetch(route, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': csrf,
+                        },
+                        body: fd,
+                        credentials: 'same-origin'
+                    });
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    if (!data.success || !data.schedules) return;
+                    const schedule = data.schedules[userId];
+                    if (!schedule) return;
+
+                    // update per-schedule td classes (first three tds inside the schedule table row)
+                    const row = document.querySelector('tr[data-user-id="' + userId + '"]');
+                    if (row) {
+                        const cells = row.querySelectorAll('td');
+                        // schedule cells are at index 0..2 in this small table
+                        ['schedule_1','schedule_2','schedule_3'].forEach((k, idx) => {
+                            const status = schedule[`${k}_status`] || 'pending';
+                            const cell = cells[idx];
+                            if (!cell) return;
+                            cell.classList.remove('td-done','td-missed','td-pending');
+                            if (status === 'completed') cell.classList.add('td-done');
+                            else if (status === 'missed') cell.classList.add('td-missed');
+                        });
+
+                        // update overall remarks cell
+                        const overall = schedule['overall_remarks'] || '';
+                        const remarksTd = document.getElementById('user-schedule-remarks');
+                        if (remarksTd) {
+                            if (overall && overall.trim() !== '') {
+                                remarksTd.innerHTML = `<div style="color:#374151;">${overall.substring(0,200)}</div>`;
+                            } else {
+                                remarksTd.innerHTML = '<span style="color:#6b7280;" id="user-no-remarks">No remarks</span>';
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error fetching schedule update for user', err);
+                }
+            }
+
+            // initial fetch and then poll every 8s
+            fetchUpdate();
+            setInterval(fetchUpdate, 8000);
+        })();
+    </script>
 @endsection

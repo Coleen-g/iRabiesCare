@@ -45,7 +45,7 @@ class VaccinationController extends Controller
             'vaccine' => 'nullable|string|max:255',
             'dose' => 'nullable|string|max:100',
             'administered_by' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
+            'remarks' => 'nullable|string',
         ]);
 
         $vaccination = Vaccination::create($data);
@@ -96,7 +96,7 @@ class VaccinationController extends Controller
             'vaccine' => 'nullable|string|max:255',
             'dose' => 'nullable|string|max:100',
             'administered_by' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
+            'remarks' => 'nullable|string',
         ]);
 
         $vaccination->update($data);

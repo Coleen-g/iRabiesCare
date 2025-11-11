@@ -1,248 +1,281 @@
 {
-  "Tagbilaran City": [
-    "Bool",
-    "Booy",
-    "Cabawan",
-    "Cogon",
-    "Dampas",
-    "Dao",
-    "Manga",
-    "Mansasa",
-    "Poblacion I",
-    "Poblacion II",
-    "Poblacion III",
-    "San Isidro",
-    "Taloto",
-    "Tiptip",
-    "Ubujan"
-  ],
-  "Panglao": [
-    "Bil-isan",
-    "Bolod",
-    "Danao",
-    "Doljo",
-    "Libaong",
-    "Looc",
-    "Lourdes",
+  "Alburquerque": [
     "Poblacion",
-    "Tangnan",
-    "Tawala"
+    "Bugsoc",
+    "Danlugan",
+    "Lo-ok",
+    "Lugsong",
+    "San Isidro",
+    "Tugas"
+  ],
+  "Alicia": [
+    "Poblacion",
+    "Bunga Mar",
+    "Sapang Dalaga",
+    "Santo Niño",
+    "San Roque",
+    "Cabangtuan"
+  ],
+  "Anda": [
+    "Buenavista",
+    "Cabuntog",
+    "Can-iat",
+    "Can-oc",
+    "Canhepoy",
+    "Poblacion"
+  ],
+  "Antequera": [
+    "Poblacion",
+    "Basak",
+    "Buenavista",
+    "Maitum",
+    "San Pedro"
+  ],
+  "Baclayon": [
+    "Poblacion",
+    "Canhawit",
+    "Dangay",
+    "Looc",
+    "Poblacion West"
+  ],
+  "Balilihan": [
+    "Poblacion",
+    "Bangkal",
+    "Cabacungan",
+    "Cansague",
+    "Tugas"
+  ],
+  "Batuan": [
+    "Poblacion",
+    "Candayoc",
+    "Candili",
+    "Lo-ong",
+    "Santa Cruz"
+  ],
+  "Bien Unido": [
+    "Poblacion",
+    "Bunga",
+    "Luyang",
+    "Napo",
+    "Talisay"
+  ],
+  "Buenavista": [
+    "Poblacion",
+    "Guadalupe",
+    "San Roque",
+    "Tugas",
+    "Campo"
+  ],
+  "Calape": [
+    "Poblacion",
+    "Cebulok",
+    "Cambaquiz",
+    "Calunasan",
+    "Punta"
+  ],
+  "Candijay": [
+    "Poblacion",
+    "Bunga",
+    "Cagbong",
+    "Punta",
+    "San Miguel"
   ],
   "Carmen": [
-    "Alegria",
-    "Bicao",
-    "Buenavista",
-    "Buenos Aires",
-    "Calatrava",
-    "El Progreso",
-    "El Salvador",
-    "Guadalupe",
-    "Katipunan",
-    "La Libertad",
-    "La Paz",
-    "Mabini",
     "Poblacion",
+    "Cantagay",
+    "Jadjao",
+    "Mabini",
+    "Punta"
+  ],
+  "Catigbian": [
+    "Poblacion",
+    "Abihilan",
     "San Isidro",
-    "Tagbilaran Road"
+    "Cubay",
+    "Tag-ilid"
+  ],
+  "Clarin": [
+    "Poblacion",
+    "East Poblacion",
+    "West Poblacion",
+    "Cabug",
+    "San Vicente"
+  ],
+  "Corella": [
+    "Poblacion",
+    "Cabuan",
+    "Linkon",
+    "Santo Niño"
+  ],
+  "Cortes": [
+    "Poblacion",
+    "Canha-ayon",
+    "Palanas",
+    "San Roque"
+  ],
+  "Dagohoy": [
+    "Poblacion",
+    "Kilahon",
+    "Cansuhay",
+    "San Isidro"
+  ],
+  "Danao": [
+    "Poblacion",
+    "San Roque",
+    "Samboan",
+    "Tugas"
   ],
   "Dauis": [
+    "Poblacion",
     "Agape",
     "Bacani",
-    "Bogo",
     "Buenavista",
-    "Dauis Poblacion",
-    "Mansasa",
+    "Dauis Poblacion"
+  ],
+  "Dimiao": [
+    "Poblacion",
+    "Garcia",
+    "San Vicente",
+    "Tabalong"
+  ],
+  "Duero": [
+    "Poblacion",
+    "San Miguel",
+    "Poblacion West",
+    "Tagbilaran"
+  ],
+  "Garcia Hernandez": [
+    "Poblacion",
+    "Poblacion Norte",
+    "San Jose",
+    "Tag-oro"
+  ],
+  "Guindulman": [
+    "Poblacion",
+    "Luna",
+    "San Roque",
+    "Tabuan"
+  ],
+  "Inabanga": [
+    "Poblacion",
+    "Jandayan",
     "San Isidro",
-    "Tabalong",
-    "Tambo",
-    "Tigbao",
-    "Tultugan",
+    "Villa-Angeles"
+  ],
+  "Jagna": [
+    "Poblacion",
+    "Alejawan",
+    "Balili",
+    "Boctol",
+    "Can-upao"
+  ],
+  "Lila": [
+    "Poblacion",
+    "San Jose",
+    "Doljo",
+    "Mabini"
+  ],
+  "Loay": [
+    "Poblacion",
+    "Tabuc",
+    "San Vicente",
     "Can-uba"
   ],
-  "Loon": [
-    "Agujo",
-    "Amlung",
-    "Atong",
-    "Bacani",
-    "Bato",
-    "Cabilao",
-    "Candahon",
-    "Cambugason",
-    "Canmaya",
-    "Catagbacan",
-    "Cawayan",
-    "Dampas",
-    "Garcia",
-    "Guiwan",
-    "Kauswagan",
-    "Looc",
-    "Luan",
-    "Magpag-ong",
-    "Mambaling",
+  "Loboc": [
+    "Poblacion",
+    "Bahian",
+    "Tabalong",
+    "Pangapasan"
+  ],
+  "Mabini": [
+    "Poblacion",
+    "Maribojoc",
+    "San Roque",
+    "Punta"
+  ],
+  "Maribojoc": [
+    "Poblacion",
+    "Busalian",
+    "Cansayang",
+    "San Miguel"
+  ],
+  "Panglao": [
+    "Doljo",
+    "Danao",
+    "Bohol",
+    "Poblacion",
+    "Punta"
+  ],
+  "Pilar": [
+    "Poblacion",
+    "Can-ayan",
+    "San Roque",
+    "Tagbilaran"
+  ],
+  "Pres. Carlos P. Garcia": [
+    "Poblacion",
+    "Tagbilaran",
+    "Punta",
+    "San Roque"
+  ],
+  "Sagbayan": [
     "Poblacion",
     "San Isidro",
-    "San Vicente",
-    "Santa Cruz",
-    "Talon",
-    "Tugas",
-    "Zamboanguita"
+    "Canlaon",
+    "Campaclan"
   ],
-  "Tubigon": [
-    "Bagongbanwa",
-    "Banlasan",
-    "Batasan",
-    "Bilangbilangan",
-    "Bosongon",
-    "Buenos Aires",
-    "Bunacan",
-    "Cabulihan",
-    "Centro",
-    "Cubay",
-    "Guiwan",
-    "Ilang",
-    "Macabana",
-    "Macao",
+  "Sikatuna": [
     "Poblacion",
-    "Sapa",
-    "Tinangnan",
-    "Ubojan"
+    "Can-avid",
+    "San Miguel",
+    "Tugas"
+  ],
+  "Sierra Bullones": [
+    "Poblacion",
+    "Candas",
+    "Magsaysay",
+    "San Roque"
+  ],
+  "Tagbilaran City": [
+    "Bool",
+    "Cagbuan",
+    "Cogon",
+    "Danao",
+    "Daorong",
+    "Guingona",
+    "Manaba",
+    "Panglao",
+    "Tiptip",
+    "Poblacion"
   ],
   "Talibon": [
+    "Poblacion",
     "Bagacay",
     "Balintawak",
     "Burgos",
     "Busalian",
-    "Calituban",
-    "Cataban",
-    "Guindacpan",
-    "Magsaysay",
-    "Mahanay",
-    "Nocnocan",
+    "San Roque"
+  ],
+  "Trinidad": [
     "Poblacion",
-    "Rizal",
-    "San Agustin",
-    "San Carlos",
-    "San Francisco",
-    "San Isidro",
-    "San Jose",
-    "San Pedro",
-    "San Roque",
-    "Santo Niño",
-    "Sikatuna",
-    "Suba",
-    "Tanghaligue",
-    "Zamora"
+    "Loay",
+    "Cabawan",
+    "San Miguel"
   ],
-  "Calape": [
-    "Abucayan Norte",
-    "Abucayan Sur",
+  "Tubigon": [
+    "Poblacion",
+    "Bagongbanwa",
     "Banlasan",
-    "Bentig",
-    "Binogawan",
-    "Bonbon",
-    "Cabayugan",
-    "Calunasan",
-    "Camias",
-    "Canguha",
-    "Catmonan",
-    "Desamparados (Poblacion)",
-    "Liboron",
-    "Santa Cruz (Poblacion)",
-    "Tugas"
-  ],
-  "Jagna": [
-    "Alejawan",
-    "Balili",
-    "Boctol",
-    "Buyog",
-    "Bunga Ilaya",
-    "Bunga Mar",
-    "Cabunga-an",
-    "Calabacita",
-    "Cambugason",
-    "Can-ipol",
-    "Can-uba",
-    "Can-upao",
-    "Canjulao",
-    "Cogon",
-    "Poblacion"
+    "Bunacan",
+    "Cabulihan",
+    "Tinangnan"
   ],
   "Ubay": [
+    "Poblacion",
     "Achila",
     "Bay-ang",
-    "Benliw",
-    "Biabas",
-    "Bongbong",
-    "Bood",
     "Buenavista",
-    "Bulilis",
-    "Cagting",
-    "Calanggaman",
-    "California",
-    "Camali-an",
-    "Camambugan",
-    "Casate",
-    "Cuya",
-    "Fatima",
-    "Gabi",
-    "Governor Boyles",
-    "Guintabo-an",
-    "Hambabauran",
-    "Humayhumay",
-    "Ilihan",
-    "Imelda",
-    "Juagdan",
-    "Katarungan",
-    "Lomangog",
-    "Los Angeles",
-    "Pag-asa",
-    "Pangpang",
-    "Poblacion",
-    "San Francisco",
-    "San Isidro",
     "San Pascual",
-    "San Vicente",
-    "Sentinela",
-    "Sinandigan",
-    "Tapal",
-    "Tapon",
-    "Tintinan",
-    "Tipolo",
-    "Tubog",
-    "Tuboran",
-    "Union",
-    "Villa Teresita"
-  ],
-  "Alburquerque": [],
-  "Alicia": [],
-  "Anda": [],
-  "Antequera": [],
-  "Baclayon": [],
-  "Balilihan": [],
-  "Batuan": [],
-  "Bien Unido": [],
-  "Buenavista": [],
-  "Candijay": [],
-  "Catigbian": [],
-  "Clarin": [],
-  "Corella": [],
-  "Cortes": [],
-  "Dagohoy": [],
-  "Danao": [],
-  "Dimiao": [],
-  "Duero": [],
-  "Garcia Hernandez": [],
-  "Guindulman": [],
-  "Inabanga": [],
-  "Lila": [],
-  "Loay": [],
-  "Loboc": [],
-  "Mabini": [],
-  "Maribojoc": [],
-  "Pilar": [],
-  "Pres. Carlos P. Garcia": [],
-  "Sagbayan": [],
-  "Sikatuna": [],
-  "Sierra Bullones": [],
-  "Trinidad": []
+    "San Isidro"
+  ]
 }
