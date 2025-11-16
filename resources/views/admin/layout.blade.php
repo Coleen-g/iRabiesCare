@@ -269,6 +269,98 @@
         }
 
         .compose-inline:hover { background: #f0f0f0 }
+        /* === Admin controls dropdown in topbar === */
+        .admin-controls details {
+            position: relative;
+            display: inline-block;
+        }
+
+        .admin-controls summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 0.45rem 0.6rem;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: transparent;
+            border: 1px solid transparent;
+        }
+
+        .admin-controls summary::-webkit-details-marker { display: none }
+
+        .admin-controls[open] summary { background:#f7f7f7 }
+
+        .admin-controls .dropdown {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            min-width: 220px;
+            z-index: 60;
+            overflow: hidden;
+        }
+
+        .admin-controls .dropdown a {
+            display: block;
+            padding: 0.6rem 0.9rem;
+            color: #111;
+            text-decoration: none;
+            border-bottom: 1px solid #f2f2f2;
+        }
+
+        .admin-controls .dropdown a:hover { background:#f5f5f5 }
+        /* === Sidebar Admin Controls (collapsible group) === */
+        .ir-nav details.ir-admin-controls {
+            margin: 0.4rem 0;
+        }
+
+        .ir-nav summary.ir-admin-summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.8rem;
+            color: #d1d5db;
+        }
+
+        .ir-admin-summary .ir-admin-chevron {
+            font-size: 0.95rem;
+            color: #d1d5db;
+            margin-left: 8px;
+            transition: transform 0.18s ease;
+        }
+
+        .ir-admin-controls[open] .ir-admin-summary .ir-admin-chevron {
+            transform: rotate(180deg);
+            color: #111;
+        }
+
+        .ir-nav summary.ir-admin-summary:hover,
+        .ir-nav details[open] summary.ir-admin-summary {
+            background: #fff;
+            color: #000;
+            transform: translateX(6px);
+        }
+
+        .ir-nav .admin-group a {
+            display: block;
+            padding: 0.5rem 1.6rem;
+            color: #6b7280; /* slightly darker gray for children */
+            text-decoration: none;
+            font-size: 0.92rem;
+        }
+
+        .ir-nav .admin-group a:hover { background: #f7f7f7; color: #111; }
+        /* === Account controls (sidebar) reusing admin summary styles === */
+        .ir-account-controls { margin: 0.4rem 0; }
+        .ir-account-controls .account-group a { padding: 0.5rem 1.6rem; display:block; color:#6b7280; text-decoration:none }
+        .ir-account-controls .account-group a:hover { background:#f7f7f7; color:#111 }
     </style>
 </head>
 <body>
@@ -280,30 +372,46 @@
                 </div>
 
                 <nav class="ir-nav">
-                    <a href="/admin/dashboard" class="{{ request()->is('admin/dashboard') ? 'active' : '' }}">
+                    <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                         <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
                     </a>
-                    <a href="/admin/patients" class="{{ request()->is('admin/patients*') ? 'active' : '' }}">
-                        <i class="bi bi-people"></i> <span>Patients</span>
-                    </a>
-                    <a href="/admin/health-staffs" class="{{ request()->is('admin/health-staffs*') ? 'active' : '' }}">
-                        <i class="bi bi-person-badge"></i> <span>Health Staff</span>
-                    </a>
-                    <a href="/admin/cases" class="{{ request()->is('admin/cases*') ? 'active' : '' }}">
-                        <i class="bi bi-journal-medical"></i> <span>Cases</span>
-                    </a>
-                    <a href="/admin/vaccinations" class="{{ request()->is('admin/vaccinations*') ? 'active' : '' }}">
-                        <i class="bi bi-capsule"></i> <span>Vaccinations</span>
-                    </a>
-                    <a href="/admin/reports" class="{{ request()->is('admin/reports*') ? 'active' : '' }}">
-                        <i class="bi bi-bar-chart-line"></i> <span>Reports</span>
-                    </a>
-                    <a href="/admin/settings" class="{{ request()->is('admin/settings*') ? 'active' : '' }}">
-                        <i class="bi bi-gear"></i> <span>Settings</span>
-                    </a>
-                    <a href="/admin/generate-users" class="{{ request()->is('admin/generate-users*') ? 'active' : '' }}">
-                        <i class="bi bi-person-plus"></i> <span>Generate Accounts</span>
-                    </a>
+                    {{-- Account controls (visible to authenticated users) --}}
+                    @if(auth()->check())
+                        <details class="ir-account-controls" @if(request()->routeIs('admin.profile*') || request()->routeIs('admin.profile.password') || request()->is('profile*')) open @endif>
+                            <summary class="ir-admin-summary">
+                                <i class="bi bi-person-circle"></i>
+                                <span>Account</span>
+                                <i class="bi bi-chevron-down ir-admin-chevron"></i>
+                            </summary>
+                            <div class="account-group">
+                                @if(auth()->user()->role === 'admin')
+                                    <a href="{{ route('admin.profile') }}" class="{{ request()->routeIs('admin.profile') ? 'active' : '' }}"><i class="bi bi-person" style="margin-right:8px"></i> Profile</a>
+                                    <a href="{{ route('admin.profile.password') }}" class="{{ request()->routeIs('admin.profile.password') ? 'active' : '' }}"><i class="bi bi-lock" style="margin-right:8px"></i> Change Password</a>
+                                @else
+                                    <a href="/profile" class="{{ request()->is('profile*') ? 'active' : '' }}"><i class="bi bi-person" style="margin-right:8px"></i> Profile</a>
+                                    <a href="/profile/password" class="{{ request()->is('profile/password*') ? 'active' : '' }}"><i class="bi bi-lock" style="margin-right:8px"></i> Change Password</a>
+                                @endif
+                            </div>
+                        </details>
+                    @endif
+                    @if(auth()->check() && auth()->user()->role === 'admin')
+                        <details class="ir-admin-controls" @if(request()->routeIs('admin.patients*') || request()->routeIs('admin.health-staffs*') || request()->routeIs('admin.cases*') || request()->routeIs('admin.vaccinations*') || request()->routeIs('admin.generate-users*')) open @endif>
+                            <summary class="ir-admin-summary">
+                                <i class="bi bi-shield-lock"></i>
+                                <span>Admin Controls</span>
+                                <i class="bi bi-chevron-down ir-admin-chevron"></i>
+                            </summary>
+                            <div class="admin-group">
+                                <a href="{{ route('admin.patients.index') }}" class="{{ request()->routeIs('admin.patients*') ? 'active' : '' }}"><i class="bi bi-people" style="margin-right:8px"></i> Patients</a>
+                                <a href="{{ route('admin.health-staffs.index') }}" class="{{ request()->routeIs('admin.health-staffs*') ? 'active' : '' }}"><i class="bi bi-person-badge" style="margin-right:8px"></i> Health Staff</a>
+                                <a href="{{ route('admin.cases.index') }}" class="{{ request()->routeIs('admin.cases*') ? 'active' : '' }}"><i class="bi bi-journal-medical" style="margin-right:8px"></i> Cases</a>
+                                <a href="{{ route('admin.vaccinations.index') }}" class="{{ request()->routeIs('admin.vaccinations*') ? 'active' : '' }}"><i class="bi bi-capsule" style="margin-right:8px"></i> Vaccinations</a>
+                                <a href="{{ route('admin.generate-users.preview') }}" class="{{ request()->routeIs('admin.generate-users*') ? 'active' : '' }}"><i class="bi bi-person-plus" style="margin-right:8px"></i> Generate Accounts</a>
+                            </div>
+                        </details>
+                    @endif
+                    <!-- Reports and Settings links removed per request -->
+                  
                 </nav>
             </div>
 
@@ -320,12 +428,8 @@
         <main class="content">
             <div class="topbar">
                 <div class="topbar-left">
-                    <h2 class="topbar-title">@yield('title', 'Admin')</h2>
-                    <div class="topbar-search">
-                        <form method="GET" action="{{ url()->current() }}">
-                            <input type="search" name="q" placeholder="Search..." value="{{ request('q') }}">
-                        </form>
-                    </div>
+                  
+                   
                 </div>
 
                 <div class="topbar-right">
@@ -351,6 +455,8 @@
                             <i class="bi bi-envelope-plus" style="font-size:16px;color:#000"></i>
                         </a>
                     @endif
+
+                    {{-- Admin Controls moved to sidebar --}}
 
                     <div class="profile">
                         <i class="bi bi-person-circle" style="font-size:20px;color:#000"></i>

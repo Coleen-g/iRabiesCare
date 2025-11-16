@@ -170,8 +170,9 @@
 
   <form method="POST" action="{{ url('/register') }}" id="registerForm">
       @csrf
-      <h2>Patient Registration</h2>
-      <p class="step-indicator" id="stepIndicator">Step 1 of 4</p>
+  <h2>Patient Registration</h2>
+  <p class="step-indicator" id="stepIndicator">Step 1 of 4</p>
+  <div id="existsError" class="error-text" style="display:none"></div>
 
       <!-- Step 1 -->
       <div class="form-step active two-col">
@@ -179,10 +180,10 @@
         <input class="full-span" type="text" name="fullName" placeholder="Full Name (e.g. Juan Dela Cruz)" required>
         <input type="date" name="dob" placeholder="Date of Birth" required>
         <select name="gender" required>
-          <option value="">Select Gender</option>
+          <option value="">Select Sex</option>
           <option>Male</option>
           <option>Female</option>
-          <option>Other</option>
+         
         </select>
         <!-- Municipality (Bohol) + Barangay (dynamic) -->
   <label for="municipality" style="display:none" class="full-span">Municipality</label>
@@ -226,7 +227,6 @@
           <option>Sierra Bullones</option>
           <option>Tagbilaran City</option>
           <option>Talibon</option>
-          <option>Talibon</option>
           <option>Trinidad</option>
           <option>Tubigon</option>
           <option>Ubay</option>
@@ -236,7 +236,7 @@
         <select class="full-span" name="barangay" id="barangay"></select>
         <input class="full-span" type="text" name="barangay_other" id="barangay_other" placeholder="Barangay (type if not listed)" style="display:none" />
   <!-- Note: hidden combined address field removed. Municipality + Barangay are submitted separately. -->
-  <input id="contactInput" type="tel" name="contact" placeholder="Contact Number (mobile or landline)" required maxlength="15" inputmode="numeric" pattern="\d+" title="Digits only, max 15 characters">
+  <input id="contactInput" type="tel" name="contact" placeholder="Contact Number (mobile or landline)" required maxlength="11" inputmode="numeric" pattern="\d+" title="Digits only, max 15 characters">
         <input type="email" name="email" placeholder="Email (required)" required>
         <div class="buttons full-span">
           <span></span>
@@ -284,7 +284,7 @@
       <!-- Step 4 -->
       <div class="form-step two-col">
         <h3 class="full-span">Emergency Contact</h3>
-        <input class="full-span" type="text" name="emergencyContact" placeholder="Emergency Contact (Name & Number, e.g. Maria - 09171234567)" required>
+  <input id="emergencyInput" class="full-span" type="tel" name="emergencyContact" placeholder="Emergency Contact Number (e.g. 09171234567)" inputmode="numeric" pattern="\d*" maxlength="11" required>
         <div class="full-span">
           <label class="consent" style="justify-content:flex-start;">
             <input type="checkbox" required style="margin-right:8px;"> I consent to my data being used for vaccination monitoring.
@@ -331,8 +331,8 @@
         }
 
         // extra check for contact number: digits only, max 15
-        if (input.name === 'contact') {
-          const val = input.value.replace(/\s+/g, '');
+        if (input.name === 'contact' || input.name === 'emergencyContact') {
+          const val = input.value.replace(/\D+/g, '');
           const reNum = /^\d{1,15}$/;
           if (!reNum.test(val)) return false;
         }
@@ -341,11 +341,46 @@
       return true;
     }
 
-    function nextStep() {
+    async function nextStep() {
       // validate current step before advancing
       if (!isStepValid(currentStep)) {
-        alert('Please complete all required fields in this step before continuing.');
+        showExistsError('Please complete all required fields in this step before continuing.');
         return;
+      }
+
+      // On first step, verify the patient doesn't already exist (by name or email)
+      if (currentStep === 0) {
+        const fullName = (document.querySelector('input[name="fullName"]') || {}).value || '';
+        const email = (document.querySelector('input[name="email"]') || {}).value || '';
+        const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+        const token = tokenMeta ? tokenMeta.getAttribute('content') : '';
+        try {
+          const res = await fetch('/register/check-exists', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': token,
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({ fullName: fullName, email: email })
+          });
+
+          if (res.status === 409) {
+            const body = await res.json();
+            showExistsError(body.message || 'A patient with this name or email already exists.');
+            return;
+          }
+          if (!res.ok) {
+            // network/server error
+            showExistsError('Unable to validate uniqueness right now. Please try again.');
+            return;
+          }
+          // success: clear any previous messages
+          clearExistsError();
+        } catch (err) {
+          showExistsError('Unable to validate uniqueness right now. Please try again.');
+          return;
+        }
       }
 
       if (currentStep < steps.length - 1) {
@@ -449,7 +484,30 @@
           if (cleaned !== e.target.value) e.target.value = cleaned;
         });
       }
+        // sanitize emergency contact: digits only and maxlength
+        const emergency = document.getElementById('emergencyInput');
+        if (emergency) {
+          emergency.addEventListener('input', (e) => {
+            let cleaned = e.target.value.replace(/\D+/g, '');
+            if (cleaned.length > 15) cleaned = cleaned.slice(0, 15);
+            if (cleaned !== e.target.value) e.target.value = cleaned;
+          });
+        }
     });
+
+    function showExistsError(msg) {
+      const el = document.getElementById('existsError');
+      if (!el) return alert(msg);
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function clearExistsError() {
+      const el = document.getElementById('existsError');
+      if (!el) return;
+      el.textContent = '';
+      el.style.display = 'none';
+    }
 
     // municipality -> barangays mapping loader
     function setupMunicipalityBarangays() {

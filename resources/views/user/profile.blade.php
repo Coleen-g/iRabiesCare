@@ -109,7 +109,7 @@
     <div class="profile-container">
         <div class="profile-card">
             <div class="profile-header">
-                <h2><i class="bi bi-person-circle" style="color:#43a047;"></i>{{ $user->name }}</h2>
+                <h2><i class="bi bi-person-circle" style="color:#43a047;"></i>{{ ($user->patient)->name }}</h2>
             </div>
 
             {{-- Basic Information --}}

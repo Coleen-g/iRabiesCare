@@ -139,7 +139,7 @@
                 <label>Status</label>
                 <select name="status">
                     <option value="open" {{ old('status', $case->status) == 'open' ? 'selected' : '' }}>Open</option>
-                    <option value="in-progress" {{ old('status', $case->status) == 'in-progress' ? 'selected' : '' }}>In Progress</option>
+                   
                     <option value="closed" {{ old('status', $case->status) == 'closed' ? 'selected' : '' }}>Closed</option>
                 </select>
             </div>

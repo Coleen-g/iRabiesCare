@@ -57,6 +57,75 @@ class Patient extends Model
     }
 
     /**
+     * When a patient is updated, sync key fields into related cases so
+     * case records reflect the latest patient information (exposure, animal, wounds, status).
+     */
+    protected static function booted()
+    {
+        static::saved(function (Patient $patient) {
+            // fields on patient that we copy into cases when changed
+            $copyFields = [
+                'exposure_date', 'exposure_type', 'animal', 'wounds_location', 'animal_status', 'clinic', 'contact', 'email', 'name'
+            ];
+
+            $changed = array_filter($copyFields, function ($f) use ($patient) {
+                return $patient->wasChanged($f);
+            });
+
+            if (empty($changed)) {
+                return;
+            }
+
+            $update = [];
+
+            // map patient fields into case fields
+            if (in_array('exposure_date', $changed)) {
+                $update['exposure_date'] = $patient->exposure_date;
+            }
+            if (in_array('exposure_type', $changed)) {
+                $update['exposure_type'] = $patient->exposure_type;
+            }
+            if (in_array('animal', $changed)) {
+                $update['animal_species'] = $patient->animal;
+            }
+            if (in_array('wounds_location', $changed)) {
+                $update['wounds_location'] = $patient->wounds_location;
+            }
+            if (in_array('clinic', $changed)) {
+                // optionally copy clinic to a case field if existing
+                $update['clinic'] = $patient->clinic;
+            }
+            if (in_array('contact', $changed)) {
+                $update['reporter_contact'] = $patient->contact ?? null;
+            }
+            if (in_array('email', $changed)) {
+                $update['reporter_email'] = $patient->email ?? null;
+            }
+            if (in_array('name', $changed)) {
+                $update['patient_name_override'] = $patient->name; // optional field to store snapshot
+            }
+
+            // If animal_status changed, infer a case status to keep workflow in sync
+            if (in_array('animal_status', $changed)) {
+                $as = strtolower(trim((string) $patient->animal_status));
+                if (in_array($as, ['dead','died','deceased'])) {
+                    $update['status'] = 'closed';
+                } elseif (in_array($as, ['recovered','treated','healthy','resolved'])) {
+                    $update['status'] = 'resolved';
+                } else {
+                    $update['status'] = 'pending';
+                }
+                $update['animal_status'] = $patient->animal_status;
+            }
+
+            if (!empty($update)) {
+                // update all related cases with the mapped patient data
+                $patient->cases()->update($update);
+            }
+        });
+    }
+
+    /**
      * Backwards-compatible accessor for last_dose (maps to last_dose_date column)
      */
     public function getLastDoseAttribute()

@@ -4,93 +4,70 @@
 
 @section('content')
 <style>
-    /* ─── CASE LIST STYLING ───────────────────────────── */
+    /* Professional cases table layout for user */
     .cases-container {
-        background: #fff;
+        background: #f8fafc;
+        padding: 1.25rem;
+    }
+
+    .cases-card {
+        background: #ffffff;
         border-radius: 12px;
-        padding: 1.25rem 1.5rem;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        box-shadow: 0 6px 20px rgba(2,6,23,0.06);
+        overflow: hidden;
+        border: 1px solid #eef2f7;
     }
 
-    .cases-header {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        margin-bottom: 1.25rem;
+    .cases-card-header {
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        padding:1rem 1.25rem;
+        gap:1rem;
+        border-bottom:1px solid #f1f5f9;
+        background: linear-gradient(90deg, rgba(250,250,252,0.7), rgba(255,255,255,0.6));
     }
 
-    .cases-header i {
-        color: #2563eb;
-        font-size: 1.3rem;
-    }
+    .cases-title { display:flex; align-items:center; gap:.75rem; }
+    .cases-title h2 { margin:0; font-size:1.15rem; color:#0f172a; }
+    .cases-sub { color:#6b7280; font-size:0.95rem }
 
-    .cases-header h2 {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #1e3a8a;
-        margin: 0;
-    }
+    .cases-actions { display:flex; gap:.5rem; align-items:center }
+    .cases-actions .btn { padding:.45rem .75rem; border-radius:8px; border:1px solid #e6eef7; background:#fff; cursor:pointer }
 
-    .case-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.85rem 0;
-        border-bottom: 1px solid #f1f5f9;
-        transition: background 0.2s ease;
-    }
+    .table-responsive { width:100%; overflow:auto; }
+    .admin-table { width:100%; border-collapse:collapse; font-size:14px; min-width:1020px; }
+    .admin-table thead th { text-align:left; padding:12px 14px; font-weight:600; color:#0f172a; background:#fbfdff; position:sticky; top:0; z-index:2; border-bottom:1px solid #eef2f7 }
+    .admin-table tbody td { padding:12px 14px; vertical-align:middle; border-bottom:1px solid #f3f6f9; color:#111827 }
+    .admin-table tbody tr:hover { background: #fbfcfe }
 
-    .case-item:last-child {
-        border-bottom: none;
-    }
+    .col-id { width:70px; color:#475569 }
+    .col-date { width:120px }
+    .col-status { width:150px }
+    .col-exposure { width:120px }
+    .col-type { width:140px }
+    .col-wounds { width:160px }
+    .col-category { width:120px }
+    .col-species { width:120px }
+    .col-animal-status { width:120px }
+    .col-reported { width:160px }
+    .col-desc { min-width:240px }
 
-    .case-item:hover {
-        background: #f9fafb;
-    }
+    /* refined status badges */
+    .badge { display:inline-block; padding:6px 10px; border-radius:999px; font-weight:600; font-size:13px }
+    .badge.pending { background:#fff7ed; color:#c2410c; border:1px solid #fcdca8 }
+    .badge.ongoing { background:#e6f5ff; color:#075985; border:1px solid #bfe6ff }
+    .badge.completed { background:#ecfdf5; color:#14532d; border:1px solid #b7f5d0 }
+    .badge.cancelled { background:#fff1f2; color:#7f1d1d; border:1px solid #fecaca }
 
-    .case-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
+    .no-cases { padding:2rem; text-align:center; color:#6b7280 }
 
-    .case-date {
-        font-weight: 600;
-        color: #111827;
-    }
+    .pagination-wrapper { padding:12px; display:flex; justify-content:center; border-top:1px solid #f1f5f9; background:#fbfdff }
 
-    .case-desc {
-        color: #6b7280;
-        font-size: 0.95rem;
-        max-width: 600px;
-    }
-
-    .case-status {
-        font-weight: 600;
-        font-size: 0.85rem;
-        border-radius: 20px;
-        padding: 0.25rem 0.75rem;
-        text-transform: capitalize;
-        text-align: center;
-        min-width: 90px;
-    }
-
-    /* ─── STATUS COLORS ───────────────────────────── */
-    .case-status.pending { background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; }
-    .case-status.ongoing { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
-    .case-status.completed { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
-    .case-status.cancelled { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-
-    .no-cases {
-        color: #6b7280;
-        text-align: center;
-        padding: 1rem 0;
-    }
-
-    .pagination-wrapper {
-        margin-top: 1rem;
-        display: flex;
-        justify-content: center;
+    /* Responsive tweaks */
+    @media (max-width:900px) {
+        .admin-table { min-width:900px }
+        .cases-card-header { flex-direction:column; align-items:flex-start; gap:.5rem }
     }
 </style>
 
@@ -101,36 +78,77 @@
     </div>
 
     @if(is_countable($cases) && count($cases))
-        @foreach($cases as $c)
-            @php
-                $statusClass = match(strtolower($c->status)) {
-                    'pending' => 'pending',
-                    'ongoing' => 'ongoing',
-                    'completed' => 'completed',
-                    'cancelled' => 'cancelled',
-                    default => 'pending',
-                };
-            @endphp
-
-            <div class="case-item">
-                <div class="case-info">
-                    <div class="case-date">
-                        {{ $c->date_reported ? \Illuminate\Support\Carbon::parse($c->date_reported)->format('Y-m-d') : '—' }}
+        <div class="cases-card">
+            <div class="cases-card-header">
+                <div class="cases-title">
+                    <i class="bi bi-file-earmark-medical" style="font-size:1.25rem;color:#0ea5a3"></i>
+                    <div>
+                        <h2>My Cases</h2>
+                        @php
+                            $total = is_object($cases) && method_exists($cases,'total') ? $cases->total() : (is_countable($cases) ? count($cases) : 0);
+                        @endphp
+                        <div class="cases-sub">Showing <strong>{{ $total }}</strong> case(s)</div>
                     </div>
-                    <div class="case-desc">{{ Str::limit($c->description, 160) }}</div>
                 </div>
-
-                <div class="case-status {{ $statusClass }}">
-                    {{ ucfirst($c->status) }}
+                <div class="cases-actions">
+                    <a href="{{ route('user.cases') }}" class="btn">Refresh</a>
                 </div>
             </div>
-        @endforeach
 
-        @if(method_exists($cases, 'links'))
-            <div class="pagination-wrapper">
-                {{ $cases->links() }}
+            <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Date Reported</th>
+                        <th>Case Status</th>
+                        <th>Date of Exposure</th>
+                        <th>Type of Exposure</th>
+                        <th>Location of Wounds</th>
+                        <th>Category</th>
+                        <th>Species</th>
+                        <th>Animal Status</th>
+                        <th>Reported By</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($cases as $c)
+                        @php
+                            $rawStatus = strtolower($c->status ?? '');
+                            // map to user-friendly classes
+                            if (in_array($rawStatus, ['resolved','completed','closed'])) {
+                                $statusClass = 'completed';
+                            } elseif (in_array($rawStatus, ['ongoing','in progress','in_progress','open'])) {
+                                $statusClass = 'ongoing';
+                            } elseif (in_array($rawStatus, ['cancelled','rejected'])) {
+                                $statusClass = 'cancelled';
+                            } else {
+                                $statusClass = 'pending';
+                            }
+                        @endphp
+                        <tr>
+                            <td class="col-id">{{ $c->id }}</td>
+                            <td class="col-date">{{ $c->date_reported ? \Illuminate\Support\Carbon::parse($c->date_reported)->format('Y-m-d') : '—' }}</td>
+                            <td class="col-status"><span class="badge {{ $statusClass }}">{{ ucfirst($c->status ?? $statusClass) }}</span></td>
+                            <td class="col-exposure">{{ $c->exposure_date ? \Illuminate\Support\Carbon::parse($c->exposure_date)->format('Y-m-d') : ($c->patient->exposure_date ? \Illuminate\Support\Carbon::parse($c->patient->exposure_date)->format('Y-m-d') : '—') }}</td>
+                            <td class="col-type">{{ $c->exposure_type ?? ($c->patient->exposure_type ?? '—') }}</td>
+                            <td class="col-wounds">{{ $c->wounds_location ?? '—' }}</td>
+                            <td class="col-category">{{ $c->category ?? '—' }}</td>
+                            <td class="col-species">{{ $c->animal_species ?? ($c->patient->animal ?? '—') }}</td>
+                            <td class="col-animal-status">{{ $c->animal_status ?? '—' }}</td>
+                            <td class="col-reported">{{ optional($c->reporter)->name ?? optional($c->reporter)->email ?? '—' }}</td>
+                            <td class="col-desc">{{ \Illuminate\Support\Str::limit($c->description, 220, '...') }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
             </div>
-        @endif
+
+            @if(method_exists($cases, 'links'))
+                <div class="pagination-wrapper">{{ $cases->links() }}</div>
+            @endif
+        </div>
     @else
         <p class="no-cases">No cases found.</p>
     @endif

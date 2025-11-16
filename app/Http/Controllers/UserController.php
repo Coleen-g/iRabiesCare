@@ -62,8 +62,9 @@ class UserController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-            // patient fields (optional)
-            'contact' => 'nullable|string|max:100',
+            // patient fields (optional) -- enforce digits for contact fields
+            'contact' => 'nullable|digits_between:1,15',
+            'emergency_contact' => 'nullable|digits_between:1,15',
             'dob' => 'nullable|date',
             'gender' => 'nullable|string|max:50',
             'address' => 'nullable|string|max:500',
@@ -78,7 +79,20 @@ class UserController extends Controller
         // If user has a patient record, update patient fields
         $patient = $user->patient;
         if ($patient) {
-            $patient->contact = $data['contact'] ?? $patient->contact;
+            // sanitize to digits only (server-side safety)
+            $contact = $request->input('contact');
+            $emergency = $request->input('emergency_contact');
+            $contact = is_null($contact) ? null : preg_replace('/\D+/', '', (string) $contact);
+            $emergency = is_null($emergency) ? null : preg_replace('/\D+/', '', (string) $emergency);
+
+            // only replace if provided (keep existing otherwise)
+            if ($contact !== null && $contact !== '') {
+                $patient->contact = $contact;
+            }
+            if ($emergency !== null && $emergency !== '') {
+                $patient->emergency_contact = $emergency;
+            }
+
             $patient->dob = $data['dob'] ?? $patient->dob;
             $patient->gender = $data['gender'] ?? $patient->gender;
             $patient->address = $data['address'] ?? $patient->address;

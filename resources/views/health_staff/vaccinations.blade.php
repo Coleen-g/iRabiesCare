@@ -195,8 +195,14 @@
         Vaccination Records
     </h2>
     <div style="display:flex;gap:.75rem;align-items:center">
-        <form method="GET" action="{{ route('health_staff.vaccinations.index') }}" style="display:inline-block">
+        <form method="GET" action="{{ route('health_staff.vaccinations.index') }}" style="display:inline-block;display:flex;align-items:center;gap:.5rem">
             <input type="search" name="q" value="{{ request('q') }}" placeholder="Search vaccinations or patient..." class="search-input" />
+            <select name="overall_remarks" onchange="this.form.submit()" style="min-width:180px;padding:8px 10px;border-radius:20px;border:1px solid #ccc;">
+                <option value="" {{ request('overall_remarks') == '' ? 'selected' : '' }}>All remarks</option>
+                <option value="Completed" {{ request('overall_remarks') === 'Completed' ? 'selected' : '' }}>Completed</option>
+                <option value="Incomplete" {{ request('overall_remarks') === 'Incomplete' ? 'selected' : '' }}>Incomplete</option>
+                <option value="Missed All Schedule" {{ request('overall_remarks') === 'Missed All Schedule' ? 'selected' : '' }}>Missed All Schedules</option>
+            </select>
         </form>
         <a href="{{ route('health_staff.vaccinations.create') }}" class="btn-primary" style="display:inline-flex;align-items:center">
             <i class="bi bi-plus-circle" style="margin-right:.5rem;font-size:1rem;display:inline-block;vertical-align:middle"></i>
@@ -301,26 +307,11 @@
                                     </a>
                                 @endif
 
-                                <form method="POST" action="{{ route('health_staff.vaccinations.destroy', $v) }}" onsubmit="return confirm('Delete this record?')" style="display:inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="action-btn action-delete" type="submit" title="Delete">
-                                        <i class="bi bi-trash" style="font-size:1rem;color:inherit"></i>
-                                    </button>
-                                </form>
+                                {{-- delete action removed per request --}}
                             </div>
                         </td>
                     </tr>
-                    @php
-                        $overall_schedule_remarks = trim(optional(optional($v->patient->user)->vaccinationSchedule)->overall_remarks ?? '');
-                    @endphp
-                    @if($overall_schedule_remarks)
-                        <tr class="schedule-overall-remarks-row">
-                            <td colspan="11" style="background:#fff7ed;color:#92400e;padding:8px 10px;font-weight:600;border-bottom:1px solid #eee;">
-                                <strong>Schedule remark:</strong> {{ \Illuminate\Support\Str::limit($overall_schedule_remarks, 300) }}
-                            </td>
-                        </tr>
-                    @endif
+                    {{-- overall schedule remark row removed for health staff view; per-row remark cell retained --}}
                 @endforeach
             </tbody>
         </table>
@@ -388,35 +379,7 @@
                                     if (status === 'completed') td.classList.add('td-done');
                                     else if (status === 'missed') td.classList.add('td-missed');
                                 });
-                                // handle overall schedule remark (may apply to multiple rows for same user)
-                                const overall = schedule['overall_remarks'] || null;
-                                const userRows = Array.from(document.querySelectorAll(`tr[data-user-id="${userId}"]`));
-                                userRows.forEach(r => {
-                                    const next = r.nextElementSibling;
-                                    if (overall && overall.trim() !== '') {
-                                        if (next && next.classList && next.classList.contains('schedule-overall-remarks-row')) {
-                                            const cell = next.querySelector('td');
-                                            if (cell) cell.innerHTML = `<strong>Schedule remark:</strong> ${overall.substring(0,300)}`;
-                                        } else {
-                                            const tr = document.createElement('tr');
-                                            tr.className = 'schedule-overall-remarks-row';
-                                            const td = document.createElement('td');
-                                            td.setAttribute('colspan', 11);
-                                            td.style.background = '#fff7ed';
-                                            td.style.color = '#92400e';
-                                            td.style.padding = '8px 10px';
-                                            td.style.fontWeight = '600';
-                                            td.style.borderBottom = '1px solid #eee';
-                                            td.innerHTML = `<strong>Schedule remark:</strong> ${overall.substring(0,300)}`;
-                                            tr.appendChild(td);
-                                            r.parentNode.insertBefore(tr, r.nextSibling);
-                                        }
-                                    } else {
-                                        if (next && next.classList && next.classList.contains('schedule-overall-remarks-row')) {
-                                            next.remove();
-                                        }
-                                    }
-                                });
+                                // overall schedule remark rows removed — only update per-schedule cell classes
                             });
                 } catch (err) {
                     console.error('Error fetching schedule updates', err);

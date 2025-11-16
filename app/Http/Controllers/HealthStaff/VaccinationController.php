@@ -15,6 +15,7 @@ class VaccinationController extends AdminVaccinationController
     public function index()
     {
         $q = request('q');
+        $overall = request('overall_remarks');
         $userId = optional(auth()->user())->id;
 
         // Only include vaccinations for patients assigned to this health staff
@@ -28,6 +29,11 @@ class VaccinationController extends AdminVaccinationController
                       ->orWhereHas('patient', function($q2) use ($q) {
                           $q2->where('name', 'like', "%{$q}%");
                       });
+            })
+            ->when($overall, function($query, $overall) {
+                $query->whereHas('patient.user.vaccinationSchedule', function($q) use ($overall) {
+                    $q->where('overall_remarks', $overall);
+                });
             })
             ->latest('date_given')
             ->paginate(15)

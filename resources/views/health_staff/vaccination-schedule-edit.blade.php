@@ -4,27 +4,42 @@
 
 @section('content')
 <div class="container mt-4">
-    <h2>Edit Vaccination Schedule for {{ $user->name }}</h2>
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1rem">
+        <div>
+            <div style="color:#6b7280;font-size:0.9rem">Dashboard / Vaccination Schedules</div>
+            <h2 style="margin:.25rem 0 0 0">Edit Vaccination Schedule — {{ $user->name }}</h2>
+            <div style="color:#6b7280;font-size:0.95rem;margin-top:.25rem">Update schedule dates, statuses and remarks for this patient.</div>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:center">
+            <a href="{{ route('health_staff.patients.show', optional($user->patient)->id ?? '#') }}" class="btn btn-outline-secondary">View Patient</a>
+            <a href="{{ route('health_staff.patients.index') }}" class="btn btn-secondary">Back to Patients</a>
+        </div>
+    </div>
+
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
+
     <form method="POST" action="{{ route('health_staff.vaccination-schedule.update', $user->id) }}">
         @csrf
         @method('PUT')
         <style>
-            .hs-schedule-row { display:flex;gap:1rem;align-items:flex-start;margin-bottom:1rem }
-            .hs-schedule-col { flex:1 }
-            .hs-status-badge { padding:6px 10px;border-radius:8px;color:#fff;font-weight:600 }
-            .hs-completed { background:#2563eb }
-            .hs-missed { background:#dc2626 }
-            .hs-pending { background:#6b7280 }
+            /* Vaccination schedule editor - polished (health staff) */
+            .hs-schedule-row { display:flex;gap:1rem;align-items:flex-start;margin-bottom:1rem;flex-wrap:wrap }
+            .hs-schedule-col { flex:1;min-width:220px }
+            .hs-status-badge { padding:8px 12px;border-radius:10px;color:#fff;font-weight:700;font-size:0.95rem }
+            .hs-completed { background:linear-gradient(135deg,#0ea5a3,#0284c7) }
+            .hs-missed { background:linear-gradient(135deg,#ef4444,#dc2626) }
+            .hs-pending { background:linear-gradient(135deg,#f59e0b,#d97706) }
             .hs-actions { display:flex;flex-direction:column;gap:.5rem;align-items:flex-end;min-width:220px }
-            .hs-small-btn { padding:.4rem .6rem;border-radius:6px;border:none;color:#fff;cursor:pointer }
-            .hs-done { background:#2563eb }
-            .hs-miss { background:#dc2626 }
-            .hs-save { background:#10b981 }
-            .hs-remarks { width:100%;min-height:56px;border:1px solid #e5e7eb;border-radius:6px;padding:.5rem }
-            .hs-schedule-cell.passed { box-shadow: inset 0 0 0 2px rgba(37,99,235,0.06) }
+            .hs-small-btn { padding:.45rem .7rem;border-radius:8px;border:none;color:#fff;cursor:pointer;font-weight:600 }
+            .hs-done { background:#0ea5a3 }
+            .hs-miss { background:#ef4444 }
+            .hs-save { background:#10b981;color:#fff;border-radius:8px;padding:.55rem .9rem;border:none }
+            .hs-remarks { width:100%;min-height:80px;border:1px solid #e6eef6;border-radius:8px;padding:.6rem;font-size:0.95rem }
+            .hs-schedule-cell.passed { box-shadow: inset 0 0 0 2px rgba(14,165,163,0.06) }
+            .form-actions { display:flex;justify-content:flex-end;gap:.5rem;margin-top:1rem }
+            @media(max-width:720px){ .hs-actions{min-width:140px} }
         </style>
 
         <div id="schedule-form">
@@ -100,7 +115,7 @@
             <div style="margin-top:1rem;">
                 @php
                     $overall = trim($schedule->overall_remarks ?? '');
-                    $selectVal = $overall === 'Completed' ? 'Completed' : ($overall === 'Incomplete' ? 'Incomplete' : '');
+                    $selectVal = in_array($overall, ['Completed','Incomplete','Missed All Schedule']) ? $overall : '';
                 @endphp
                 <label class="form-label" for="overall_remarks">Overall Schedule Status</label>
                 <div style="margin-top:.5rem;max-width:320px;">
@@ -108,13 +123,14 @@
                         <option value="" {{ $selectVal === '' ? 'selected' : '' }}>None</option>
                         <option value="Incomplete" {{ $selectVal === 'Incomplete' ? 'selected' : '' }}>Incomplete</option>
                         <option value="Completed" {{ $selectVal === 'Completed' ? 'selected' : '' }}>Completed</option>
+                        <option value="Missed All Schedule" {{ $selectVal === 'Missed All Schedule' ? 'selected' : '' }}>Missed All Schedule</option>
                     </select>
                 </div>
             </div>
 
-            <div style="display:flex;justify-content:flex-end;gap:.5rem;margin-top:1rem">
-                <button type="submit" class="btn btn-success">Save Schedule</button>
-                <a href="{{ route('health_staff.patients.index') }}" class="btn btn-secondary">Back</a>
+            <div class="form-actions"> 
+                <button type="submit" class="hs-save">Save Schedule</button>
+                <a href="{{ route('health_staff.patients.index') }}" class="btn btn-outline-secondary">Cancel</a>
             </div>
         </div>
 

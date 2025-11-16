@@ -3,7 +3,6 @@
 @section('title','Create Patient')
 
 @section('content')
-{{-- FontAwesome icons are loaded globally via admin.layout --}}
 <style>
 body {
     background: #f5f6f7;
@@ -49,7 +48,7 @@ body {
     background: #111;
     transform: scale(1.1);
 }
-
+.edit-title h2 {
     margin: 0;
     font-size: 1.6rem;
     font-weight: 700;
@@ -132,6 +131,7 @@ form .form-grid {
     .form-actions { flex-direction: column; align-items: stretch; }
 }
 </style>
+
 <div class="edit-card">
     <div class="edit-header">
         <div class="edit-title">
@@ -153,46 +153,91 @@ form .form-grid {
                 <label>Name</label>
                 <input name="name" required />
             </div>
+
             <div class="form-group">
                 <label>Email</label>
                 <input name="email" type="email" />
             </div>
+
             <div class="form-group">
                 <label>Date of Birth</label>
                 <input name="dob" type="date" />
             </div>
+
             <div class="form-group">
                 <label>Gender</label>
-                <input name="gender" />
+                <select name="gender" required>
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
             </div>
+
             <div class="form-group">
                 <label>Contact</label>
-                <input name="contact" />
+                <input 
+                    name="contact"
+                    maxlength="15"
+                    pattern="[0-9]{1,15}"
+                    title="Numbers only, maximum 15 digits"
+                    required
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                />
             </div>
+
             <div class="form-group">
                 <label>Emergency Contact</label>
-                <input name="emergency_contact" />
+                <input 
+                    name="emergency_contact"
+                    maxlength="15"
+                    pattern="[0-9]{1,15}"
+                    title="Numbers only, maximum 15 digits"
+                    required
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                />
             </div>
+
             <div class="form-group">
                 <label>Address</label>
                 <textarea name="address"></textarea>
             </div>
+
             <div class="form-group">
                 <label>Clinic</label>
                 <input name="clinic" />
             </div>
+
             <div class="form-group">
                 <label>Exposure Date</label>
                 <input name="exposure_date" type="date" />
             </div>
+
             <div class="form-group">
                 <label>Exposure Type</label>
                 <input name="exposure_type" />
             </div>
+
             <div class="form-group">
                 <label>Animal</label>
                 <input name="animal" />
             </div>
+
+            <div class="form-group">
+                <label>Animal Status</label>
+                <select name="animal_status">
+                    <option value="">Select</option>
+                    <option value="Alive">Alive</option>
+                    <option value="Dead">Dead</option>
+                    <option value="Unknown">Unknown</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Location of Wounds</label>
+                <input name="wounds_location" />
+            </div>
+
             <div class="form-group">
                 <label>Vaccination Status</label>
                 <select name="vaccination_status">
@@ -202,10 +247,12 @@ form .form-grid {
                     <option value="Fully Vaccinated">Fully Vaccinated</option>
                 </select>
             </div>
+
             <div class="form-group">
                 <label>Last Dose</label>
                 <input name="last_dose" type="date" />
             </div>
+
             <div class="form-group">
                 <label>Status</label>
                 <select name="status">
@@ -214,11 +261,13 @@ form .form-grid {
                     <option value="Completed">Completed</option>
                 </select>
             </div>
+
             <div class="form-group" style="grid-column:1/3;">
                 <label>Notes</label>
                 <textarea name="notes"></textarea>
             </div>
         </div>
+
         <div class="form-actions">
             <button type="submit" class="btn-primary">
                 <i class="bi bi-check-circle"></i>&nbsp; Create Patient

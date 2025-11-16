@@ -15,6 +15,7 @@ class VaccinationController extends Controller
     public function index()
     {
         $q = request('q');
+        $overall = request('overall_remarks');
 
         $vaccinations = Vaccination::with(['patient.user.vaccinationSchedule'])
             ->when($q, function($query, $q) {
@@ -23,6 +24,12 @@ class VaccinationController extends Controller
                       ->orWhereHas('patient', function($q2) use ($q) {
                           $q2->where('name', 'like', "%{$q}%");
                       });
+            })
+            ->when($overall, function($query, $overall) {
+                // filter by the related user's vaccination schedule overall remarks
+                $query->whereHas('patient.user.vaccinationSchedule', function($q) use ($overall) {
+                    $q->where('overall_remarks', $overall);
+                });
             })
             ->latest('date_given')
             ->paginate(15)

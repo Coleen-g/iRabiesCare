@@ -59,8 +59,6 @@ class CaseController extends Controller
             if ($patient) {
                 $data['exposure_date'] = $data['exposure_date'] ?? ($patient->exposure_date ?? null);
                 $data['exposure_type'] = $data['exposure_type'] ?? ($patient->exposure_type ?? null);
-                // copy wounds location from patient when missing
-                $data['wounds_location'] = $data['wounds_location'] ?? ($patient->wounds_location ?? null);
                 // patient table stores 'animal' (species) — copy into case's animal_species if missing
                 $data['animal_species'] = $data['animal_species'] ?? ($patient->animal ?? null);
             }
@@ -101,6 +99,51 @@ class CaseController extends Controller
                 $data['animal_species'] = $data['animal_species'] ?? ($patient->animal ?? null);
             }
         }
+
+        // Determine status transitions based on what changed.
+        // Preference: if the form explicitly set 'status' and it's different, respect it.
+        $original = $case->getAttributes();
+        $requestedStatus = $data['status'] ?? null;
+
+        // Fields that should trigger a status reevaluation when changed
+        $triggerFields = ['wounds_location','animal_status','exposure_date','exposure_type','animal_species','category','description'];
+        $anyChanged = false;
+        foreach ($triggerFields as $f) {
+            if (array_key_exists($f, $data)) {
+                $newVal = $data[$f];
+                $oldVal = array_key_exists($f, $original) ? $original[$f] : null;
+                // normalize null/empty
+                if ($newVal === null) $newVal = '';
+                if ($oldVal === null) $oldVal = '';
+                if ((string)$newVal !== (string)$oldVal) {
+                    $anyChanged = true;
+                    break;
+                }
+            }
+        }
+
+        $finalStatus = $case->status;
+        if ($requestedStatus && $requestedStatus !== $case->status) {
+            // explicit request to change status - use it
+            $finalStatus = $requestedStatus;
+        } elseif ($anyChanged) {
+            // infer status from animal_status first
+            if (!empty($data['animal_status'])) {
+                $as = strtolower(trim($data['animal_status']));
+                if (in_array($as, ['dead','died','deceased'])) {
+                    $finalStatus = 'closed';
+                } elseif (in_array($as, ['recovered','treated','healthy','resolved'])) {
+                    $finalStatus = 'resolved';
+                } else {
+                    $finalStatus = 'pending';
+                }
+            } else {
+                // other changes move the case back into an active state
+                $finalStatus = 'pending';
+            }
+        }
+
+        $data['status'] = $finalStatus;
 
         $case->update($data);
 

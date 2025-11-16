@@ -27,8 +27,8 @@ body { background:#f5f6f7; font-family:Inter,system-ui,sans-serif }
                 <small style="color:#6b7280">Modify patient details below</small>
             </div>
         </div>
-        <a href="{{ route('health_staff.patients.show', $patient) }}" class="btn-secondary">
-            <i class="bi bi-arrow-left-circle"></i>&nbsp; Back to Patient
+        <a href="{{ route('health_staff.patients.index') }}" class="btn-secondary">
+            <i class="bi bi-arrow-left-circle"></i>&nbsp; Back to Patients
         </a>
     </div>
 
@@ -78,7 +78,7 @@ body { background:#f5f6f7; font-family:Inter,system-ui,sans-serif }
 
         <div class="form-actions">
             <button type="submit" class="btn-primary"><i class="bi bi-check-circle"></i>&nbsp; Update Patient</button>
-            <a href="{{ route('health_staff.patients.show', $patient) }}" class="btn-secondary"><i class="bi bi-x-circle"></i>&nbsp; Cancel</a>
+            <a href="{{ route('health_staff.patients.index') }}" class="btn-secondary"><i class="bi bi-x-circle"></i>&nbsp; Cancel</a>
         </div>
     </form>
 </div>

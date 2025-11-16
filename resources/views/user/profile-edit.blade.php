@@ -42,7 +42,13 @@
                     @php $patient = optional($user)->patient; @endphp
                     <div class="form-group">
                         <label>Phone</label>
-                        <input name="contact" value="{{ old('contact', $patient->contact ?? '') }}" />
+                        <input id="contactInput" name="contact" type="tel" inputmode="numeric" pattern="\d*" maxlength="15" value="{{ old('contact', $patient->contact ?? '') }}" />
+                        @error('contact')<div style="color:#b91c1c">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="form-group">
+                        <label>Emergency Contact</label>
+                        <input id="emergencyInput" name="emergency_contact" type="tel" inputmode="numeric" pattern="\d*" maxlength="15" value="{{ old('emergency_contact', $patient->emergency_contact ?? '') }}" />
+                        @error('emergency_contact')<div style="color:#b91c1c">{{ $message }}</div>@enderror
                     </div>
                     <div class="form-group">
                         <label>Date of Birth</label>
@@ -71,4 +77,37 @@
             </form>
         </div>
     </div>
+    <script>
+        (function(){
+            function sanitizeDigits(e){
+                const t = e.target;
+                let v = t.value.replace(/\D+/g,'');
+                if (v.length > 15) v = v.slice(0,15);
+                if (v !== t.value) t.value = v;
+            }
+            document.addEventListener('DOMContentLoaded', function(){
+                const contact = document.getElementById('contactInput');
+                const emergency = document.getElementById('emergencyInput');
+                if(contact) contact.addEventListener('input', sanitizeDigits);
+                if(emergency) emergency.addEventListener('input', sanitizeDigits);
+                // also validate on submit
+                const form = document.querySelector('form');
+                if(form){
+                    form.addEventListener('submit', function(ev){
+                        const fields = [contact, emergency];
+                        for(const f of fields){
+                            if(!f) continue;
+                            const v = (f.value||'').replace(/\D+/g,'');
+                            if(v && v.length > 15){
+                                ev.preventDefault();
+                                alert('Contact numbers must be 15 digits or less.');
+                                f.focus();
+                                return false;
+                            }
+                        }
+                    });
+                }
+            });
+        })();
+    </script>
 @endsection

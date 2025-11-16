@@ -1,111 +1,236 @@
 @extends('admin.layout')
 
-@section('content')
-    <div class="container">
-        <h2 class="text-2xl mb-4">Compose Message</h2>
+@section('title', 'Compose Message')
 
+@section('content')
+<style>
+    .compose-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem 3rem;
+        color: #111827;
+        font-family: "Poppins", sans-serif;
+    }
+
+    .compose-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+
+    .compose-header h2 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #111827;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .compose-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .compose-grid {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 1.25rem;
+    }
+
+    @media (max-width: 900px) {
+        .compose-grid { grid-template-columns: 1fr; }
+    }
+
+    label {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 0.4rem;
+    }
+
+    select, input[type="text"], input[type="email"], textarea {
+        width: 100%;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 0.6rem 0.75rem;
+        background: #fff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    select:focus, input:focus, textarea:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 160px;
+    }
+
+    .aside-box {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 1rem;
+    }
+
+    .aside-box h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+    }
+
+    .aside-box label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        cursor: pointer;
+    }
+
+    .aside-note {
+        font-size: 0.8rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+        line-height: 1.4;
+    }
+
+    .form-section {
+        margin-bottom: 1rem;
+    }
+
+    .btn {
+        border: none;
+        border-radius: 8px;
+        padding: 0.55rem 1rem;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.25s, transform 0.15s;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #1e40af, #1d4ed8);
+    }
+
+    .btn-ghost {
+        background: #f3f4f6;
+        color: #111;
+    }
+
+    .btn-ghost:hover {
+        background: #e5e7eb;
+    }
+
+    .error {
+        color: #dc2626;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+</style>
+
+<div class="compose-container">
+    <div class="compose-header">
+        <h2><i class="bi bi-envelope-paper-fill"></i> Compose Message</h2>
+        <div style="color:#6b7280; font-size:13px;">Tip: Hold <b>Ctrl/Cmd</b> to select multiple recipients</div>
+    </div>
+
+    <div class="compose-card">
         <form method="POST" action="{{ route('admin.messages.store') }}">
             @csrf
 
-            <div class="mb-4">
-                <label class="block">Recipients</label>
-                <div style="display:flex; gap:1rem; align-items:flex-start;">
-                    <div style="flex:1; min-width:320px;">
-                        <label style="font-weight:600; display:block; margin-bottom:.25rem;">Health staff</label>
-                        <select name="health_staff_ids[]" class="w-full" multiple size="8" id="health-staff-select">
-                        <div class="container">
-                            <div class="card">
-                                <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:0.5rem;">
-                                    <h2 style="margin:0; font-size:1.25rem;">Compose Message</h2>
-                                    <div style="color:#6b7280; font-size:13px">Tip: press Ctrl/Cmd to multi-select recipients</div>
-                                </div>
+            <div class="compose-grid">
+                <!-- Left Side -->
+                <div>
+                    <div class="form-section">
+                        <label>Health Staff</label>
+                        <select name="health_staff_ids[]" multiple size="8" id="health-staff-select">
+                            @foreach($healthStaff as $staff)
+                                <option value="{{ $staff->id }}">{{ $staff->name }} ({{ $staff->username ?? $staff->email }})</option>
+                            @endforeach
+                        </select>
+                        @error('health_staff_ids') <div class="error">{{ $message }}</div> @enderror
+                    </div>
 
-                                <form method="POST" action="{{ route('admin.messages.store') }}">
-                                    @csrf
+                    <div class="form-section">
+                        <label>Users</label>
+                        <select name="user_ids[]" multiple size="8" id="users-select">
+                            @foreach($users as $u)
+                                <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->username ?? $u->email }})</option>
+                            @endforeach
+                        </select>
+                        @error('user_ids') <div class="error">{{ $message }}</div> @enderror
+                    </div>
+                </div>
 
-                                    <div style="display:grid; grid-template-columns: 1fr 340px; gap:1rem; align-items:start;">
-                                        <div>
-                                            <div style="margin-bottom:0.75rem;">
-                                                <label style="display:block; font-weight:700; margin-bottom:0.5rem;">Health staff</label>
-                                                <select name="health_staff_ids[]" class="w-full" multiple size="8" id="health-staff-select" style="border:1px solid #e6e6e6; border-radius:8px; padding:6px; background:#fff">
-                                                    @foreach($healthStaff as $staff)
-                                                        <option value="{{ $staff->id }}">{{ $staff->name }} ({{ $staff->username ?? $staff->email }})</option>
-                                                    @endforeach
-                                                </select>
-                                                @error('health_staff_ids') <div class="text-red-600">{{ $message }}</div> @enderror
-                                            </div>
+                <!-- Right Side -->
+                <aside class="aside-box">
+                    <h4><i class="bi bi-broadcast-pin"></i> Broadcast Options</h4>
+                    <label><input type="checkbox" name="send_to_all_health_staff" id="send-all-staff"> Send to all health staff</label>
+                    <label><input type="checkbox" name="send_to_all_users" id="send-all-users"> Send to all users</label>
+                    <div class="aside-note">
+                        Broadcast will ignore selected individuals and deliver to all members of that group.
+                    </div>
+                </aside>
+            </div>
 
-                                            <div style="margin-bottom:0.75rem;">
-                                                <label style="display:block; font-weight:700; margin-bottom:0.5rem;">Users</label>
-                                                <select name="user_ids[]" class="w-full" multiple size="8" id="users-select" style="border:1px solid #e6e6e6; border-radius:8px; padding:6px; background:#fff">
-                                                    @foreach($users as $u)
-                                                        <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->username ?? $u->email }})</option>
-                                                    @endforeach
-                                                </select>
-                                                @error('user_ids') <div class="text-red-600">{{ $message }}</div> @enderror
-                                            </div>
-                                        </div>
+            <div class="form-section" style="margin-top:1.5rem;">
+                <label>Subject</label>
+                <input type="text" name="subject" value="{{ old('subject') }}">
+                @error('subject') <div class="error">{{ $message }}</div> @enderror
+            </div>
 
-                                        <aside style="background:#fafafa; border:1px solid #f1f1f1; padding:12px; border-radius:8px;">
-                                            <div style="font-weight:700; margin-bottom:8px">Broadcast</div>
-                                            <div style="margin-bottom:8px;"><label><input type="checkbox" name="send_to_all_health_staff" id="send-all-staff"> <span style="margin-left:6px">Send to all health staff</span></label></div>
-                                            <div style="margin-bottom:8px;"><label><input type="checkbox" name="send_to_all_users" id="send-all-users"> <span style="margin-left:6px">Send to all users</span></label></div>
-                                            <div style="font-size:12px;color:#6b7280">Broadcast sends to entire groups. Selected individual recipients will be ignored when broadcasting.</div>
-                                        </aside>
-                                    </div>
+            <div class="form-section">
+                <label>Message</label>
+                <textarea name="body" rows="8">{{ old('body') }}</textarea>
+                @error('body') <div class="error">{{ $message }}</div> @enderror
+            </div>
 
-                                    <div style="margin-top:1rem">
-                                        <label style="display:block; font-weight:700; margin-bottom:0.5rem;">Subject</label>
-                                        <input type="text" name="subject" class="w-full" value="{{ old('subject') }}" style="padding:10px; border:1px solid #e6e6e6; border-radius:8px;">
-                                        @error('subject') <div class="text-red-600">{{ $message }}</div> @enderror
-                                    </div>
+            <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1.25rem;">
+                <a href="{{ route('admin.messages.index') }}" class="btn btn-ghost">Cancel</a>
+                <button type="submit" class="btn btn-primary">Send Message</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-                                    <div style="margin-top:1rem">
-                                        <label style="display:block; font-weight:700; margin-bottom:0.5rem;">Message</label>
-                                        <textarea name="body" rows="8" class="w-full" style="padding:10px; border:1px solid #e6e6e6; border-radius:8px; background:#fff">{{ old('body') }}</textarea>
-                                        @error('body') <div class="text-red-600">{{ $message }}</div> @enderror
-                                    </div>
+<script>
+    const sendAllStaff = document.getElementById('send-all-staff');
+    const sendAllUsers = document.getElementById('send-all-users');
+    const healthSelect = document.getElementById('health-staff-select');
+    const usersSelect = document.getElementById('users-select');
 
-                                    <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem">
-                                        <a href="{{ route('admin.messages.index') }}" class="btn-ghost">Cancel</a>
-                                        <button class="btn btn-primary" type="submit">Send message</button>
-                                    </div>
-                                </form>
-                            </div>
+    function updateRecipientState() {
+        healthSelect.disabled = !!sendAllStaff.checked;
+        usersSelect.disabled = !!sendAllUsers.checked;
+        healthSelect.style.opacity = sendAllStaff.checked ? "0.6" : "1";
+        usersSelect.style.opacity = sendAllUsers.checked ? "0.6" : "1";
+    }
 
-                            <script>
-                                // Toggle disable of recipient selects when broadcast boxes are checked
-                                const sendAllStaff = document.getElementById('send-all-staff');
-                                const sendAllUsers = document.getElementById('send-all-users');
-                                const healthSelect = document.getElementById('health-staff-select');
-                                const usersSelect = document.getElementById('users-select');
+    sendAllStaff.addEventListener('change', updateRecipientState);
+    sendAllUsers.addEventListener('change', updateRecipientState);
 
-                                function updateRecipientState() {
-                                    healthSelect.disabled = !!sendAllStaff.checked;
-                                    usersSelect.disabled = !!sendAllUsers.checked;
-                                }
-
-                                sendAllStaff.addEventListener('change', updateRecipientState);
-                                sendAllUsers.addEventListener('change', updateRecipientState);
-
-                                // Pre-select recipient when admin clicked 'Compose' from message view (query ?recipient_id=)
-                                (function preselectFromQuery(){
-                                    try {
-                                        const params = new URLSearchParams(window.location.search);
-                                        const rid = params.get('recipient_id');
-                                        if (!rid) return;
-
-                                        // attempt to select in health staff first, then users
-                                        let opt = document.querySelector('#health-staff-select option[value="'+rid+'"]');
-                                        if (opt) { opt.selected = true; opt.parentElement.scrollTop = opt.offsetTop - 40; }
-                                        else {
-                                            opt = document.querySelector('#users-select option[value="'+rid+'"]');
-                                            if (opt) { opt.selected = true; opt.parentElement.scrollTop = opt.offsetTop - 40; }
-                                        }
-                                    } catch (e) {
-                                        console && console.warn && console.warn('Preselect failed', e);
-                                    }
-                                })();
-                            </script>
-                        </div>
-                    @endsection
+    (function preselectFromQuery(){
+        const params = new URLSearchParams(window.location.search);
+        const rid = params.get('recipient_id');
+        if (!rid) return;
+        let opt = document.querySelector('#health-staff-select option[value="'+rid+'"]');
+        if (opt) { opt.selected = true; opt.parentElement.scrollTop = opt.offsetTop - 40; }
+        else {
+            opt = document.querySelector('#users-select option[value="'+rid+'"]');
+            if (opt) { opt.selected = true; opt.parentElement.scrollTop = opt.offsetTop - 40; }
+        }
+    })();
+</script>
+@endsection

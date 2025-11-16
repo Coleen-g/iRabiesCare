@@ -24,6 +24,9 @@ Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
 
+// AJAX endpoint: check if patient already exists (used by multi-step registration form)
+Route::post('/register/check-exists', [RegisterController::class, 'checkExists']);
+
 // Forgot password: show form
 Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
@@ -87,7 +90,7 @@ Route::get('/admin-only', function () {
         return response()->json(['message' => 'Forbidden'], 403);
     }
     return response()->json(['message' => 'Welcome, admin', 'user' => $user]);
-})->middleware('auth');
+})->middleware('auth')->name('admin.check');
 
 // Admin dashboard (browser view)
 Route::get('/admin/dashboard', function () {
@@ -124,7 +127,7 @@ Route::get('/admin/dashboard', function () {
         'todayCases',
         'todayVaccinations'
     ));
-})->middleware('auth');
+})->middleware('auth')->name('admin.dashboard');
 
 // Health staff dashboard
 Route::get('/health/dashboard', function () {
@@ -170,6 +173,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         return view('admin.reports');
     })->name('reports');
     Route::get('settings', function () { $user = Auth::user(); if (!$user || $user->role !== 'admin') abort(403); return view('admin.settings'); })->name('settings');
+
+    // Profile management for admin (simple UI-based handlers)
+    Route::get('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'edit'])->name('profile');
+    Route::put('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
+    Route::get('profile/password', [\App\Http\Controllers\Admin\ProfileController::class, 'password'])->name('profile.password');
+    Route::put('profile/password', [\App\Http\Controllers\Admin\ProfileController::class, 'passwordUpdate'])->name('profile.password.update');
 
     // Admin notifications - allow admin to view notifications (e.g., those sent by health staff)
     Route::get('notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.index');

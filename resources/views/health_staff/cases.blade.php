@@ -119,6 +119,9 @@
         border-radius: 6px;
         font-weight: 500;
         font-size: 12px;
+        white-space: nowrap; /* keep the label on one line */
+        min-width: 110px; /* ensure cell has room */
+        justify-content: center;
     }
 
     .status i { font-size: .75rem; }
@@ -228,11 +231,18 @@
                         <td>{{ $c->patient->name ?? '—' }}</td>
                         <td>{{ $c->date_reported ? \Illuminate\Support\Carbon::parse($c->date_reported)->format('Y-m-d') : '—' }}</td>
                         <td>
-                            <span class="status 
-                                {{ $c->status == 'resolved' ? 'status-resolved' : ($c->status == 'pending' ? 'status-pending' : 'status-rejected') }}">
-                                <i class="bi {{ $c->status == 'resolved' ? 'bi-check-circle' : ($c->status == 'pending' ? 'bi-hourglass-split' : 'bi-x-circle') }}"></i>
-                                {{ ucfirst($c->status) }}
-                            </span>
+                            @php
+                                // Map internal statuses to friendly labels
+                                if ($c->status == 'open') {
+                                    $statusLabel = 'Open';
+                                } elseif ($c->status == 'pending') {
+                                    $statusLabel = 'In progress';
+                                } else {
+                                    $statusLabel = 'Closed';
+                                }
+                                $statusClass = $c->status == 'resolved' ? 'status-resolved' : ($c->status == 'pending' ? 'status-pending' : 'status-rejected');
+                            @endphp
+                            <span class="status {{ $statusClass }}">{{ $statusLabel }}</span>
                         </td>
                         @php
                             $exposureDate = $c->exposure_date ?? ($c->patient->exposure_date ?? null);

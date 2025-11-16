@@ -24,6 +24,7 @@
                 </div>
 
                 <div style="display:flex; gap:.5rem; align-items:center;">
+                    <button type="button" class="btn-ghost" title="Back" onclick="(function(){ if (history.length > 1) { history.back(); } else { window.location.href = '{{ route('admin.messages.index') }}'; } })()">&larr; Back</button>
                     <a href="{{ route('admin.messages.create') }}?recipient_id={{ $message->recipient_id }}" class="action-edit" title="Compose to this recipient">Compose</a>
                     {{-- Deletion is not implemented for admin messages; remove delete action to avoid RouteNotFoundException --}}
                 </div>

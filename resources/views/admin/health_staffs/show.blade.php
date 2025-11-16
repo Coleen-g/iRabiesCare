@@ -36,7 +36,10 @@ h2 { font-size: 1.6rem; font-weight: 700; color: #111827; }
                 <small style="color:#6b7280;font-size:0.95rem;">{{ $staff->position ?? '' }} {{ $staff->department ? ' — ' . $staff->department : '' }}</small>
             </div>
         </div>
-        <a href="{{ route('admin.health-staffs.edit', $staff) }}" class="btn-primary">Edit</a>
+        <div style="display:flex;gap:.5rem;align-items:center">
+            <button type="button" class="btn-ghost" title="Back" onclick="(function(){ if (history.length > 1) { history.back(); } else { window.location.href = '{{ route('admin.health-staffs.index') }}'; } })()">&larr; Back</button>
+            <a href="{{ route('admin.health-staffs.edit', $staff) }}" class="btn-primary">Edit</a>
+        </div>
     </div>
 
     <div class="staff-main">

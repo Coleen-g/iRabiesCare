@@ -99,4 +99,40 @@ class RegisterController extends Controller
 
         return redirect()->route('register.complete', ['patient' => $patient->id]);
     }
+
+    /**
+     * AJAX: check if a patient with the provided name or email already exists.
+     * Returns 200 with { exists: false } when not found, or 409 with details when found.
+     */
+    public function checkExists(Request $request)
+    {
+        $data = $request->validate([
+            'fullName' => ['required', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'],
+        ]);
+
+        $name = trim($data['fullName']);
+        $email = $data['email'] ?? null;
+
+        $matches = [];
+
+        // case-insensitive name check
+        if (\App\Models\Patient::whereRaw('LOWER(name) = ?', [mb_strtolower($name)])->exists()) {
+            $matches[] = 'name';
+        }
+
+        if ($email && \App\Models\Patient::where('email', $email)->exists()) {
+            $matches[] = 'email';
+        }
+
+        if (!empty($matches)) {
+            $messageParts = [];
+            if (in_array('name', $matches)) $messageParts[] = 'name';
+            if (in_array('email', $matches)) $messageParts[] = 'email';
+            $msg = 'Patient already exists with same ' . implode(' and ', $messageParts) . '.';
+            return response()->json(['exists' => true, 'matches' => $matches, 'message' => $msg], 409);
+        }
+
+        return response()->json(['exists' => false], 200);
+    }
 }

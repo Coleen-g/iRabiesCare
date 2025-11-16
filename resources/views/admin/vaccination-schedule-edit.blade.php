@@ -3,210 +3,292 @@
 @section('title', 'Edit Vaccination Schedule')
 
 @section('content')
+<!-- ✅ Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
 <div class="container mt-4">
-    <h2>Edit Vaccination Schedule for {{ $user->name }}</h2>
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-    <form method="POST" action="{{ route('admin.vaccination-schedule.update', $user->id) }}">
-        @csrf
-        @method('PUT')
-        <style>
-            .hs-schedule-row { display:flex;gap:1rem;align-items:flex-start;margin-bottom:1rem }
-            .hs-schedule-col { flex:1 }
-            .hs-status-badge { padding:6px 10px;border-radius:8px;color:#fff;font-weight:600 }
-            .hs-completed { background:#2563eb }
-            .hs-missed { background:#dc2626 }
-            .hs-pending { background:#6b7280 }
-            .hs-actions { display:flex;flex-direction:column;gap:.5rem;align-items:flex-end;min-width:220px }
-            .hs-small-btn { padding:.4rem .6rem;border-radius:6px;border:none;color:#fff;cursor:pointer }
-            .hs-done { background:#2563eb }
-            .hs-miss { background:#dc2626 }
-            .hs-save { background:#10b981 }
-            .hs-remarks { width:100%;min-height:56px;border:1px solid #e5e7eb;border-radius:6px;padding:.5rem }
-            .hs-schedule-cell.passed { box-shadow: inset 0 0 0 2px rgba(37,99,235,0.06) }
-        </style>
+    <style>
+        /* === Overall Page Styling === */
+        body {
+            background-color: #f8fafc;
+            font-family: 'Poppins', sans-serif;
+        }
 
-        <div id="schedule-form">
-            <div class="mb-3 hs-schedule-row hs-schedule-cell" data-key="schedule_1">
-                <div class="hs-schedule-col">
-                    <label for="schedule_1" class="form-label">Next Vaccination #1</label>
-                    <input type="date" class="form-control" id="schedule_1" name="schedule_1" value="{{ $schedule->schedule_1 ?? '' }}">
-                    <input type="hidden" name="schedule_1_status" id="schedule_1_status" value="{{ strtolower($schedule->schedule_1_status ?? 'pending') }}">
-                    <div style="margin-top:.5rem">
-                        <label class="form-label">Remarks</label>
-                        <textarea name="schedule_1_remarks" id="schedule_1_remarks" class="hs-remarks">{{ $schedule->schedule_1_remarks ?? '' }}</textarea>
-                    </div>
-                </div>
-                <div class="hs-actions">
-                    @php $s1 = strtolower($schedule->schedule_1_status ?? 'pending'); @endphp
-                    <div id="badge_schedule_1" class="hs-status-badge {{ $s1 === 'completed' ? 'hs-completed' : ($s1 === 'missed' ? 'hs-missed' : 'hs-pending') }}">
-                        {{ ucfirst($s1) }}
-                    </div>
-                    <div style="display:flex;gap:.5rem">
-                        <button type="button" onclick="markSchedule('schedule_1','missed')" class="hs-small-btn hs-miss">Mark Missed</button>
-                        <button type="button" onclick="markSchedule('schedule_1','completed')" class="hs-small-btn hs-done">Mark Done</button>
-                    </div>
-                </div>
-            </div>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
 
-            <div class="mb-3 hs-schedule-row hs-schedule-cell" data-key="schedule_2">
-                <div class="hs-schedule-col">
-                    <label for="schedule_2" class="form-label">Next Vaccination #2</label>
-                    <input type="date" class="form-control" id="schedule_2" name="schedule_2" value="{{ $schedule->schedule_2 ?? '' }}">
-                    <input type="hidden" name="schedule_2_status" id="schedule_2_status" value="{{ strtolower($schedule->schedule_2_status ?? 'pending') }}">
-                    <div style="margin-top:.5rem">
-                        <label class="form-label">Remarks</label>
-                        <textarea name="schedule_2_remarks" id="schedule_2_remarks" class="hs-remarks">{{ $schedule->schedule_2_remarks ?? '' }}</textarea>
-                    </div>
-                </div>
-                <div class="hs-actions">
-                    @php $s2 = strtolower($schedule->schedule_2_status ?? 'pending'); @endphp
-                    <div id="badge_schedule_2" class="hs-status-badge {{ $s2 === 'completed' ? 'hs-completed' : ($s2 === 'missed' ? 'hs-missed' : 'hs-pending') }}">
-                        {{ ucfirst($s2) }}
-                    </div>
-                    <div style="display:flex;gap:.5rem">
-                        <button type="button" onclick="markSchedule('schedule_2','missed')" class="hs-small-btn hs-miss">Mark Missed</button>
-                        <button type="button" onclick="markSchedule('schedule_2','completed')" class="hs-small-btn hs-done">Mark Done</button>
-                    </div>
-                </div>
-            </div>
+        .header-icon {
+            min-width: 56px;
+            min-height: 56px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0ea5a3, #0284c7);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            box-shadow: 0 6px 14px rgba(14, 165, 163, 0.2);
+        }
 
-            <div class="mb-3 hs-schedule-row hs-schedule-cell" data-key="schedule_3">
-                <div class="hs-schedule-col">
-                    <label for="schedule_3" class="form-label">Next Vaccination #3</label>
-                    <input type="date" class="form-control" id="schedule_3" name="schedule_3" value="{{ $schedule->schedule_3 ?? '' }}">
-                    <input type="hidden" name="schedule_3_status" id="schedule_3_status" value="{{ strtolower($schedule->schedule_3_status ?? 'pending') }}">
-                    <div style="margin-top:.5rem">
-                        <label class="form-label">Remarks</label>
-                        <textarea name="schedule_3_remarks" id="schedule_3_remarks" class="hs-remarks">{{ $schedule->schedule_3_remarks ?? '' }}</textarea>
-                    </div>
-                </div>
-                <div class="hs-actions">
-                    @php $s3 = strtolower($schedule->schedule_3_status ?? 'pending'); @endphp
-                    <div id="badge_schedule_3" class="hs-status-badge {{ $s3 === 'completed' ? 'hs-completed' : ($s3 === 'missed' ? 'hs-missed' : 'hs-pending') }}">
-                        {{ ucfirst($s3) }}
-                    </div>
-                    <div style="display:flex;gap:.5rem">
-                        <button type="button" onclick="markSchedule('schedule_3','missed')" class="hs-small-btn hs-miss">Mark Missed</button>
-                        <button type="button" onclick="markSchedule('schedule_3','completed')" class="hs-small-btn hs-done">Mark Done</button>
-                    </div>
-                </div>
-            </div>
+        .header-text small {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
 
-            <div style="display:flex;justify-content:flex-end;gap:.5rem;margin-top:1rem">
-                </div>
+        .header-text h2 {
+            margin: 0.25rem 0 0 0;
+            font-weight: 600;
+            color: #111827;
+        }
 
-            <div style="margin-top:1rem;">
-                @php
-                    $overall = trim($schedule->overall_remarks ?? '');
-                    $selectVal = $overall === 'Completed' ? 'Completed' : ($overall === 'Incomplete' ? 'Incomplete' : '');
-                @endphp
-                <label class="form-label" for="overall_remarks">Overall Schedule Status</label>
-                <div style="margin-top:.5rem;max-width:320px;">
-                    <select id="overall_remarks" name="overall_remarks" class="form-control">
-                        <option value="" {{ $selectVal === '' ? 'selected' : '' }}>None</option>
-                        <option value="Incomplete" {{ $selectVal === 'Incomplete' ? 'selected' : '' }}>Incomplete</option>
-                        <option value="Completed" {{ $selectVal === 'Completed' ? 'selected' : '' }}>Completed</option>
-                    </select>
-                </div>
-            </div>
+        .header-text p {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin: 0;
+        }
 
-            <div style="display:flex;justify-content:flex-end;gap:.5rem;margin-top:1rem">
-                <button type="submit" class="btn btn-success">Save Schedule</button>
-                <a href="{{ route('admin.patients.index') }}" class="btn btn-secondary">Back</a>
+        /* === Card for Each Schedule === */
+        .schedule-card {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.25rem;
+            transition: all 0.2s ease;
+        }
+
+        .schedule-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .schedule-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .schedule-header i {
+            font-size: 1.2rem;
+            color: #059669;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .hs-status-badge {
+            padding: 8px 14px;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            margin-top: .5rem;
+        }
+
+        .hs-completed { background: linear-gradient(135deg, #10b981, #0ea5a3); }
+        .hs-missed { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .hs-pending { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+        .hs-small-btn {
+            padding: 0.45rem 0.75rem;
+            border-radius: 8px;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+        }
+
+        .hs-small-btn i {
+            font-size: 1rem;
+        }
+
+        .hs-done { background: #0ea5a3; }
+        .hs-done:hover { background: #0d9488; }
+
+        .hs-miss { background: #ef4444; }
+        .hs-miss:hover { background: #dc2626; }
+
+        .hs-remarks {
+            width: 100%;
+            min-height: 80px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0.6rem;
+            font-size: 0.95rem;
+            resize: vertical;
+            margin-top: 0.3rem;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1.75rem;
+        }
+
+        .hs-save {
+            background: #2563eb;
+            color: #fff;
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            transition: background .2s ease;
+        }
+
+        .hs-save:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-outline-secondary i, .btn-secondary i {
+            margin-right: 0.35rem;
+        }
+
+        @media (max-width: 720px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+
+    <!-- === HEADER === -->
+    <div class="page-header">
+        <div class="d-flex align-items-start gap-3">
+            <div class="header-icon"><i class="bi bi-capsule-pill"></i></div>
+            <div class="header-text">
+                <small><i class="bi bi-speedometer2"></i> Dashboard / Vaccination Schedules</small>
+                <h2>Edit Vaccination Schedule — {{ $user->name }}</h2>
+                <p>Update vaccination dates, mark doses, and add remarks for this patient.</p>
             </div>
         </div>
 
-        <script>
-            const adminName = @json(optional(auth()->user())->name ?? 'Admin');
-            function markSchedule(key, status) {
-                // set hidden status
-                const statusInput = document.getElementById(key + '_status');
-                if (!statusInput) return;
-                statusInput.value = status;
+        <div class="d-flex gap-2">
+            <a href="{{ route('admin.patients.show', optional($user->patient)->id ?? '#') }}" class="btn btn-outline-primary">
+                <i class="bi bi-person-lines-fill"></i> View Patient
+            </a>
+            <a href="{{ route('admin.patients.index') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left-circle"></i> Back to Patients
+            </a>
+        </div>
+    </div>
 
-                // set remarks textarea: append a short audit line
-                const ta = document.getElementById(key + '_remarks');
-                const now = new Date();
-                const timestamp = now.toLocaleString();
-                const note = `Marked as ${status} by ${adminName} on ${timestamp}`;
-                if (ta) {
-                    // overwrite remarks with the audit line (do not append)
-                    ta.value = note;
-                }
+    @if(session('success'))
+        <div class="alert alert-success d-flex align-items-center" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <div>{{ session('success') }}</div>
+        </div>
+    @endif
 
-                // update badge color immediately
-                const badge = document.getElementById('badge_' + key);
-                if (badge) {
-                    badge.classList.remove('hs-completed','hs-missed','hs-pending');
-                    if (status === 'completed') badge.classList.add('hs-completed');
-                    else if (status === 'missed') badge.classList.add('hs-missed');
-                    else badge.classList.add('hs-pending');
-                    badge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-                }
+    <!-- === FORM === -->
+    <form method="POST" action="{{ route('admin.vaccination-schedule.update', $user->id) }}">
+        @csrf
+        @method('PUT')
 
-                // highlight cell background for visual feedback
-                const cell = document.querySelector('.hs-schedule-cell[data-key="' + key + '"]');
-                if (cell) {
-                    cell.style.transition = 'background-color .18s ease';
-                    if (status === 'completed') cell.style.background = '#eff6ff';
-                    else if (status === 'missed') cell.style.background = '#fef2f2';
-                    else cell.style.background = '#f8fafc';
-                }
+        <div id="schedule-form">
+            @for($i = 1; $i <= 3; $i++)
+                @php
+                    $key = "schedule_{$i}";
+                    $s = strtolower($schedule->{$key.'_status'} ?? 'pending');
+                @endphp
 
-                // submit via AJAX to avoid full-page redirect
-                const form = document.querySelector('form[action][method]');
-                if (form) {
-                    const url = form.action;
-                    const csrfInput = form.querySelector('input[name="_token"]');
-                    const csrf = csrfInput ? csrfInput.value : '';
+                <div class="schedule-card" data-key="{{ $key }}">
+                    <div class="schedule-header">
+                        <i class="bi bi-calendar-week"></i>
+                        <h5 class="mb-0 fw-semibold">Next Vaccination #{{ $i }}</h5>
+                    </div>
 
-                    const fd = new FormData(form);
-                    // ensure method spoofing to PUT
-                    fd.set('_method', 'PUT');
+                    <div class="mb-2">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" id="{{ $key }}" name="{{ $key }}" value="{{ $schedule->$key ?? '' }}">
+                        <input type="hidden" name="{{ $key }}_status" id="{{ $key }}_status" value="{{ $s }}">
+                    </div>
 
-                    fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': csrf,
-                        },
-                        body: fd,
-                        credentials: 'same-origin'
-                    }).then(res => res.json().then(data => ({ok:res.ok, data}))).then(({ok,data}) => {
-                        if (ok && data && data.success) {
-                            // reflect server-saved remarks (fresh schedule)
-                            const s = data.schedule || {};
-                            // update only the schedule cell that was acted on
-                            const k = key;
-                            const ta = document.getElementById(k + '_remarks');
-                            if (ta && s[`${k}_remarks`] !== undefined && s[`${k}_remarks`] !== null) {
-                                ta.value = s[`${k}_remarks`];
-                            }
-                            const badge = document.getElementById('badge_' + k);
-                            if (badge && s[`${k}_status`] !== undefined && s[`${k}_status`] !== null) {
-                                badge.classList.remove('hs-completed','hs-missed','hs-pending');
-                                if (s[`${k}_status`] === 'completed') badge.classList.add('hs-completed');
-                                else if (s[`${k}_status`] === 'missed') badge.classList.add('hs-missed');
-                                else badge.classList.add('hs-pending');
-                                badge.textContent = (s[`${k}_status`] || 'pending').charAt(0).toUpperCase() + (s[`${k}_status`] || 'pending').slice(1);
-                            }
-                            // if the server returned an overall_remarks value, update the select so the UI
-                            // reflects the persisted overall schedule status immediately
-                            const overallSel = document.getElementById('overall_remarks');
-                            if (overallSel && s['overall_remarks'] !== undefined && s['overall_remarks'] !== null) {
-                                overallSel.value = s['overall_remarks'];
-                            }
-                        } else {
-                            console.warn('Failed to save schedule', data);
-                        }
-                    }).catch(err => {
-                        console.error('Error saving schedule', err);
-                    });
-                }
-            }
-        </script>
+                    <div class="mb-2">
+                        <label class="form-label">Remarks</label>
+                        <textarea name="{{ $key }}_remarks" id="{{ $key }}_remarks" class="hs-remarks">{{ $schedule->{$key.'_remarks'} ?? '' }}</textarea>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between mt-2 flex-wrap">
+                        <div id="badge_{{ $key }}" class="hs-status-badge {{ $s === 'completed' ? 'hs-completed' : ($s === 'missed' ? 'hs-missed' : 'hs-pending') }}">
+                            <i class="bi {{ $s === 'completed' ? 'bi-check-circle' : ($s === 'missed' ? 'bi-x-circle' : 'bi-hourglass-split') }}"></i>
+                            {{ ucfirst($s) }}
+                        </div>
+                        <div class="d-flex gap-2 mt-2 mt-md-0">
+                            <button type="button" onclick="markSchedule('{{ $key }}','missed')" class="hs-small-btn hs-miss">
+                                <i class="bi bi-x-circle"></i> Mark Missed
+                            </button>
+                            <button type="button" onclick="markSchedule('{{ $key }}','completed')" class="hs-small-btn hs-done">
+                                <i class="bi bi-check-circle"></i> Mark Done
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @endfor
+
+            <div class="mt-4">
+                <label class="form-label fw-semibold" for="overall_remarks">
+                    <i class="bi bi-flag"></i> Overall Schedule Status
+                </label>
+                <select id="overall_remarks" name="overall_remarks" class="form-select mt-1" style="max-width: 300px;">
+                    <option value="" {{ $schedule->overall_remarks === '' ? 'selected' : '' }}>None</option>
+                    <option value="Incomplete" {{ $schedule->overall_remarks === 'Incomplete' ? 'selected' : '' }}>Incomplete</option>
+                    <option value="Completed" {{ $schedule->overall_remarks === 'Completed' ? 'selected' : '' }}>Completed</option>
+                    <option value="Missed All Schedule" {{ $schedule->overall_remarks === 'Missed All Schedule' ? 'selected' : '' }}>Missed All Schedule</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="hs-save">
+                    <i class="bi bi-save2-fill"></i> Save Schedule
+                </button>
+                <a href="{{ route('admin.patients.index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancel
+                </a>
+            </div>
+        </div>
     </form>
 </div>
+
+<script>
+const adminName = @json(optional(auth()->user())->name ?? 'Admin');
+function markSchedule(key, status) {
+    const statusInput = document.getElementById(key + '_status');
+    if (!statusInput) return;
+    statusInput.value = status;
+
+    const ta = document.getElementById(key + '_remarks');
+    const now = new Date();
+    const timestamp = now.toLocaleString();
+    const note = `Marked as ${status} by ${adminName} on ${timestamp}`;
+    if (ta) ta.value = note;
+
+    const badge = document.getElementById('badge_' + key);
+    if (badge) {
+        badge.classList.remove('hs-completed', 'hs-missed', 'hs-pending');
+        let icon = 'bi-hourglass-split';
+        if (status === 'completed') { badge.classList.add('hs-completed'); icon = 'bi-check-circle'; }
+        else if (status === 'missed') { badge.classList.add('hs-missed'); icon = 'bi-x-circle'; }
+        badge.innerHTML = `<i class="bi ${icon}"></i> ${status.charAt(0).toUpperCase() + status.slice(1)}`;
+    }
+}
+</script>
 @endsection
